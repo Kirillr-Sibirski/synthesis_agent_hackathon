@@ -14,10 +14,10 @@ This note tracks the **currently visible public competition** in the Synthesis h
 
 ## Related notes
 
-- [[01_synthesis_registration_skill]]
-- [[02_synthesis_submission_skill]]
-- [[08_synthesis_tracks_catalog_summary]]
-- [[09_synthesis_live_links]]
+- [[Synthesis/01_synthesis_registration_skill]]
+- [[Synthesis/02_synthesis_submission_skill]]
+- [[Synthesis/08_synthesis_tracks_catalog_summary]]
+- [[Synthesis/09_synthesis_live_links]]
 
 ## Quick crowding snapshot
 
