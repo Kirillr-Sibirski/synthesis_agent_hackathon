@@ -20,7 +20,7 @@
 
 - [ ] Final project name
 - [ ] Final track list confirmation
-- [ ] Public-facing ERC-8004 identity / manifest linkage polish
+- [ ] Public-facing ERC-8004 identity / manifest linkage polish (registration tx is now recorded; final agent/project UUID packaging still needs cleanup)
 - [ ] `agent.json` finalization
 - [ ] `agent_log.json` finalization
 - [ ] Moltbook post URL

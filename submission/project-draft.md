@@ -30,6 +30,14 @@ Delegated Yield Treasury addresses that problem by separating principal from spe
 See:
 - `deployments/base-sepolia-v2.md`
 
+## ERC-8004 / identity proof
+
+The project's Synthesis registration has already been completed and the onchain identity registration transaction has been recorded.
+
+- registration tx: `0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b`
+- public-facing agent manifest draft: `submission/agent.json`
+- public-facing execution log draft: `submission/agent_log.json`
+
 ## Primary target tracks
 
 ### 1. stETH Agent Treasury

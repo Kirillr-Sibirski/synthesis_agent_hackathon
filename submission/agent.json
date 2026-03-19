@@ -5,9 +5,10 @@
   "erc8004": {
     "status": "registered_via_synthesis",
     "agentId": null,
-    "ownerAddress": null,
-    "registry": null,
-    "note": "Registration completed; sensitive identity details and API credentials are stored locally until final public packaging."
+    "ownerAddress": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+    "registry": "Base Mainnet via Synthesis registration flow",
+    "registrationTx": "0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b",
+    "note": "Registration completed through Synthesis; API credentials and private registration state remain local-only."
   },
   "repoURL": "https://github.com/Kirillr-Sibirski/synthesis_agent_hackathon",
   "deployedChains": [

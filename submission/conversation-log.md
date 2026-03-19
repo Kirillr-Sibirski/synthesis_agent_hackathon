@@ -102,6 +102,13 @@ Executed:
 
 This produced the latest onchain artifact set recorded in `deployments/base-sepolia-v2.md`.
 
+## Phase 9 — Registration and identity completion
+
+- Completed Synthesis registration.
+- Triggered the onchain identity registration flow through Synthesis.
+- Stored sensitive registration state locally only.
+- Updated the public submission package so the identity registration tx and manifest/log artifacts are reflected without exposing secrets.
+
 ## Human contributions
 
 The human:

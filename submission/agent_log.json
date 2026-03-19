@@ -60,6 +60,16 @@
         "ruleId": "0xb56d4562b1973e16677a44ced06d00a94e45f8981edbd0e25c00fa49c2e6c8e8"
       },
       "status": "success"
+    },
+    {
+      "step": 9,
+      "phase": "identity",
+      "action": "Completed Synthesis registration and triggered onchain ERC-8004 identity registration",
+      "result": {
+        "registrationTx": "0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b",
+        "ownerAddress": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948"
+      },
+      "status": "success"
     }
   ]
 }

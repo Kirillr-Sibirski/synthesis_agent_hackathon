@@ -13,4 +13,10 @@ This folder collects submission-facing artifacts for The Synthesis.
 
 ## Current status
 
-These files are meant to make the project submission-ready before the final human polish step (name, logo, cover image, video, Moltbook post, and final ERC-8004 registration artifacts).
+These files are meant to make the project submission-ready before the final human polish step (name, logo, cover image, video, Moltbook post, and final project-ID packaging cleanup).
+
+The public draft package now already includes:
+- deployment proofs
+- identity registration proof
+- agent manifest draft
+- agent execution log draft
