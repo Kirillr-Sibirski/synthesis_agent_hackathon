@@ -21,6 +21,7 @@ A principal-protected yield treasury where:
 - `docs/` — architecture, build plan, track mapping, deployment, demo flow
 - `deployments/` — concrete onchain deployment records
 - `submission/` — submission drafts, metadata, agent manifest, execution log
+- `integrations/` — sponsor-specific integration workspaces (for example MetaMask)
 - `Memory/` — hackathon notes, competition research, idea development
 - `foundry.toml` — Foundry config
 

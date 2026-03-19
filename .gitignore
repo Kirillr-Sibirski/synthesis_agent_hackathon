@@ -8,5 +8,9 @@ broadcast/
 .env.*
 !.env.example
 
+# Node
+node_modules/
+
 # Local private planning / submission data
 Memory/Ideas/24_submission_info_needed.md
+submission/private-registration.json

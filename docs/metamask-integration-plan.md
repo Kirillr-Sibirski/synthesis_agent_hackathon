@@ -32,6 +32,12 @@ Our current authorizer is a strong protocol prototype, but for the MetaMask trac
 ### Step 1
 Add a TS/Node helper module using the MetaMask Smart Accounts Kit / Delegation Toolkit.
 
+**Status:** in progress — the repo now includes:
+- `@metamask/smart-accounts-kit`
+- vendored `lib/delegation-framework`
+- `tsconfig.json`
+- `integrations/metamask/`
+
 ### Step 2
 Create a proof-of-life flow:
 - create delegator account
