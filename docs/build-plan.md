@@ -26,9 +26,10 @@
 - principal baseline can be synced downward by owner
 
 ### Tests still to add
-- multiple budgets with independent executors
 - fuzzing around budget/yield invariants
 - integration-style deploy/setup script validation once Foundry is available
+- revocation / rule replacement edge cases
+- more caveat-like wildcard combinations
 
 ## Stretch goals
 - richer caveat model closer to MetaMask delegations

@@ -17,9 +17,12 @@ contract YieldTreasuryTest is Test {
     address internal owner = address(0xA11CE);
     address internal depositor = address(0xBEEF);
     address internal executor = address(0xCAFE);
+    address internal executor2 = address(0xCAFF);
     address internal recipient = address(0xD00D);
+    address internal recipient2 = address(0xD11D);
 
     bytes32 internal constant OPS_BUDGET = keccak256("OPS_BUDGET");
+    bytes32 internal constant RESEARCH_BUDGET = keccak256("RESEARCH_BUDGET");
 
     function setUp() external {
         asset = new MockERC20("Wrapped stETH", "wstETH", 18);
@@ -287,6 +290,114 @@ contract YieldTreasuryTest is Test {
             keccak256("receipt-expired"),
             "ipfs://expired"
         );
+    }
+
+    function testWildcardRecipientRuleAllowsAnyRecipient() external {
+        _seedTreasuryWithYield();
+
+        bytes32 ruleId = keccak256(
+            abi.encode(executor, OPS_BUDGET, address(0), treasury.spendFromBudget.selector)
+        );
+        DelegationAuthorizer.Rule memory rule = DelegationAuthorizer.Rule({
+            active: true,
+            executor: executor,
+            budgetId: OPS_BUDGET,
+            recipient: address(0),
+            selector: treasury.spendFromBudget.selector,
+            maxAmount: 10 ether,
+            validAfter: 0,
+            validUntil: 0
+        });
+
+        vm.prank(owner);
+        authorizer.setRule(ruleId, rule);
+
+        vm.prank(executor);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient2,
+            2 ether,
+            keccak256("task-any-recipient"),
+            keccak256("receipt-any-recipient"),
+            "ipfs://any-recipient"
+        );
+
+        assertEq(asset.balanceOf(recipient2), 2 ether);
+    }
+
+    function testWildcardSelectorRuleAllowsMatchingBudget() external {
+        _seedTreasuryWithYield();
+
+        bytes32 ruleId = keccak256(abi.encode(executor, OPS_BUDGET, recipient, bytes4(0)));
+        DelegationAuthorizer.Rule memory rule = DelegationAuthorizer.Rule({
+            active: true,
+            executor: executor,
+            budgetId: OPS_BUDGET,
+            recipient: recipient,
+            selector: bytes4(0),
+            maxAmount: 10 ether,
+            validAfter: 0,
+            validUntil: 0
+        });
+
+        vm.prank(owner);
+        authorizer.setRule(ruleId, rule);
+
+        vm.prank(executor);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            2 ether,
+            keccak256("task-any-selector"),
+            keccak256("receipt-any-selector"),
+            "ipfs://any-selector"
+        );
+
+        assertEq(asset.balanceOf(recipient), 2 ether);
+    }
+
+    function testMultipleBudgetsTrackIndependently() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+        asset.mint(address(treasury), 30 ether);
+
+        vm.startPrank(owner);
+        treasury.configureBudget(OPS_BUDGET, 10 ether, true, "ops");
+        treasury.configureBudget(RESEARCH_BUDGET, 8 ether, true, "research");
+        vm.stopPrank();
+
+        _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+        _authorize(executor2, RESEARCH_BUDGET, recipient2, 8 ether, treasury.spendFromBudget.selector);
+
+        vm.prank(executor);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            3 ether,
+            keccak256("task-ops"),
+            keccak256("receipt-ops"),
+            "ipfs://ops"
+        );
+
+        vm.prank(executor2);
+        treasury.spendFromBudget(
+            RESEARCH_BUDGET,
+            recipient2,
+            2 ether,
+            keccak256("task-research"),
+            keccak256("receipt-research"),
+            "ipfs://research"
+        );
+
+        (uint128 opsAllocated, uint128 opsSpent,,) = treasury.budgets(OPS_BUDGET);
+        (uint128 researchAllocated, uint128 researchSpent,,) = treasury.budgets(RESEARCH_BUDGET);
+
+        assertEq(uint256(opsAllocated), 10 ether);
+        assertEq(uint256(opsSpent), 3 ether);
+        assertEq(uint256(researchAllocated), 8 ether);
+        assertEq(uint256(researchSpent), 2 ether);
+        assertEq(asset.balanceOf(recipient), 3 ether);
+        assertEq(asset.balanceOf(recipient2), 2 ether);
     }
 
     function _seedTreasuryWithYield() internal {

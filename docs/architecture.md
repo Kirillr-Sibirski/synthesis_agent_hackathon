@@ -34,12 +34,13 @@ Responsibilities:
 - approve or reject spend attempts based on:
   - executor
   - budget id
-  - recipient
-  - function selector
+  - recipient (exact or wildcard)
+  - function selector (exact or wildcard)
   - amount cap
   - time window
+- support multiple matching rule shapes for the same executor/budget
 
-This is intentionally a simplified adapter now; later we can map this to a fuller MetaMask Delegation Framework flow.
+This is still a simplified adapter, but it now better resembles caveat-like constrained authority rather than one hardcoded exact-match rule.
 
 ### `ReceiptRegistry`
 Structured receipt log.

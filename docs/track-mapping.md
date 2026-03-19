@@ -10,6 +10,7 @@
 
 ### Best Use of Delegations
 - constrained execution rules per executor and budget
+- wildcard recipient / selector semantics to mimic caveat-style authority
 - intended evolution toward fuller MetaMask delegation caveats / sub-delegations
 - delegated authority is core, not decorative
 
