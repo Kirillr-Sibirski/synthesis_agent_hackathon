@@ -19,6 +19,8 @@ A principal-protected yield treasury where:
 - `test/` — Foundry test suite
 - `script/` — deployment and demo scripts
 - `docs/` — architecture, build plan, track mapping, deployment, demo flow
+- `deployments/` — concrete onchain deployment records
+- `submission/` — submission drafts, metadata, agent manifest, execution log
 - `Memory/` — hackathon notes, competition research, idea development
 - `foundry.toml` — Foundry config
 
@@ -33,13 +35,14 @@ A principal-protected yield treasury where:
 
 - Foundry installed and working in this environment
 - local Foundry test suite passing (`23/23`)
-- Base Sepolia deployment + initial setup completed
-- first live Base Sepolia spend + receipt recorded
+- upgraded Base Sepolia deployment completed (`deployments/base-sepolia-v2.md`)
+- live Base Sepolia spend + receipt recorded on latest repo-head-aligned deployment
 - budget-tree allocation semantics implemented
 - manager-controlled child budget creation implemented
 - wildcard + revocable delegation rules implemented
 - enriched receipt model implemented
 - receipts now capture the exact matched authorization rule ID
+- submission draft package created under `submission/`
 
 ## Deployment target
 

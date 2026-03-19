@@ -41,10 +41,11 @@ forge script script/Deploy.s.sol:DeployScript \
 
 ## Current progress
 - mock asset deployed on Base Sepolia
-- treasury stack deployed on Base Sepolia
-- initial setup script executed on Base Sepolia
-- first spend + receipt executed on Base Sepolia
-- see `deployments/base-sepolia.md` for addresses and tx hashes
+- initial treasury stack deployed on Base Sepolia
+- upgraded treasury stack redeployed on Base Sepolia to match latest repo head
+- setup script executed on the upgraded stack
+- live spend + receipt executed on the upgraded stack
+- see `deployments/base-sepolia-v2.md` for the latest addresses and tx hashes
 
 ## Possible next deployments later
 - Status Sepolia for gasless bonus

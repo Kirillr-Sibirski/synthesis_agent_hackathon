@@ -1,0 +1,29 @@
+{
+  "agentFramework": "other",
+  "agentFrameworkOther": "custom Solidity/Foundry onchain treasury protocol prototype",
+  "agentHarness": "openclaw",
+  "model": "gpt-5.4",
+  "skills": [
+    "synthesis-submission-skill"
+  ],
+  "tools": [
+    "Foundry",
+    "forge-std",
+    "OpenClaw",
+    "Base Sepolia",
+    "GitHub"
+  ],
+  "helpfulResources": [
+    "https://synthesis.md/skill.md",
+    "https://synthesis.devfolio.co/catalog?page=1&limit=100",
+    "https://synthesis.devfolio.co/projects?page=1&limit=100"
+  ],
+  "helpfulSkills": [
+    {
+      "name": "synthesis-submission-skill",
+      "reason": "Kept the repo, deployment records, and submission drafts aligned with Synthesis requirements and publishing prerequisites."
+    }
+  ],
+  "intention": "continuing",
+  "intentionNotes": "Continue developing the treasury into a stronger Lido-integrated delegated-yield primitive with cleaner role separation, ERC-8004 identity, and more complete delegation semantics."
+}
