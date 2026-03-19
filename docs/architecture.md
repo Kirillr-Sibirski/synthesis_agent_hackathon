@@ -20,9 +20,11 @@ Responsibilities:
 - hold the asset
 - track principal baseline
 - compute current yield
-- configure sub-budgets
+- configure root budgets without double-counting child allocations
 - support parent/child budget links
+- support manager-controlled child budget creation
 - enforce budget ceilings
+- reserve parent budget capacity for children
 - enforce “yield only” spending
 - allow owner baseline sync when the accounting model changes
 - forward enriched receipt registration

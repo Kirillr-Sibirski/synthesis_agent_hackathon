@@ -33,8 +33,11 @@ A principal-protected yield treasury where:
 
 - Foundry installed and working in this environment
 - local Foundry test suite passing (`23/23`)
-- Base Sepolia deployment scaffolding ready
+- Base Sepolia deployment + initial setup completed
+- first live Base Sepolia spend + receipt recorded
 - budget-tree allocation semantics implemented
+- manager-controlled child budget creation implemented
+- wildcard + revocable delegation rules implemented
 - enriched receipt model implemented
 
 ## Deployment target

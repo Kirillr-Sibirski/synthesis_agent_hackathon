@@ -39,6 +39,13 @@ forge script script/Deploy.s.sol:DeployScript \
 - exercise budget configuration and spend flow
 - capture tx hashes / receipts for demo
 
+## Current progress
+- mock asset deployed on Base Sepolia
+- treasury stack deployed on Base Sepolia
+- initial setup script executed on Base Sepolia
+- first spend + receipt executed on Base Sepolia
+- see `deployments/base-sepolia.md` for addresses and tx hashes
+
 ## Possible next deployments later
 - Status Sepolia for gasless bonus
 - Base mainnet for stronger onchain artifact
