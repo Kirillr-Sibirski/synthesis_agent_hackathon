@@ -23,6 +23,7 @@ Responsibilities:
 - configure sub-budgets
 - enforce budget ceilings
 - enforce “yield only” spending
+- allow owner baseline sync when the accounting model changes
 - forward receipt registration
 
 ### `DelegationAuthorizer`

@@ -15,13 +15,22 @@
 - constrained spend from sub-budget
 - structured receipt recording
 
-### Tests to add next
+### Current tests scaffolded
 - deposit increases principal baseline
 - available yield ignores principal
 - cannot overspend a budget
 - cannot spend without authorization
 - cannot spend principal
 - successful spend records receipt
+- budget can be resized but not below spent amount
+- principal baseline can be synced downward by owner
+
+### Tests still to add
+- duplicate receipt handling
+- budget deactivation behavior
+- time-window authorization expiry
+- multiple budgets with independent executors
+- fuzzing around budget/yield invariants
 
 ## Stretch goals
 - richer caveat model closer to MetaMask delegations

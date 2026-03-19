@@ -36,6 +36,7 @@ contract YieldTreasury {
     );
     event ReceiptRegistryUpdated(address indexed receiptRegistry);
     event AuthorizerUpdated(address indexed authorizer);
+    event PrincipalBaselineSynced(uint256 previousBaseline, uint256 newBaseline);
 
     error OnlyOwner();
     error ZeroAmount();
@@ -44,6 +45,7 @@ contract YieldTreasury {
     error Unauthorized();
     error TransferFailed();
     error PrincipalWouldBeTouched();
+    error InvalidBaseline();
 
     constructor(address asset_, address owner_) {
         asset = IERC20(asset_);
@@ -78,16 +80,23 @@ contract YieldTreasury {
         Budget storage current = budgets[budgetId];
         uint256 previousAllocated = current.allocated;
 
-        if (allocated >= current.spent) {
-            totalBudgetAllocated = totalBudgetAllocated - previousAllocated + allocated;
-        } else {
-            revert BudgetExceeded();
-        }
+        if (allocated < current.spent) revert BudgetExceeded();
 
+        totalBudgetAllocated = totalBudgetAllocated - previousAllocated + allocated;
         if (totalBudgetAllocated > availableYield()) revert PrincipalWouldBeTouched();
 
         budgets[budgetId] = Budget({allocated: allocated, spent: current.spent, active: active, label: label});
         emit BudgetConfigured(budgetId, label, allocated, active);
+    }
+
+    function syncPrincipalBaseline(uint256 newBaseline) external {
+        if (msg.sender != owner) revert OnlyOwner();
+        uint256 currentBalance = asset.balanceOf(address(this));
+        if (newBaseline > currentBalance) revert InvalidBaseline();
+        uint256 previous = principalBaseline;
+        principalBaseline = newBaseline;
+        if (totalBudgetAllocated > availableYield()) revert PrincipalWouldBeTouched();
+        emit PrincipalBaselineSynced(previous, newBaseline);
     }
 
     function spendFromBudget(

@@ -32,8 +32,9 @@ forge script script/Deploy.s.sol:DeployScript \
 
 ## Short-term plan
 - local tests first
-- Base Sepolia deployment
-- seed treasury with test asset
+- deploy mock asset on Base Sepolia
+- deploy treasury stack on Base Sepolia
+- run setup demo script
 - exercise budget configuration and spend flow
 - capture tx hashes / receipts for demo
 

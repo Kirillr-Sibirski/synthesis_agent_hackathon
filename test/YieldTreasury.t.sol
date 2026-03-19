@@ -149,6 +149,46 @@ contract YieldTreasuryTest is Test {
         assertGt(timestamp, 0);
     }
 
+    function testBudgetCanBeResizedButNotBelowSpent() external {
+        _seedTreasuryWithYield();
+        _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+
+        vm.prank(executor);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            3 ether,
+            keccak256("task-5"),
+            keccak256("receipt-5"),
+            "ipfs://receipt-5"
+        );
+
+        vm.prank(owner);
+        treasury.configureBudget(OPS_BUDGET, 5 ether, true, "ops-resized");
+
+        (uint128 allocated, uint128 spent,,) = treasury.budgets(OPS_BUDGET);
+        assertEq(uint256(allocated), 5 ether);
+        assertEq(uint256(spent), 3 ether);
+
+        vm.prank(owner);
+        vm.expectRevert(YieldTreasury.BudgetExceeded.selector);
+        treasury.configureBudget(OPS_BUDGET, 2 ether, true, "ops-too-small");
+    }
+
+    function testPrincipalBaselineCanSyncDown() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+        asset.mint(address(treasury), 20 ether);
+
+        assertEq(treasury.availableYield(), 20 ether);
+
+        vm.prank(owner);
+        treasury.syncPrincipalBaseline(90 ether);
+
+        assertEq(treasury.principalBaseline(), 90 ether);
+        assertEq(treasury.availableYield(), 30 ether);
+    }
+
     function _seedTreasuryWithYield() internal {
         vm.prank(depositor);
         treasury.deposit(100 ether);
