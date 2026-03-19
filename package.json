@@ -10,7 +10,9 @@
   },
   "scripts": {
     "test": "echo \"Use forge test for Solidity and tsx for integration scripts\"",
-    "metamask:derive-smart-account": "tsx integrations/metamask/deriveSmartAccount.ts"
+    "metamask:derive-smart-account": "tsx integrations/metamask/deriveSmartAccount.ts",
+    "metamask:deploy-smart-account": "tsx integrations/metamask/deploySmartAccount.ts",
+    "metamask:encode-treasury-spend": "tsx integrations/metamask/encodeTreasurySpend.ts"
   },
   "repository": {
     "type": "git",

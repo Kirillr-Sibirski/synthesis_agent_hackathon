@@ -25,3 +25,14 @@ export const walletClient = createWalletClient({
   transport,
 });
 export const smartAccountsEnvironment = getSmartAccountsEnvironment(chain.id);
+
+export async function getSmartAccount() {
+  return toMetaMaskSmartAccount({
+    client: publicClient,
+    implementation: Implementation.Hybrid,
+    deployParams: [ownerAccount.address, [], [], []],
+    deploySalt: '0x',
+    signer: { account: ownerAccount },
+    environment: smartAccountsEnvironment,
+  });
+}

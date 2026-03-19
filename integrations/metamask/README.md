@@ -49,6 +49,19 @@ Current derived address for the current owner key:
 At the moment this smart account is only **derived**, not yet deployed onchain.
 The next step is to deploy/fund/use it in the treasury delegation flow.
 
+## Repo scripts
+
+```bash
+npm run metamask:derive-smart-account
+npm run metamask:deploy-smart-account
+npm run metamask:encode-treasury-spend
+```
+
+### Required env for deployment
+- `BUNDLER_URL` — ERC-4337 bundler endpoint for Base Sepolia
+
+Without a bundler endpoint we can still derive the smart-account address and prepare treasury calldata, but we cannot broadcast the smart-account deployment/user operation.
+
 ## Why this matters
 
 The project should not just *look* like it uses delegations. It should be provable that MetaMask's real delegation layer is load-bearing in the spend path.

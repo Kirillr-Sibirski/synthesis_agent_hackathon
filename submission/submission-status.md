@@ -33,7 +33,7 @@
 ## Biggest quality upgrades still worth doing
 
 - [ ] Separate owner / manager / executor / recipient roles in a live deployment
-- [ ] Real MetaMask Delegation Framework integration
+- [ ] Real MetaMask Delegation Framework integration (smart-account derivation + treasury calldata prep are done; live delegation-backed execution still pending bundler-backed deployment/redemption proof)
 - [ ] Real ERC-8004 identity registration and manifest linkage
 - [ ] Live-network real `wstETH` deployment path on an accepted L2/mainnet
 - [ ] Optional MCP layer if we decide to widen into the Lido MCP track
