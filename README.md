@@ -37,7 +37,7 @@ A principal-protected yield treasury where:
 ## Current status
 
 - Foundry installed and working in this environment
-- local Foundry test suite passing (`23/23`)
+- local Foundry test suite passing (`30/30`)
 - upgraded Base Sepolia deployment completed (`deployments/base-sepolia-v2.md`)
 - live Base Sepolia spend + receipt recorded on latest repo-head-aligned deployment
 - budget-tree allocation semantics implemented
@@ -48,6 +48,7 @@ A principal-protected yield treasury where:
 - dedicated `wstETH`-specific treasury path implemented with exchange-rate-derived yield accounting
 - slash/rate-drop safety tested for the `wstETH` path
 - submission draft package created under `submission/`
+- Base Sepolia MetaMask smart-account derivation now works in-repo
 
 ## Deployment target
 

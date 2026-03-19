@@ -39,10 +39,14 @@ Why:
 Implication:
 - a simple EOA-signed delegation artifact is not enough to prove the track in the strongest way
 - the correct path is:
-  - deploy or derive a MetaMask DeleGator smart account on Base Sepolia
+  - derive and then deploy a MetaMask DeleGator smart account on Base Sepolia
   - create/sign delegation from that account
   - redeem delegation through `DelegationManager`
   - have the DeleGator execute the treasury spend
+
+Current progress:
+- the repo now derives a real Base Sepolia MetaMask smart-account address successfully via `npm run metamask:derive-smart-account`
+- next step is deploying/using that DeleGator in the live treasury flow
 
 ## Practical implementation path
 

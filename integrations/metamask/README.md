@@ -33,6 +33,22 @@ So the next concrete implementation step is:
 - redeem the delegation through the live DelegationManager
 - record the resulting treasury spend + receipt tx hashes
 
+## Current concrete progress
+
+A real Base Sepolia MetaMask smart-account derivation now works from the repo:
+
+```bash
+npm run metamask:derive-smart-account
+```
+
+Current derived address for the current owner key:
+- owner: `0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948`
+- smart account: `0x08478FfC43E134ae9390720D41409B06f38fEB7d`
+- delegation manager: `0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3`
+
+At the moment this smart account is only **derived**, not yet deployed onchain.
+The next step is to deploy/fund/use it in the treasury delegation flow.
+
 ## Why this matters
 
 The project should not just *look* like it uses delegations. It should be provable that MetaMask's real delegation layer is load-bearing in the spend path.
