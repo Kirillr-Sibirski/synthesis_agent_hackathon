@@ -46,6 +46,7 @@ contract YieldTreasury {
     error TransferFailed();
     error PrincipalWouldBeTouched();
     error InvalidBaseline();
+    error EmptyReceiptHash();
 
     constructor(address asset_, address owner_) {
         asset = IERC20(asset_);
@@ -108,6 +109,7 @@ contract YieldTreasury {
         string calldata metadataURI
     ) external {
         if (amount == 0) revert ZeroAmount();
+        if (receiptHash == bytes32(0)) revert EmptyReceiptHash();
 
         Budget storage budget = budgets[budgetId];
         if (!budget.active) revert InactiveBudget();

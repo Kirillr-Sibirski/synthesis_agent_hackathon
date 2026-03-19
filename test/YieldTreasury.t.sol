@@ -189,6 +189,106 @@ contract YieldTreasuryTest is Test {
         assertEq(treasury.availableYield(), 30 ether);
     }
 
+    function testCannotUseEmptyReceiptHash() external {
+        _seedTreasuryWithYield();
+        _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+
+        vm.prank(executor);
+        vm.expectRevert(YieldTreasury.EmptyReceiptHash.selector);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            1 ether,
+            keccak256("task-empty-receipt"),
+            bytes32(0),
+            "ipfs://empty"
+        );
+    }
+
+    function testDuplicateReceiptHashReverts() external {
+        _seedTreasuryWithYield();
+        _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+
+        bytes32 receiptHash = keccak256("duplicate-receipt");
+
+        vm.prank(executor);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            1 ether,
+            keccak256("task-dup-1"),
+            receiptHash,
+            "ipfs://dup-1"
+        );
+
+        vm.prank(executor);
+        vm.expectRevert(ReceiptRegistry.ReceiptAlreadyExists.selector);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            1 ether,
+            keccak256("task-dup-2"),
+            receiptHash,
+            "ipfs://dup-2"
+        );
+    }
+
+    function testInactiveBudgetCannotSpend() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+        asset.mint(address(treasury), 20 ether);
+
+        vm.prank(owner);
+        treasury.configureBudget(OPS_BUDGET, 10 ether, false, "ops-inactive");
+
+        _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+
+        vm.prank(executor);
+        vm.expectRevert(YieldTreasury.InactiveBudget.selector);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            1 ether,
+            keccak256("task-inactive"),
+            keccak256("receipt-inactive"),
+            "ipfs://inactive"
+        );
+    }
+
+    function testAuthorizationWindowExpiryBlocksSpend() external {
+        _seedTreasuryWithYield();
+
+        bytes32 ruleId = keccak256(
+            abi.encode(executor, OPS_BUDGET, recipient, treasury.spendFromBudget.selector)
+        );
+        DelegationAuthorizer.Rule memory rule = DelegationAuthorizer.Rule({
+            active: true,
+            executor: executor,
+            budgetId: OPS_BUDGET,
+            recipient: recipient,
+            selector: treasury.spendFromBudget.selector,
+            maxAmount: 10 ether,
+            validAfter: 0,
+            validUntil: uint64(block.timestamp + 10)
+        });
+
+        vm.prank(owner);
+        authorizer.setRule(ruleId, rule);
+
+        vm.warp(block.timestamp + 11);
+
+        vm.prank(executor);
+        vm.expectRevert(YieldTreasury.Unauthorized.selector);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            1 ether,
+            keccak256("task-expired"),
+            keccak256("receipt-expired"),
+            "ipfs://expired"
+        );
+    }
+
     function _seedTreasuryWithYield() internal {
         vm.prank(depositor);
         treasury.deposit(100 ether);

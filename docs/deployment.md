@@ -26,9 +26,10 @@ forge script script/Deploy.s.sol:DeployScript \
 ```
 
 ## Important
-- Do **not** paste private keys into chat.
-- Put them only in local `.env`.
+- Do **not** commit private keys.
+- Keep secrets only in local `.env`.
 - The deployer wallet can be the same as owner for first deployment, or owner can be a separate address.
+- Current blocker in this environment: `forge` is not installed yet, so scripts are prepared but cannot be broadcast from here until Foundry is available.
 
 ## Short-term plan
 - local tests first

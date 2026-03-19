@@ -26,11 +26,9 @@
 - principal baseline can be synced downward by owner
 
 ### Tests still to add
-- duplicate receipt handling
-- budget deactivation behavior
-- time-window authorization expiry
 - multiple budgets with independent executors
 - fuzzing around budget/yield invariants
+- integration-style deploy/setup script validation once Foundry is available
 
 ## Stretch goals
 - richer caveat model closer to MetaMask delegations

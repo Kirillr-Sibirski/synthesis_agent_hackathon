@@ -28,6 +28,7 @@ contract ReceiptRegistry {
 
     error OnlyTreasury();
     error ReceiptAlreadyExists();
+    error EmptyReceiptHash();
 
     constructor(address treasury_) {
         treasury = treasury_;
@@ -43,6 +44,7 @@ contract ReceiptRegistry {
         string calldata metadataURI
     ) external {
         if (msg.sender != treasury) revert OnlyTreasury();
+        if (receiptHash == bytes32(0)) revert EmptyReceiptHash();
         if (receipts[receiptHash].timestamp != 0) revert ReceiptAlreadyExists();
 
         uint64 nowTs = uint64(block.timestamp);

@@ -34,3 +34,4 @@ A principal-protected yield treasury where:
 - Sensitive submission / personal info is kept in local-only notes and excluded from git.
 - Secrets are env-based only; do not commit private keys.
 - Initial contract code uses lightweight local interfaces so we can scaffold fast before pulling in heavier dependencies.
+- Current environment issue: Foundry is not installed here yet, so deploy/test scripts are scaffolded but not executed from this runtime.
