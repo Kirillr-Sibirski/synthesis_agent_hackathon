@@ -26,10 +26,14 @@ Current protocol strengths:
 - wildcard recipient / selector caveat-like behavior
 - explicit `ruleId` provenance on receipts
 - manager-controlled child budgets, which are a good fit for delegated sub-budget trees
+- Base Sepolia MetaMask smart-account derivation now works in-repo
+- bundler-aware smart-account deployment scaffolding now exists in-repo
 
 Still missing for full sponsor-native compliance:
-- integration with the **actual MetaMask Delegation Framework** rather than only a local analogue
+- live deployment/use of the MetaMask smart account on Base Sepolia
+- integration with the **actual MetaMask Delegation Framework** in the spend path rather than only a local analogue
 - ideally sub-delegation / ERC-7715-aware semantics or an adapter layer
+- working bundler endpoint for user-op execution
 
 ### ERC-8004 / Receipts
 Current protocol strengths:

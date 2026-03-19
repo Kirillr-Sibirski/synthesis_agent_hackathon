@@ -25,8 +25,9 @@ The goal is not to vaguely fit many tracks. The goal is to **fully qualify for a
 
 #### Minimum bar we should hit
 - one treasury spend path that is authorized by a **real MetaMask delegation**, not only our local analogue
+- MetaMask smart account / DeleGator present in the execution path
 - README section explicitly documenting the delegation flow
-- tx hashes proving delegation creation and redemption
+- tx hashes proving smart-account deployment/use, delegation creation, and redemption
 
 ---
 

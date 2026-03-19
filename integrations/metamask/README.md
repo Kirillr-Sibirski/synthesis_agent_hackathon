@@ -60,7 +60,21 @@ npm run metamask:encode-treasury-spend
 ### Required env for deployment
 - `BUNDLER_URL` — ERC-4337 bundler endpoint for Base Sepolia
 
-Without a bundler endpoint we can still derive the smart-account address and prepare treasury calldata, but we cannot broadcast the smart-account deployment/user operation.
+Without a bundler endpoint we can still:
+- derive the MetaMask smart-account address
+- prepare exact treasury calldata
+- prepare the delegation shape and caveat plan
+
+But we **cannot** yet broadcast the smart-account deployment / user operation that is needed for the strongest MetaMask track proof.
+
+## Remaining execution steps for full MetaMask qualification
+
+1. provide a working Base Sepolia `BUNDLER_URL`
+2. deploy/use the MetaMask smart account onchain
+3. create and sign a constrained delegation
+4. redeem that delegation through the live `DelegationManager`
+5. execute a treasury spend through that path
+6. record tx hashes and update deployment/submission docs
 
 ## Why this matters
 
