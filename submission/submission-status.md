@@ -20,13 +20,12 @@
 
 - [ ] Final project name
 - [ ] Final track list confirmation
-- [ ] ERC-8004 registration / identity artifact
+- [ ] Public-facing ERC-8004 identity / manifest linkage polish
 - [ ] `agent.json` finalization
 - [ ] `agent_log.json` finalization
 - [ ] Moltbook post URL
 - [ ] Video URL
 - [ ] Cover image / pictures
-- [ ] Synthesis team UUID
 - [ ] Synthesis project UUID
 - [ ] Self-custody transfer completed in Synthesis
 - [ ] Final publish call

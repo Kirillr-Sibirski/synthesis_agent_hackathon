@@ -3,10 +3,11 @@
   "workingName": "Delegated Yield Treasury Agent",
   "operatorWallet": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
   "erc8004": {
-    "status": "pending_registration",
+    "status": "registered_via_synthesis",
     "agentId": null,
     "ownerAddress": null,
-    "registry": null
+    "registry": null,
+    "note": "Registration completed; sensitive identity details and API credentials are stored locally until final public packaging."
   },
   "repoURL": "https://github.com/Kirillr-Sibirski/synthesis_agent_hackathon",
   "deployedChains": [
