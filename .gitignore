@@ -1,0 +1,13 @@
+# Foundry
+cache/
+out/
+broadcast/
+lib/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Local private planning / submission data
+Memory/Ideas/24_submission_info_needed.md

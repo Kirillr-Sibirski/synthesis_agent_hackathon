@@ -1,18 +1,30 @@
 # synthesis_agent_hackathon
 
-Bootstrapped workspace for the Synthesis hackathon repo.
+Foundry-first build for a Synthesis hackathon project centered on a delegated yield treasury primitive for autonomous agents.
 
-## Structure
+## Current direction
 
-- `Memory/` — mirrored Synthesis docs, prize pages, and generated track summary
-- `README.md` — repo overview
+A principal-protected yield treasury where:
+- users deposit a yield-bearing asset (planned: `wstETH`)
+- only yield becomes spendable
+- yield is split into named sub-budgets
+- executors act under constrained delegated authority
+- every spend emits a structured receipt
 
-## SSH / Git setup
+## Repo structure
 
-This local clone is configured to use a dedicated SSH host alias:
+- `src/` — Solidity contracts
+- `docs/` — architecture, build plan, track mapping
+- `Memory/` — hackathon notes, competition research, idea development
+- `foundry.toml` — Foundry config
 
-- Host alias: `github-synthesis-hackathon`
-- Private key: `/root/.ssh/id_ed25519_synthesis_agent_hackathon`
-- Public key: `/root/.ssh/id_ed25519_synthesis_agent_hackathon.pub`
+## Current contracts
 
-Remote URL is set to use that alias, so pushes will work once the public key is granted write access on GitHub.
+- `YieldTreasury.sol`
+- `DelegationAuthorizer.sol`
+- `ReceiptRegistry.sol`
+
+## Notes
+
+- Sensitive submission / personal info is kept in local-only notes and excluded from git.
+- Initial contract code uses lightweight local interfaces so we can scaffold fast before pulling in heavier dependencies.
