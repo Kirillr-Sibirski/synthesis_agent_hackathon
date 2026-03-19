@@ -55,7 +55,16 @@ The next step is to deploy/fund/use it in the treasury delegation flow.
 npm run metamask:derive-smart-account
 npm run metamask:deploy-smart-account
 npm run metamask:encode-treasury-spend
+npm run metamask:prepare-delegation-artifact
 ```
+
+`metamask:prepare-delegation-artifact` emits a sponsor-facing JSON artifact that ties together:
+- the derived MetaMask smart account
+- the live DelegationManager address
+- the exact treasury spend calldata
+- the intended delegate / executor
+- the caveat shape we need for honest track qualification
+- the remaining live-execution blocker (`BUNDLER_URL`, if still missing)
 
 ### Required env for deployment
 - `BUNDLER_URL` — ERC-4337 bundler endpoint for Base Sepolia

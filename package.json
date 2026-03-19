@@ -12,7 +12,8 @@
     "test": "echo \"Use forge test for Solidity and tsx for integration scripts\"",
     "metamask:derive-smart-account": "tsx integrations/metamask/deriveSmartAccount.ts",
     "metamask:deploy-smart-account": "tsx integrations/metamask/deploySmartAccount.ts",
-    "metamask:encode-treasury-spend": "tsx integrations/metamask/encodeTreasurySpend.ts"
+    "metamask:encode-treasury-spend": "tsx integrations/metamask/encodeTreasurySpend.ts",
+    "metamask:prepare-delegation-artifact": "tsx integrations/metamask/prepareDelegationArtifact.ts"
   },
   "repository": {
     "type": "git",
@@ -27,5 +28,8 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "viem": "^2.47.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2"
   }
 }

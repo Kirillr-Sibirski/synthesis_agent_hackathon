@@ -15,6 +15,7 @@ The goal is not to vaguely fit many tracks. The goal is to **fully qualify for a
 - rule revocation
 - hierarchical sub-budgets / child budgets
 - explicit `ruleId` provenance in receipts
+- in-repo MetaMask smart-account derivation + exact treasury spend calldata + delegation-preparation artifact generation
 
 #### Missing for full qualification
 - actual **MetaMask Smart Accounts Kit / Delegation Framework** integration

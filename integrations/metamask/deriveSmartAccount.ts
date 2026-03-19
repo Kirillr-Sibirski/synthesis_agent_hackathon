@@ -10,9 +10,12 @@ import {
   smartAccountsEnvironment,
 } from './utils.js';
 
+const unsafeToMetaMaskSmartAccount = toMetaMaskSmartAccount as any;
+
 async function main() {
-  const smartAccount = await toMetaMaskSmartAccount({
-    client: publicClient,
+  const smartAccount = await unsafeToMetaMaskSmartAccount({
+    // See note in utils.ts about the current SDK↔viem type mismatch.
+    client: publicClient as any,
     implementation: Implementation.Hybrid,
     deployParams: [ownerAccount.address, [], [], []],
     deploySalt: '0x',

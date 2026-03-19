@@ -48,6 +48,7 @@ Current progress:
 - the repo now derives a real Base Sepolia MetaMask smart-account address successfully via `npm run metamask:derive-smart-account`
 - the repo now also prepares exact treasury spend calldata via `npm run metamask:encode-treasury-spend`
 - bundler-aware deployment scaffolding exists via `npm run metamask:deploy-smart-account`
+- the repo now emits a concrete delegation-preparation artifact via `npm run metamask:prepare-delegation-artifact`
 - next step is deploying/using that DeleGator in the live treasury flow once a Base Sepolia bundler endpoint is available
 
 ## Practical implementation path

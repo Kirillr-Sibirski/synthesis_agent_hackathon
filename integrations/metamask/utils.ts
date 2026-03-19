@@ -3,7 +3,11 @@ import 'dotenv/config';
 import { createPublicClient, createWalletClient, http } from 'viem';
 import { baseSepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
-import { getSmartAccountsEnvironment } from '@metamask/smart-accounts-kit';
+import {
+  getSmartAccountsEnvironment,
+  Implementation,
+  toMetaMaskSmartAccount,
+} from '@metamask/smart-accounts-kit';
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY as `0x${string}` | undefined;
 const BASE_SEPOLIA_RPC_URL = process.env.BASE_SEPOLIA_RPC_URL;
@@ -26,9 +30,15 @@ export const walletClient = createWalletClient({
 });
 export const smartAccountsEnvironment = getSmartAccountsEnvironment(chain.id);
 
+const unsafeToMetaMaskSmartAccount = toMetaMaskSmartAccount as any;
+
 export async function getSmartAccount() {
-  return toMetaMaskSmartAccount({
-    client: publicClient,
+  return unsafeToMetaMaskSmartAccount({
+    // The SDK currently expects a narrower viem client type than the one
+    // produced by our installed viem version. Runtime behavior is fine, so we
+    // bridge the type mismatch here instead of pinning the whole repo to an
+    // older viem release.
+    client: publicClient as any,
     implementation: Implementation.Hybrid,
     deployParams: [ownerAccount.address, [], [], []],
     deploySalt: '0x',
