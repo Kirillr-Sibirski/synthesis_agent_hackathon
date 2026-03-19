@@ -1,0 +1,183 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.26;
+
+import {Test} from "forge-std/Test.sol";
+
+import {YieldTreasury} from "src/YieldTreasury.sol";
+import {DelegationAuthorizer} from "src/DelegationAuthorizer.sol";
+import {ReceiptRegistry} from "src/ReceiptRegistry.sol";
+import {MockERC20} from "src/mocks/MockERC20.sol";
+
+contract YieldTreasuryTest is Test {
+    MockERC20 internal asset;
+    YieldTreasury internal treasury;
+    DelegationAuthorizer internal authorizer;
+    ReceiptRegistry internal receipts;
+
+    address internal owner = address(0xA11CE);
+    address internal depositor = address(0xBEEF);
+    address internal executor = address(0xCAFE);
+    address internal recipient = address(0xD00D);
+
+    bytes32 internal constant OPS_BUDGET = keccak256("OPS_BUDGET");
+
+    function setUp() external {
+        asset = new MockERC20("Wrapped stETH", "wstETH", 18);
+
+        vm.prank(owner);
+        treasury = new YieldTreasury(address(asset), owner);
+
+        vm.prank(owner);
+        authorizer = new DelegationAuthorizer(owner);
+
+        vm.prank(owner);
+        receipts = new ReceiptRegistry(address(treasury));
+
+        vm.prank(owner);
+        treasury.setAuthorizer(address(authorizer));
+
+        vm.prank(owner);
+        treasury.setReceiptRegistry(address(receipts));
+
+        asset.mint(depositor, 1_000 ether);
+        vm.prank(depositor);
+        asset.approve(address(treasury), type(uint256).max);
+    }
+
+    function testDepositSetsPrincipalBaseline() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+
+        assertEq(treasury.principalBaseline(), 100 ether);
+        assertEq(asset.balanceOf(address(treasury)), 100 ether);
+        assertEq(treasury.availableYield(), 0);
+    }
+
+    function testAvailableYieldIgnoresPrincipal() external {
+        vm.startPrank(depositor);
+        treasury.deposit(100 ether);
+        vm.stopPrank();
+
+        asset.mint(address(treasury), 15 ether);
+
+        assertEq(treasury.principalBaseline(), 100 ether);
+        assertEq(asset.balanceOf(address(treasury)), 115 ether);
+        assertEq(treasury.availableYield(), 15 ether);
+    }
+
+    function testCannotSpendWithoutAuthorization() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+        asset.mint(address(treasury), 20 ether);
+
+        vm.prank(owner);
+        treasury.configureBudget(OPS_BUDGET, 10 ether, true, "ops");
+
+        vm.prank(executor);
+        vm.expectRevert(YieldTreasury.Unauthorized.selector);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            1 ether,
+            keccak256("task-1"),
+            keccak256("receipt-1"),
+            "ipfs://receipt-1"
+        );
+    }
+
+    function testCannotOverspendBudget() external {
+        _seedTreasuryWithYield();
+        _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+
+        vm.prank(executor);
+        vm.expectRevert(YieldTreasury.BudgetExceeded.selector);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            11 ether,
+            keccak256("task-2"),
+            keccak256("receipt-2"),
+            "ipfs://receipt-2"
+        );
+    }
+
+    function testCannotSpendPrincipal() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+
+        vm.prank(owner);
+        treasury.configureBudget(OPS_BUDGET, 1 ether, true, "ops");
+
+        _authorize(executor, OPS_BUDGET, recipient, 1 ether, treasury.spendFromBudget.selector);
+
+        vm.prank(executor);
+        vm.expectRevert(YieldTreasury.PrincipalWouldBeTouched.selector);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            1 ether,
+            keccak256("task-3"),
+            keccak256("receipt-3"),
+            "ipfs://receipt-3"
+        );
+    }
+
+    function testSpendRecordsReceiptAndPreservesPrincipal() external {
+        _seedTreasuryWithYield();
+        _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+
+        bytes32 receiptHash = keccak256("receipt-4");
+        bytes32 taskId = keccak256("task-4");
+
+        vm.prank(executor);
+        treasury.spendFromBudget(
+            OPS_BUDGET, recipient, 3 ether, taskId, receiptHash, "ipfs://receipt-4"
+        );
+
+        assertEq(asset.balanceOf(recipient), 3 ether);
+        assertEq(asset.balanceOf(address(treasury)), 117 ether);
+        assertEq(treasury.principalBaseline(), 100 ether);
+        assertEq(treasury.availableYield(), 17 ether);
+
+        (bytes32 storedTaskId, address storedExecutor, address storedRecipient, uint256 storedAmount,,,
+            uint64 timestamp) = receipts.receipts(receiptHash);
+
+        assertEq(storedTaskId, taskId);
+        assertEq(storedExecutor, executor);
+        assertEq(storedRecipient, recipient);
+        assertEq(storedAmount, 3 ether);
+        assertGt(timestamp, 0);
+    }
+
+    function _seedTreasuryWithYield() internal {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+        asset.mint(address(treasury), 20 ether);
+
+        vm.prank(owner);
+        treasury.configureBudget(OPS_BUDGET, 10 ether, true, "ops");
+    }
+
+    function _authorize(
+        address ruleExecutor,
+        bytes32 budgetId,
+        address ruleRecipient,
+        uint128 maxAmount,
+        bytes4 selector
+    ) internal {
+        bytes32 ruleId = keccak256(abi.encode(ruleExecutor, budgetId, ruleRecipient, selector));
+        DelegationAuthorizer.Rule memory rule = DelegationAuthorizer.Rule({
+            active: true,
+            executor: ruleExecutor,
+            budgetId: budgetId,
+            recipient: ruleRecipient,
+            selector: selector,
+            maxAmount: maxAmount,
+            validAfter: 0,
+            validUntil: 0
+        });
+
+        vm.prank(owner);
+        authorizer.setRule(ruleId, rule);
+    }
+}
