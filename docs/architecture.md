@@ -14,7 +14,7 @@ A principal-protected yield treasury for autonomous agents:
 ## Contracts
 
 ### `YieldTreasury`
-Main contract.
+Generic treasury primitive for increasing-balance yield assets or early prototyping.
 
 Responsibilities:
 - hold the asset
@@ -28,6 +28,17 @@ Responsibilities:
 - enforce “yield only” spending
 - allow owner baseline sync when the accounting model changes
 - forward enriched receipt registration
+
+### `WstETHYieldTreasury`
+Lido-shaped treasury primitive for **real `wstETH` semantics**.
+
+Responsibilities:
+- hold `wstETH`
+- track principal baseline in **stETH-equivalent units**
+- compute spendable yield from the `wstETH` ↔ `stETH` exchange rate
+- expose both `availableYieldInStETH()` and `availableYieldInWstETH()`
+- preserve all budget-tree and receipt semantics from the generic treasury
+- prevent spends if a rate drop would force principal to be touched
 
 ### `DelegationAuthorizer`
 Minimal stand-in for delegation policy.

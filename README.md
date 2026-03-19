@@ -27,9 +27,11 @@ A principal-protected yield treasury where:
 ## Current contracts
 
 - `YieldTreasury.sol`
+- `WstETHYieldTreasury.sol` — Lido-shaped treasury using real `wstETH` exchange-rate semantics
 - `DelegationAuthorizer.sol`
 - `ReceiptRegistry.sol`
 - `MockERC20.sol` (testing/demo asset)
+- `MockWstETH.sol` (rate-based `wstETH` test asset)
 
 ## Current status
 
@@ -42,6 +44,8 @@ A principal-protected yield treasury where:
 - wildcard + revocable delegation rules implemented
 - enriched receipt model implemented
 - receipts now capture the exact matched authorization rule ID
+- dedicated `wstETH`-specific treasury path implemented with exchange-rate-derived yield accounting
+- slash/rate-drop safety tested for the `wstETH` path
 - submission draft package created under `submission/`
 
 ## Deployment target

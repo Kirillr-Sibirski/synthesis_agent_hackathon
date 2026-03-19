@@ -6,7 +6,7 @@
 - [x] README exists and is being maintained
 - [x] Foundry project is set up
 - [x] Contracts implemented
-- [x] Tests implemented and passing
+- [x] Tests implemented and passing (`30/30`)
 - [x] Base Sepolia deployment completed
 - [x] Live onchain spend completed
 - [x] Deployment records written down

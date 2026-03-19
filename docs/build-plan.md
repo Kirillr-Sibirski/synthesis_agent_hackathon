@@ -36,10 +36,17 @@
 - budget manager can create child budget
 - non-manager cannot create child budget
 - revoked rule blocks spend
+- `wstETH` exchange-rate yield accrual works
+- `wstETH` root budget allocation is constrained by derived yield
+- `wstETH` spend path preserves principal floor under rate-based accounting
+- slash/rate-drop scenario blocks further spend in the `wstETH` path
+- `wstETH` child-budget flow works under rate-based accounting
+- `wstETH` receipts capture matched rule IDs
 
 ### Tests still to add
 - fuzzing around budget/yield invariants
 - integration-style deploy/setup script validation on Base Sepolia
+- live-network `wstETH` deployment tests on an accepted L2/mainnet
 - deeper multi-level hierarchy semantics
 - more caveat-like wildcard combinations
 - rule replacement / rotation flows under live state
