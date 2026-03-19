@@ -27,6 +27,23 @@ Our current authorizer is a strong protocol prototype, but for the MetaMask trac
 4. Delegate redeems the delegation and executes a treasury spend
 5. Treasury records receipt including the matched authorization provenance
 
+## Critical implementation note discovered during integration
+
+The real MetaMask Delegation Framework cannot execute our treasury flow from a plain EOA-origin delegation alone.
+
+Why:
+- `DelegationManager.redeemDelegations(...)` ultimately calls `executeFromExecutor(...)` on the **delegator**
+- that means the delegator must be a contract implementing `IDeleGatorCore`
+- in practice, for sponsor-native qualification, we need a real MetaMask **DeleGator / smart account** in the flow
+
+Implication:
+- a simple EOA-signed delegation artifact is not enough to prove the track in the strongest way
+- the correct path is:
+  - deploy or derive a MetaMask DeleGator smart account on Base Sepolia
+  - create/sign delegation from that account
+  - redeem delegation through `DelegationManager`
+  - have the DeleGator execute the treasury spend
+
 ## Practical implementation path
 
 ### Step 1
