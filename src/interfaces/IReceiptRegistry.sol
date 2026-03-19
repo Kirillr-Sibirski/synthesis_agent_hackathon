@@ -9,6 +9,8 @@ interface IReceiptRegistry {
         address recipient,
         uint256 amount,
         bytes32 budgetId,
+        bytes32 evidenceHash,
+        bytes32 resultHash,
         string calldata metadataURI
     ) external;
 }

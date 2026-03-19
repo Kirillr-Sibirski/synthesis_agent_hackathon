@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 contract DelegationAuthorizer {
-    address internal constant ANY_RECIPIENT = address(0);
-    bytes4 internal constant ANY_SELECTOR = bytes4(0);
+    address public constant ANY_RECIPIENT = address(0);
+    bytes4 public constant ANY_SELECTOR = bytes4(0);
 
     struct Rule {
         bool active;
@@ -30,6 +30,7 @@ contract DelegationAuthorizer {
         uint64 validUntil,
         bool active
     );
+    event RuleRevoked(bytes32 indexed ruleId);
 
     error OnlyOwner();
     error InvalidWindow();
@@ -56,6 +57,12 @@ contract DelegationAuthorizer {
         );
     }
 
+    function revokeRule(bytes32 ruleId) external {
+        if (msg.sender != owner) revert OnlyOwner();
+        delete rules[ruleId];
+        emit RuleRevoked(ruleId);
+    }
+
     function isAuthorized(
         address executor,
         bytes32 budgetId,
@@ -64,20 +71,24 @@ contract DelegationAuthorizer {
         bytes4 selector,
         uint64 currentTime
     ) external view returns (bool) {
-        bytes32 ruleId = keccak256(abi.encode(executor, budgetId, recipient, selector));
-        Rule memory rule = rules[ruleId];
-        if (!rule.active) return false;
-        if (rule.executor != executor) return false;
-        if (rule.budgetId != budgetId) return false;
-        if (rule.recipient != recipient) return false;
-        if (rule.selector != selector) return false;
-        if (amount > rule.maxAmount) return false;
-        if (currentTime < rule.validAfter) return false;
-        if (rule.validUntil != 0 && currentTime > rule.validUntil) return false;
-        return true;
+        bytes32[4] memory candidateRuleIds = [
+            keccak256(abi.encode(executor, budgetId, recipient, selector)),
+            keccak256(abi.encode(executor, budgetId, recipient, ANY_SELECTOR)),
+            keccak256(abi.encode(executor, budgetId, ANY_RECIPIENT, selector)),
+            keccak256(abi.encode(executor, budgetId, ANY_RECIPIENT, ANY_SELECTOR))
+        ];
+
+        for (uint256 i = 0; i < candidateRuleIds.length; i++) {
+            Rule memory rule = rules[candidateRuleIds[i]];
+            if (_matches(rule, executor, budgetId, recipient, amount, selector, currentTime)) {
+                return true;
+            }
+        }
+
+        return false;
     }
-}
-ecutor, bytes32 budgetId, address recipient, bytes4 selector)
+
+    function computeRuleId(address executor, bytes32 budgetId, address recipient, bytes4 selector)
         external
         pure
         returns (bytes32)

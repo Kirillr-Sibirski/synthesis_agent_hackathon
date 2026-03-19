@@ -21,10 +21,11 @@ Responsibilities:
 - track principal baseline
 - compute current yield
 - configure sub-budgets
+- support parent/child budget links
 - enforce budget ceilings
 - enforce “yield only” spending
 - allow owner baseline sync when the accounting model changes
-- forward receipt registration
+- forward enriched receipt registration
 
 ### `DelegationAuthorizer`
 Minimal stand-in for delegation policy.

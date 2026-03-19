@@ -8,6 +8,8 @@ contract ReceiptRegistry {
         address recipient;
         uint256 amount;
         bytes32 budgetId;
+        bytes32 evidenceHash;
+        bytes32 resultHash;
         string metadataURI;
         uint64 timestamp;
     }
@@ -22,6 +24,8 @@ contract ReceiptRegistry {
         address recipient,
         uint256 amount,
         bytes32 budgetId,
+        bytes32 evidenceHash,
+        bytes32 resultHash,
         string metadataURI,
         uint64 timestamp
     );
@@ -41,6 +45,8 @@ contract ReceiptRegistry {
         address recipient,
         uint256 amount,
         bytes32 budgetId,
+        bytes32 evidenceHash,
+        bytes32 resultHash,
         string calldata metadataURI
     ) external {
         if (msg.sender != treasury) revert OnlyTreasury();
@@ -54,12 +60,23 @@ contract ReceiptRegistry {
             recipient: recipient,
             amount: amount,
             budgetId: budgetId,
+            evidenceHash: evidenceHash,
+            resultHash: resultHash,
             metadataURI: metadataURI,
             timestamp: nowTs
         });
 
         emit ReceiptRegistered(
-            receiptHash, taskId, executor, recipient, amount, budgetId, metadataURI, nowTs
+            receiptHash,
+            taskId,
+            executor,
+            recipient,
+            amount,
+            budgetId,
+            evidenceHash,
+            resultHash,
+            metadataURI,
+            nowTs
         );
     }
 }

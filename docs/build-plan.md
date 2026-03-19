@@ -15,20 +15,28 @@
 - constrained spend from sub-budget
 - structured receipt recording
 
-### Current tests scaffolded
+### Current tests passing
 - deposit increases principal baseline
 - available yield ignores principal
 - cannot overspend a budget
 - cannot spend without authorization
 - cannot spend principal
-- successful spend records receipt
+- successful spend records enriched receipt
 - budget can be resized but not below spent amount
 - principal baseline can be synced downward by owner
+- duplicate receipt hash reverts
+- inactive budget cannot spend
+- authorization window expiry blocks spend
+- wildcard recipient rule works
+- wildcard selector rule works
+- multiple budgets track independently
+- parent budget assignment and parent budget bounds work
+- revoked rule blocks spend
 
 ### Tests still to add
 - fuzzing around budget/yield invariants
-- integration-style deploy/setup script validation once Foundry is available
-- revocation / rule replacement edge cases
+- integration-style deploy/setup script validation on Base Sepolia
+- deeper parent/child hierarchy semantics
 - more caveat-like wildcard combinations
 
 ## Stretch goals

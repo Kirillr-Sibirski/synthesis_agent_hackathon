@@ -31,7 +31,7 @@ contract SetupDemoScript is Script {
         treasury.deposit(100 ether);
 
         asset.mint(treasuryAddr, 20 ether);
-        treasury.configureBudget(opsBudget, 10 ether, true, "ops");
+        treasury.configureBudget(opsBudget, bytes32(0), 10 ether, true, "ops");
 
         DelegationAuthorizer.Rule memory rule = DelegationAuthorizer.Rule({
             active: true,

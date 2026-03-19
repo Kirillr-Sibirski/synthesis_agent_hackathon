@@ -23,6 +23,13 @@ A principal-protected yield treasury where:
 - `YieldTreasury.sol`
 - `DelegationAuthorizer.sol`
 - `ReceiptRegistry.sol`
+- `MockERC20.sol` (testing/demo asset)
+
+## Current status
+
+- Foundry installed
+- local Foundry test suite passing (`19/19`)
+- Base Sepolia deployment scaffolding ready
 
 ## Deployment target
 

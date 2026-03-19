@@ -21,6 +21,8 @@ A human funds a treasury with principal. The agent can only spend yield, and onl
    - treasury still holds principal
    - remaining yield is intact
    - receipt hash exists onchain
+   - evidence/result hashes are attached to the receipt
+   - delegated rule shape (exact or wildcard) explains why the spend was allowed
 
 ## Judge-facing one-liner
 

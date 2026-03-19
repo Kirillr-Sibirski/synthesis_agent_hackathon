@@ -27,6 +27,13 @@ contract MockERC20 is IERC20 {
         emit Transfer(address(0), to, value);
     }
 
+    function burn(address from, uint256 value) external {
+        require(balanceOf[from] >= value, "INSUFFICIENT_BALANCE");
+        balanceOf[from] -= value;
+        totalSupply -= value;
+        emit Transfer(from, address(0), value);
+    }
+
     function transfer(address to, uint256 value) external override returns (bool) {
         _transfer(msg.sender, to, value);
         return true;
