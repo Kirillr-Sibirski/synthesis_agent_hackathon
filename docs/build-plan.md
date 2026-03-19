@@ -33,9 +33,11 @@
 - monitor / alert layer
 
 ## Demo path
-- deploy mock asset + treasury + authorizer + receipt registry
+- run local Foundry tests
+- deploy treasury + authorizer + receipt registry to Base Sepolia
+- connect to a test asset / mocked yield-bearing asset setup
 - deposit principal
-- simulate yield by minting / transferring extra tokens into treasury
+- simulate or accrue yield
 - configure budget
 - authorize one executor
 - spend from that budget
