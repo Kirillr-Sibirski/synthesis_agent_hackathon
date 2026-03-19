@@ -39,6 +39,7 @@ contract YieldTreasury {
         bytes32 indexed budgetId,
         bytes32 indexed receiptHash,
         bytes32 indexed taskId,
+        bytes32 ruleId,
         address executor,
         address recipient,
         uint256 amount,
@@ -146,11 +147,12 @@ contract YieldTreasury {
         if (amount > directSpendableRemaining(budgetId)) revert ChildBudgetReservationExceeded();
 
         bytes4 selector = this.spendFromBudget.selector;
-        bool authorized = address(authorizer) != address(0)
-            && authorizer.isAuthorized(
+        bytes32 ruleId = address(authorizer) == address(0)
+            ? bytes32(0)
+            : authorizer.findMatchingRuleId(
                 msg.sender, budgetId, recipient, amount, selector, uint64(block.timestamp)
             );
-        if (!authorized) revert Unauthorized();
+        if (ruleId == bytes32(0)) revert Unauthorized();
 
         uint256 balanceBefore = asset.balanceOf(address(this));
         if (balanceBefore < principalBaseline) revert PrincipalWouldBeTouched();
@@ -169,6 +171,7 @@ contract YieldTreasury {
             receiptRegistry.registerReceipt(
                 receiptHash,
                 taskId,
+                ruleId,
                 msg.sender,
                 recipient,
                 amount,
@@ -183,6 +186,7 @@ contract YieldTreasury {
             budgetId,
             receiptHash,
             taskId,
+            ruleId,
             msg.sender,
             recipient,
             amount,

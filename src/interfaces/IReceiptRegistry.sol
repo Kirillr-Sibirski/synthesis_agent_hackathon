@@ -5,6 +5,7 @@ interface IReceiptRegistry {
     function registerReceipt(
         bytes32 receiptHash,
         bytes32 taskId,
+        bytes32 ruleId,
         address executor,
         address recipient,
         uint256 amount,

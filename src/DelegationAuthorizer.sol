@@ -71,6 +71,18 @@ contract DelegationAuthorizer {
         bytes4 selector,
         uint64 currentTime
     ) external view returns (bool) {
+        return findMatchingRuleId(executor, budgetId, recipient, amount, selector, currentTime)
+            != bytes32(0);
+    }
+
+    function findMatchingRuleId(
+        address executor,
+        bytes32 budgetId,
+        address recipient,
+        uint256 amount,
+        bytes4 selector,
+        uint64 currentTime
+    ) public view returns (bytes32) {
         bytes32[4] memory candidateRuleIds = [
             keccak256(abi.encode(executor, budgetId, recipient, selector)),
             keccak256(abi.encode(executor, budgetId, recipient, ANY_SELECTOR)),
@@ -81,11 +93,11 @@ contract DelegationAuthorizer {
         for (uint256 i = 0; i < candidateRuleIds.length; i++) {
             Rule memory rule = rules[candidateRuleIds[i]];
             if (_matches(rule, executor, budgetId, recipient, amount, selector, currentTime)) {
-                return true;
+                return candidateRuleIds[i];
             }
         }
 
-        return false;
+        return bytes32(0);
     }
 
     function computeRuleId(address executor, bytes32 budgetId, address recipient, bytes4 selector)

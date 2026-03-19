@@ -75,3 +75,7 @@ For the final hackathon-quality demo, we should separate:
 - recipient
 
 That will make the delegated-authority story much stronger.
+
+Also note: the repo head has already evolved beyond this first live deployment. In particular,
+newer local code now records the exact matched delegation `ruleId` inside receipts. We should redeploy
+that upgraded version on Base Sepolia in the next onchain iteration.

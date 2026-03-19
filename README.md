@@ -39,6 +39,7 @@ A principal-protected yield treasury where:
 - manager-controlled child budget creation implemented
 - wildcard + revocable delegation rules implemented
 - enriched receipt model implemented
+- receipts now capture the exact matched authorization rule ID
 
 ## Deployment target
 

@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 contract ReceiptRegistry {
     struct Receipt {
         bytes32 taskId;
+        bytes32 ruleId;
         address executor;
         address recipient;
         uint256 amount;
@@ -20,7 +21,8 @@ contract ReceiptRegistry {
     event ReceiptRegistered(
         bytes32 indexed receiptHash,
         bytes32 indexed taskId,
-        address indexed executor,
+        bytes32 indexed ruleId,
+        address executor,
         address recipient,
         uint256 amount,
         bytes32 budgetId,
@@ -41,6 +43,7 @@ contract ReceiptRegistry {
     function registerReceipt(
         bytes32 receiptHash,
         bytes32 taskId,
+        bytes32 ruleId,
         address executor,
         address recipient,
         uint256 amount,
@@ -56,6 +59,7 @@ contract ReceiptRegistry {
         uint64 nowTs = uint64(block.timestamp);
         receipts[receiptHash] = Receipt({
             taskId: taskId,
+            ruleId: ruleId,
             executor: executor,
             recipient: recipient,
             amount: amount,
@@ -69,6 +73,7 @@ contract ReceiptRegistry {
         emit ReceiptRegistered(
             receiptHash,
             taskId,
+            ruleId,
             executor,
             recipient,
             amount,

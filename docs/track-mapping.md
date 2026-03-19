@@ -19,6 +19,7 @@
 ### Agents With Receipts — ERC-8004
 - receipt-first execution model
 - machine-readable action evidence
+- explicit authorization provenance via matched rule IDs
 - natural fit for later ERC-8004 identity / manifest linkage
 
 ### Synthesis Open Track

@@ -135,7 +135,8 @@ contract YieldTreasuryTest is Test {
 
     function testSpendRecordsReceiptAndPreservesPrincipal() external {
         _seedTreasuryWithYield();
-        _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+        bytes32 ruleId =
+            _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
 
         bytes32 receiptHash = keccak256("receipt-4");
         bytes32 taskId = keccak256("task-4");
@@ -161,6 +162,7 @@ contract YieldTreasuryTest is Test {
 
         (
             bytes32 storedTaskId,
+            bytes32 storedRuleId,
             address storedExecutor,
             address storedRecipient,
             uint256 storedAmount,
@@ -172,6 +174,7 @@ contract YieldTreasuryTest is Test {
         ) = receipts.receipts(receiptHash);
 
         assertEq(storedTaskId, taskId);
+        assertEq(storedRuleId, ruleId);
         assertEq(storedExecutor, executor);
         assertEq(storedRecipient, recipient);
         assertEq(storedAmount, 3 ether);
@@ -361,18 +364,22 @@ contract YieldTreasuryTest is Test {
         vm.prank(owner);
         authorizer.setRule(ruleId, rule);
 
+        bytes32 receiptHash = keccak256("receipt-any-recipient");
+
         vm.prank(executor);
         treasury.spendFromBudget(
             OPS_BUDGET,
             recipient2,
             2 ether,
             keccak256("task-any-recipient"),
-            keccak256("receipt-any-recipient"),
+            receiptHash,
             keccak256("evidence-any-recipient"),
             keccak256("result-any-recipient"),
             "ipfs://any-recipient"
         );
 
+        (, bytes32 storedRuleId,,,,,,,,) = receipts.receipts(receiptHash);
+        assertEq(storedRuleId, ruleId);
         assertEq(asset.balanceOf(recipient2), 2 ether);
     }
 
@@ -394,18 +401,22 @@ contract YieldTreasuryTest is Test {
         vm.prank(owner);
         authorizer.setRule(ruleId, rule);
 
+        bytes32 receiptHash = keccak256("receipt-any-selector");
+
         vm.prank(executor);
         treasury.spendFromBudget(
             OPS_BUDGET,
             recipient,
             2 ether,
             keccak256("task-any-selector"),
-            keccak256("receipt-any-selector"),
+            receiptHash,
             keccak256("evidence-any-selector"),
             keccak256("result-any-selector"),
             "ipfs://any-selector"
         );
 
+        (, bytes32 storedRuleId,,,,,,,,) = receipts.receipts(receiptHash);
+        assertEq(storedRuleId, ruleId);
         assertEq(asset.balanceOf(recipient), 2 ether);
     }
 

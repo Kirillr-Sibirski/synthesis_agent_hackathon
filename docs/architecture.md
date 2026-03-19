@@ -51,6 +51,7 @@ Structured receipt log.
 
 Responsibilities:
 - record spend evidence
+- record the exact rule ID that authorized the spend
 - index by receipt hash
 - emit events for downstream indexing / ERC-8004 linkage
 
