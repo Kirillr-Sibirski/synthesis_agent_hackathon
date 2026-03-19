@@ -8,13 +8,17 @@ A principal-protected yield treasury where:
 - users deposit a yield-bearing asset (planned: `wstETH`)
 - only yield becomes spendable
 - yield is split into named sub-budgets
+- child budgets can be created under parent budgets without double-counting root allocation
+- budget managers can create delegated child budgets
 - executors act under constrained delegated authority
-- every spend emits a structured receipt
+- every spend emits a structured receipt with evidence and result hashes
 
 ## Repo structure
 
 - `src/` — Solidity contracts
-- `docs/` — architecture, build plan, track mapping
+- `test/` — Foundry test suite
+- `script/` — deployment and demo scripts
+- `docs/` — architecture, build plan, track mapping, deployment, demo flow
 - `Memory/` — hackathon notes, competition research, idea development
 - `foundry.toml` — Foundry config
 
@@ -27,9 +31,11 @@ A principal-protected yield treasury where:
 
 ## Current status
 
-- Foundry installed
-- local Foundry test suite passing (`19/19`)
+- Foundry installed and working in this environment
+- local Foundry test suite passing (`23/23`)
 - Base Sepolia deployment scaffolding ready
+- budget-tree allocation semantics implemented
+- enriched receipt model implemented
 
 ## Deployment target
 
@@ -40,5 +46,4 @@ A principal-protected yield treasury where:
 
 - Sensitive submission / personal info is kept in local-only notes and excluded from git.
 - Secrets are env-based only; do not commit private keys.
-- Initial contract code uses lightweight local interfaces so we can scaffold fast before pulling in heavier dependencies.
-- Current environment issue: Foundry is not installed here yet, so deploy/test scripts are scaffolded but not executed from this runtime.
+- The repo vendors `forge-std` so the test/deploy environment is reproducible.

@@ -11,6 +11,8 @@
 ### Best Use of Delegations
 - constrained execution rules per executor and budget
 - wildcard recipient / selector semantics to mimic caveat-style authority
+- rule revocation lifecycle
+- delegated budget managers for child-budget creation
 - intended evolution toward fuller MetaMask delegation caveats / sub-delegations
 - delegated authority is core, not decorative
 

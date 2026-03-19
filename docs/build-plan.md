@@ -31,13 +31,18 @@
 - wildcard selector rule works
 - multiple budgets track independently
 - parent budget assignment and parent budget bounds work
+- child budgets do not double-count global allocation
+- parent direct spend cannot consume child-reserved allocation
+- budget manager can create child budget
+- non-manager cannot create child budget
 - revoked rule blocks spend
 
 ### Tests still to add
 - fuzzing around budget/yield invariants
 - integration-style deploy/setup script validation on Base Sepolia
-- deeper parent/child hierarchy semantics
+- deeper multi-level hierarchy semantics
 - more caveat-like wildcard combinations
+- rule replacement / rotation flows under live state
 
 ## Stretch goals
 - richer caveat model closer to MetaMask delegations

@@ -2,7 +2,7 @@
 
 ## Story
 
-A human funds a treasury with principal. The agent can only spend yield, and only within a constrained budget. Every spend creates a receipt.
+A human funds a treasury with principal. The agent can only spend yield, and only within a constrained budget tree. Every spend creates a receipt.
 
 ## Base Sepolia demo steps
 
@@ -25,5 +25,8 @@ A human funds a treasury with principal. The agent can only spend yield, and onl
    - delegated rule shape (exact or wildcard) explains why the spend was allowed
 
 ## Judge-facing one-liner
+
+"The agent can spend yield, not principal. Different budgets can be delegated separately. Every spend leaves a verifiable receipt."
+r
 
 "The agent can spend yield, not principal. Different budgets can be delegated separately. Every spend leaves a verifiable receipt."

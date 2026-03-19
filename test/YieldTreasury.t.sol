@@ -73,7 +73,7 @@ contract YieldTreasuryTest is Test {
         asset.mint(address(treasury), 20 ether);
 
         vm.prank(owner);
-        treasury.configureBudget(OPS_BUDGET, bytes32(0), 10 ether, true, "ops");
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), address(0), 10 ether, true, "ops");
 
         vm.prank(executor);
         vm.expectRevert(YieldTreasury.Unauthorized.selector);
@@ -113,11 +113,10 @@ contract YieldTreasuryTest is Test {
         asset.mint(address(treasury), 1 ether);
 
         vm.prank(owner);
-        treasury.configureBudget(OPS_BUDGET, bytes32(0), 1 ether, true, "ops");
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), address(0), 1 ether, true, "ops");
 
         _authorize(executor, OPS_BUDGET, recipient, 1 ether, treasury.spendFromBudget.selector);
 
-        // Simulate loss of liquid yield after budget reservation; remaining balance equals principal.
         asset.burn(address(treasury), 1 ether);
 
         vm.prank(executor);
@@ -200,15 +199,20 @@ contract YieldTreasuryTest is Test {
         );
 
         vm.prank(owner);
-        treasury.configureBudget(OPS_BUDGET, bytes32(0), 5 ether, true, "ops-resized");
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), address(0), 5 ether, true, "ops-resized");
 
-        (uint128 allocated, uint128 spent,,,) = treasury.budgets(OPS_BUDGET);
+        (uint128 allocated, uint128 spent,, bytes32 parentBudgetId, address manager,) =
+            treasury.budgets(OPS_BUDGET);
         assertEq(uint256(allocated), 5 ether);
         assertEq(uint256(spent), 3 ether);
+        assertEq(parentBudgetId, bytes32(0));
+        assertEq(manager, address(0));
 
         vm.prank(owner);
         vm.expectRevert(YieldTreasury.BudgetExceeded.selector);
-        treasury.configureBudget(OPS_BUDGET, bytes32(0), 2 ether, true, "ops-too-small");
+        treasury.configureBudget(
+            OPS_BUDGET, bytes32(0), address(0), 2 ether, true, "ops-too-small"
+        );
     }
 
     function testPrincipalBaselineCanSyncDown() external {
@@ -281,7 +285,9 @@ contract YieldTreasuryTest is Test {
         asset.mint(address(treasury), 20 ether);
 
         vm.prank(owner);
-        treasury.configureBudget(OPS_BUDGET, bytes32(0), 10 ether, false, "ops-inactive");
+        treasury.configureBudget(
+            OPS_BUDGET, bytes32(0), address(0), 10 ether, false, "ops-inactive"
+        );
 
         _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
 
@@ -409,8 +415,10 @@ contract YieldTreasuryTest is Test {
         asset.mint(address(treasury), 30 ether);
 
         vm.startPrank(owner);
-        treasury.configureBudget(OPS_BUDGET, bytes32(0), 10 ether, true, "ops");
-        treasury.configureBudget(RESEARCH_BUDGET, bytes32(0), 8 ether, true, "research");
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), address(0), 10 ether, true, "ops");
+        treasury.configureBudget(
+            RESEARCH_BUDGET, bytes32(0), address(0), 8 ether, true, "research"
+        );
         vm.stopPrank();
 
         _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
@@ -440,13 +448,19 @@ contract YieldTreasuryTest is Test {
             "ipfs://research"
         );
 
-        (uint128 opsAllocated, uint128 opsSpent,,,) = treasury.budgets(OPS_BUDGET);
-        (uint128 researchAllocated, uint128 researchSpent,,,) = treasury.budgets(RESEARCH_BUDGET);
+        (uint128 opsAllocated, uint128 opsSpent,, bytes32 opsParent, address opsManager,) =
+            treasury.budgets(OPS_BUDGET);
+        (uint128 researchAllocated, uint128 researchSpent,, bytes32 researchParent, address researchManager,) =
+            treasury.budgets(RESEARCH_BUDGET);
 
         assertEq(uint256(opsAllocated), 10 ether);
         assertEq(uint256(opsSpent), 3 ether);
         assertEq(uint256(researchAllocated), 8 ether);
         assertEq(uint256(researchSpent), 2 ether);
+        assertEq(opsParent, bytes32(0));
+        assertEq(researchParent, bytes32(0));
+        assertEq(opsManager, address(0));
+        assertEq(researchManager, address(0));
         assertEq(asset.balanceOf(recipient), 3 ether);
         assertEq(asset.balanceOf(recipient2), 2 ether);
     }
@@ -457,12 +471,14 @@ contract YieldTreasuryTest is Test {
         asset.mint(address(treasury), 30 ether);
 
         vm.startPrank(owner);
-        treasury.configureBudget(OPS_BUDGET, bytes32(0), 10 ether, true, "ops");
-        treasury.configureBudget(CHILD_BUDGET, OPS_BUDGET, 4 ether, true, "child");
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), executor, 10 ether, true, "ops");
+        treasury.configureBudget(CHILD_BUDGET, OPS_BUDGET, executor2, 4 ether, true, "child");
         vm.stopPrank();
 
-        (,,, bytes32 parentBudgetId,) = treasury.budgets(CHILD_BUDGET);
+        (,, bool active, bytes32 parentBudgetId, address manager,) = treasury.budgets(CHILD_BUDGET);
         assertEq(parentBudgetId, OPS_BUDGET);
+        assertEq(manager, executor2);
+        assertTrue(active);
     }
 
     function testCannotCreateChildBudgetWithoutParent() external {
@@ -472,7 +488,7 @@ contract YieldTreasuryTest is Test {
 
         vm.prank(owner);
         vm.expectRevert(YieldTreasury.ParentBudgetMissing.selector);
-        treasury.configureBudget(CHILD_BUDGET, OPS_BUDGET, 4 ether, true, "child");
+        treasury.configureBudget(CHILD_BUDGET, OPS_BUDGET, executor2, 4 ether, true, "child");
     }
 
     function testCannotAllocateChildAboveParent() external {
@@ -481,16 +497,94 @@ contract YieldTreasuryTest is Test {
         asset.mint(address(treasury), 30 ether);
 
         vm.prank(owner);
-        treasury.configureBudget(OPS_BUDGET, bytes32(0), 5 ether, true, "ops");
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), executor, 5 ether, true, "ops");
 
         vm.prank(owner);
         vm.expectRevert(YieldTreasury.ParentBudgetExceeded.selector);
-        treasury.configureBudget(CHILD_BUDGET, OPS_BUDGET, 6 ether, true, "child");
+        treasury.configureBudget(CHILD_BUDGET, OPS_BUDGET, executor2, 6 ether, true, "child");
+    }
+
+    function testChildBudgetDoesNotDoubleCountGlobalAllocation() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+        asset.mint(address(treasury), 20 ether);
+
+        vm.startPrank(owner);
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), executor, 10 ether, true, "ops");
+        treasury.configureBudget(CHILD_BUDGET, OPS_BUDGET, executor2, 4 ether, true, "child");
+        vm.stopPrank();
+
+        assertEq(treasury.totalBudgetAllocated(), 10 ether);
+        assertEq(treasury.unallocatedYield(), 10 ether);
+        assertEq(treasury.childBudgetReserved(OPS_BUDGET), 4 ether);
+    }
+
+    function testParentDirectSpendCannotConsumeChildReservedAllocation() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+        asset.mint(address(treasury), 20 ether);
+
+        vm.startPrank(owner);
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), executor, 10 ether, true, "ops");
+        treasury.configureBudget(CHILD_BUDGET, OPS_BUDGET, executor2, 8 ether, true, "child");
+        vm.stopPrank();
+
+        _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+
+        vm.prank(executor);
+        vm.expectRevert(YieldTreasury.ChildBudgetReservationExceeded.selector);
+        treasury.spendFromBudget(
+            OPS_BUDGET,
+            recipient,
+            3 ether,
+            keccak256("task-parent-overrun"),
+            keccak256("receipt-parent-overrun"),
+            keccak256("evidence-parent-overrun"),
+            keccak256("result-parent-overrun"),
+            "ipfs://parent-overrun"
+        );
+    }
+
+    function testBudgetManagerCanCreateChildBudget() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+        asset.mint(address(treasury), 20 ether);
+
+        vm.prank(owner);
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), executor, 10 ether, true, "ops");
+
+        vm.prank(executor);
+        treasury.configureChildBudgetAsManager(
+            OPS_BUDGET, CHILD_BUDGET, executor2, 4 ether, true, "child-managed"
+        );
+
+        (uint128 allocated,,, bytes32 parentBudgetId, address manager, string memory label) =
+            treasury.budgets(CHILD_BUDGET);
+        assertEq(uint256(allocated), 4 ether);
+        assertEq(parentBudgetId, OPS_BUDGET);
+        assertEq(manager, executor2);
+        assertEq(label, "child-managed");
+    }
+
+    function testNonManagerCannotCreateChildBudget() external {
+        vm.prank(depositor);
+        treasury.deposit(100 ether);
+        asset.mint(address(treasury), 20 ether);
+
+        vm.prank(owner);
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), executor, 10 ether, true, "ops");
+
+        vm.prank(executor2);
+        vm.expectRevert(YieldTreasury.BudgetManagerUnauthorized.selector);
+        treasury.configureChildBudgetAsManager(
+            OPS_BUDGET, CHILD_BUDGET, executor2, 4 ether, true, "child-managed"
+        );
     }
 
     function testRevokedRuleBlocksSpend() external {
         _seedTreasuryWithYield();
-        bytes32 ruleId = _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
+        bytes32 ruleId =
+            _authorize(executor, OPS_BUDGET, recipient, 10 ether, treasury.spendFromBudget.selector);
 
         vm.prank(owner);
         authorizer.revokeRule(ruleId);
@@ -515,7 +609,7 @@ contract YieldTreasuryTest is Test {
         asset.mint(address(treasury), 20 ether);
 
         vm.prank(owner);
-        treasury.configureBudget(OPS_BUDGET, bytes32(0), 10 ether, true, "ops");
+        treasury.configureBudget(OPS_BUDGET, bytes32(0), address(0), 10 ether, true, "ops");
     }
 
     function _authorize(

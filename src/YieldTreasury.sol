@@ -11,6 +11,7 @@ contract YieldTreasury {
         uint128 spent;
         bool active;
         bytes32 parentBudgetId;
+        address manager;
         string label;
     }
 
@@ -20,14 +21,16 @@ contract YieldTreasury {
     IDelegationAuthorizer public authorizer;
 
     uint256 public principalBaseline;
-    uint256 public totalBudgetAllocated;
+    uint256 public totalBudgetAllocated; // root budgets only
 
     mapping(bytes32 => Budget) public budgets;
+    mapping(bytes32 => uint256) public childBudgetReserved;
 
     event Deposited(address indexed from, uint256 amount, uint256 newPrincipalBaseline);
     event BudgetConfigured(
         bytes32 indexed budgetId,
         bytes32 indexed parentBudgetId,
+        address indexed manager,
         string label,
         uint128 allocated,
         bool active
@@ -59,6 +62,8 @@ contract YieldTreasury {
     error ParentBudgetMissing();
     error ParentBudgetExceeded();
     error InvalidBudgetHierarchy();
+    error BudgetManagerUnauthorized();
+    error ChildBudgetReservationExceeded();
 
     constructor(address asset_, address owner_) {
         asset = IERC20(asset_);
@@ -88,12 +93,28 @@ contract YieldTreasury {
     function configureBudget(
         bytes32 budgetId,
         bytes32 parentBudgetId,
+        address manager,
         uint128 allocated,
         bool active,
         string calldata label
     ) external {
         if (msg.sender != owner) revert OnlyOwner();
-        _configureBudget(budgetId, parentBudgetId, allocated, active, label);
+        _configureBudget(budgetId, parentBudgetId, manager, allocated, active, label);
+    }
+
+    function configureChildBudgetAsManager(
+        bytes32 parentBudgetId,
+        bytes32 budgetId,
+        address manager,
+        uint128 allocated,
+        bool active,
+        string calldata label
+    ) external {
+        Budget storage parentBudget = budgets[parentBudgetId];
+        if (msg.sender != owner && parentBudget.manager != msg.sender) {
+            revert BudgetManagerUnauthorized();
+        }
+        _configureBudget(budgetId, parentBudgetId, manager, allocated, active, label);
     }
 
     function syncPrincipalBaseline(uint256 newBaseline) external {
@@ -122,6 +143,7 @@ contract YieldTreasury {
         Budget storage budget = budgets[budgetId];
         if (!budget.active) revert InactiveBudget();
         if (uint256(budget.spent) + amount > budget.allocated) revert BudgetExceeded();
+        if (amount > directSpendableRemaining(budgetId)) revert ChildBudgetReservationExceeded();
 
         bytes4 selector = this.spendFromBudget.selector;
         bool authorized = address(authorizer) != address(0)
@@ -192,35 +214,64 @@ contract YieldTreasury {
         return budget.allocated - budget.spent;
     }
 
+    function directSpendableRemaining(bytes32 budgetId) public view returns (uint256) {
+        Budget memory budget = budgets[budgetId];
+        uint256 reservedForChildren = childBudgetReserved[budgetId];
+        uint256 totalCommitted = uint256(budget.spent) + reservedForChildren;
+        if (budget.allocated <= totalCommitted) return 0;
+        return budget.allocated - totalCommitted;
+    }
+
     function _configureBudget(
         bytes32 budgetId,
         bytes32 parentBudgetId,
+        address manager,
         uint128 allocated,
         bool active,
         string calldata label
     ) internal {
         Budget storage current = budgets[budgetId];
         uint256 previousAllocated = current.allocated;
+        bytes32 previousParentBudgetId = current.parentBudgetId;
+        bool exists = _budgetExists(current);
 
         if (allocated < current.spent) revert BudgetExceeded();
         if (budgetId == parentBudgetId && parentBudgetId != bytes32(0)) revert InvalidBudgetHierarchy();
+        if (exists && previousParentBudgetId != parentBudgetId) revert InvalidBudgetHierarchy();
 
-        if (parentBudgetId != bytes32(0)) {
-            Budget memory parent = budgets[parentBudgetId];
-            if (parent.allocated == 0 && bytes(parent.label).length == 0) revert ParentBudgetMissing();
-            if (allocated > parent.allocated) revert ParentBudgetExceeded();
+        if (parentBudgetId == bytes32(0)) {
+            if (uint256(current.spent) + childBudgetReserved[budgetId] > allocated) {
+                revert ChildBudgetReservationExceeded();
+            }
+            totalBudgetAllocated = totalBudgetAllocated - previousAllocated + allocated;
+            if (totalBudgetAllocated > availableYield()) revert PrincipalWouldBeTouched();
+        } else {
+            Budget storage parentBudget = budgets[parentBudgetId];
+            if (!_budgetExists(parentBudget)) revert ParentBudgetMissing();
+
+            uint256 updatedReservedForChildren =
+                childBudgetReserved[parentBudgetId] - previousAllocated + allocated;
+            if (uint256(parentBudget.spent) + updatedReservedForChildren > parentBudget.allocated) {
+                revert ParentBudgetExceeded();
+            }
+            childBudgetReserved[parentBudgetId] = updatedReservedForChildren;
         }
-
-        totalBudgetAllocated = totalBudgetAllocated - previousAllocated + allocated;
-        if (totalBudgetAllocated > availableYield()) revert PrincipalWouldBeTouched();
 
         budgets[budgetId] = Budget({
             allocated: allocated,
             spent: current.spent,
             active: active,
             parentBudgetId: parentBudgetId,
+            manager: manager,
             label: label
         });
-        emit BudgetConfigured(budgetId, parentBudgetId, label, allocated, active);
+
+        emit BudgetConfigured(budgetId, parentBudgetId, manager, label, allocated, active);
+    }
+
+    function _budgetExists(Budget storage budget) internal view returns (bool) {
+        return budget.allocated != 0 || budget.spent != 0 || budget.active
+            || budget.parentBudgetId != bytes32(0) || budget.manager != address(0)
+            || bytes(budget.label).length != 0;
     }
 }

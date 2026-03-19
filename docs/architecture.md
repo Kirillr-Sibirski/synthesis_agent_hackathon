@@ -40,6 +40,7 @@ Responsibilities:
   - amount cap
   - time window
 - support multiple matching rule shapes for the same executor/budget
+- support revocation
 
 This is still a simplified adapter, but it now better resembles caveat-like constrained authority rather than one hardcoded exact-match rule.
 
@@ -84,6 +85,12 @@ executor requests spend(budgetId, recipient, amount, taskId, receiptHash)
 check budget is active
 check amount <= remaining budget
 check delegation policy authorizes executor + recipient + selector + amount + time
+check treasury balance after spend would still be >= principalBaseline
+transfer asset
+record receipt
+emit spend event
+```
+tor + recipient + selector + amount + time
 check treasury balance after spend would still be >= principalBaseline
 transfer asset
 record receipt
