@@ -148,6 +148,32 @@ Populate `frontend/config.json` locally with:
 - demoRecipient:
 - receiptHash:
 
+Preferred write path:
+
+```bash
+FRONTEND_CHAIN=base npm run frontend:write-config
+```
+
+Expected env inputs:
+- preferred for mainnet cutover:
+  - `FRONTEND_TREASURY_ADDRESS`
+  - `FRONTEND_AUTHORIZER_ADDRESS`
+  - `FRONTEND_RECEIPT_REGISTRY_ADDRESS`
+  - `FRONTEND_ASSET_ADDRESS`
+  - `FRONTEND_BUDGET_MANAGER`
+  - `FRONTEND_DEMO_EXECUTOR`
+  - `FRONTEND_DEMO_RECIPIENT`
+  - `FRONTEND_RECEIPT_HASH`
+- acceptable fallback inputs when the generic env is already pointed at the same chain:
+  - `TREASURY_ADDRESS`
+  - `AUTHORIZER_ADDRESS`
+  - `RECEIPT_REGISTRY_ADDRESS`
+  - `WSTETH_ADDRESS`
+  - `MANAGER_ADDRESS`
+  - `EXECUTOR_ADDRESS`
+  - `RECIPIENT_ADDRESS`
+  - `RECEIPT_HASH`
+
 ### Demo artifacts to preload / show
 - saved MetaMask artifact JSON:
 - role-separated summary built in dashboard: `yes/no`

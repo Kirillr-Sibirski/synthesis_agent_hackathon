@@ -66,6 +66,17 @@ Use `deployments/base-mainnet-cutover-template.md` as the single place to record
 - live spend / receipt proof
 - frontend cutover values for `frontend/config.json`
 
+For the dashboard cutover itself, fill `.env` and run:
+
+```bash
+npm run frontend:write-config
+```
+
+That writes the local `frontend/config.json` from deployment values instead of relying on hand-edited JSON under deadline pressure.
+
+Safety note:
+- for Base mainnet cutover, prefer explicit `FRONTEND_*` env values so the helper does not accidentally reuse Base Sepolia deployment addresses from older generic env state
+
 Important practical note:
 - a fresh principal deposit into `WstETHYieldTreasury` does **not** create immediate spendable yield by itself
 - for a near-term live demo, the treasury must already contain headroom above the principal floor, either from real accrued yield or from an explicit additional `wstETH` top-up sent directly to the treasury (`YIELD_TOPUP_WSTETH`)

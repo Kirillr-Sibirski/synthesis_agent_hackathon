@@ -22,7 +22,7 @@ A principal-protected yield treasury where:
 - `deployments/` — concrete onchain deployment records, including the final Base mainnet cutover template
 - `submission/` — submission drafts, metadata, agent manifest, execution log
 - `integrations/` — sponsor-specific integration workspaces (for example MetaMask)
-- `frontend/` — static wallet-connected dashboard for the judge demo flow, with optional local `config.json` support for final deployment cutover
+- `frontend/` — static wallet-connected dashboard for the judge demo flow, with optional local `config.json` support and an env-driven cutover helper for final deployment switching
 - `Memory/` — hackathon notes, competition research, idea development
 - `foundry.toml` — Foundry config
 

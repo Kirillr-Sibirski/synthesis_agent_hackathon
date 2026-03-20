@@ -40,11 +40,22 @@ http://localhost:4173
 
 The dashboard now supports an optional local `config.json` in this directory.
 
+Manual path:
 1. Copy `config.example.json` to `config.json`
 2. Fill in the final Base mainnet deployment addresses
 3. Keep `config.json` local-only (it is gitignored)
 
-This is the intended cutover path for the final same-network demo, so moving from prototype addresses to the live deployment does not require editing app code.
+Scripted path:
+1. Fill `.env` with the final deployment values
+2. For Base mainnet cutover, prefer explicit `FRONTEND_*` vars (for example `FRONTEND_TREASURY_ADDRESS`, `FRONTEND_AUTHORIZER_ADDRESS`, `FRONTEND_RECEIPT_REGISTRY_ADDRESS`, `FRONTEND_ASSET_ADDRESS`, `FRONTEND_DEMO_EXECUTOR`, `FRONTEND_DEMO_RECIPIENT`, `FRONTEND_RECEIPT_HASH`)
+3. Set `FRONTEND_CHAIN=base`
+4. Run:
+
+```bash
+npm run frontend:write-config
+```
+
+This writes `frontend/config.json` locally and is the intended cutover path for the final same-network demo, so moving from prototype addresses to the live deployment does not require editing app code.
 
 ## Validation notes
 
