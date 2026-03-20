@@ -426,17 +426,19 @@ function summarizeArtifact(rawArtifact) {
         ? 'signed delegation artifact'
         : Object.keys(summary).length && 'overallReadyForSameNetworkDemoSubmission' in summary
           ? 'final readiness report'
-          : artifact.readiness || artifact.bundler || artifact.onchain
-            ? 'preflight report'
-            : Object.keys(inputs).length && (inputs.preflightPath || inputs.frontendValidationPath)
-              ? 'final readiness report'
-              : 'generic artifact';
+          : Object.keys(artifact.checks ?? {}).length && 'readyForBaseMainnetCutoverEnv' in readiness
+            ? 'cutover env validation'
+            : artifact.readiness || artifact.bundler || artifact.onchain
+              ? 'preflight report'
+              : Object.keys(inputs).length && (inputs.preflightPath || inputs.frontendValidationPath)
+                ? 'final readiness report'
+                : 'generic artifact';
 
   return {
     artifactKind,
     chain: {
-      id: network.chainId ?? artifact.chainId ?? currentState.selectedChainId ?? currentState.expectedFinalChainId ?? null,
-      name: network.chainName ?? artifact.chainName ?? currentState.selectedChain ?? currentState.expectedFinalChain ?? null,
+      id: network.chainId ?? artifact.chainId ?? currentState.selectedChainId ?? currentState.expectedFinalChainId ?? artifact.expectedFinalChain?.chainId ?? null,
+      name: network.chainName ?? artifact.chainName ?? currentState.selectedChain ?? currentState.expectedFinalChain ?? artifact.expectedFinalChain?.chainName ?? null,
     },
     treasury: effectiveSpendIntent.treasury ?? artifact.treasury ?? artifact.onchain?.treasuryAddress ?? null,
     smartAccount: accounts.delegatorSmartAccount ?? artifact.smartAccountAddress ?? null,
@@ -458,21 +460,26 @@ function summarizeArtifact(rawArtifact) {
       artifact.qualificationStatus
       ?? summary.overallReadyForSameNetworkDemoSubmission
       ?? summary.metaMaskFinalSameNetworkReady
+      ?? readiness.readyForBaseMainnetCutoverEnv
       ?? readiness.readyForLiveRedemption
       ?? null,
     sameNetworkReady:
       readiness.readyForFinalSameNetworkRun
       ?? summary.overallReadyForSameNetworkDemoSubmission
       ?? summary.metaMaskFinalSameNetworkReady
+      ?? readiness.readyForBaseMainnetCutoverEnv
       ?? null,
     remainingBlockers:
       Array.isArray(readiness.remainingBlockers) ? readiness.remainingBlockers
+      : Array.isArray(readiness.missing) ? readiness.missing.map((item) => `Cutover env missing: ${item}`)
       : Array.isArray(artifact.blockers) ? artifact.blockers
       : [],
     nextSteps:
       Array.isArray(readiness.nextSteps) ? readiness.nextSteps
       : Array.isArray(artifact.nextActions) ? artifact.nextActions
-      : [],
+      : readiness.readyForBaseMainnetCutoverEnv === false
+        ? ['Fill the Base mainnet cutover env template and rerun the readiness bundle.']
+        : [],
   };
 }
 
@@ -495,7 +502,7 @@ function buildQualificationSummary() {
       name: chain.name,
       sameNetworkTargetSelected: chain.id === base.id,
       artifactSelectedChain: currentState.selectedChain ?? artifactSummary.chain.name ?? null,
-      artifactExpectedFinalChain: currentState.expectedFinalChain ?? null,
+      artifactExpectedFinalChain: currentState.expectedFinalChain ?? artifact.expectedFinalChain?.chainName ?? null,
     },
     currentInputs: {
       treasury: els.treasuryAddress.value.trim() || null,
@@ -512,11 +519,13 @@ function buildQualificationSummary() {
       readyForLiveRedemption:
         readiness.readyForLiveRedemption
         ?? finalSummary.metaMaskFinalSameNetworkReady
+        ?? readiness.readyForBaseMainnetCutoverEnv
         ?? null,
       readyForFinalSameNetworkRun:
         readiness.readyForFinalSameNetworkRun
         ?? finalSummary.overallReadyForSameNetworkDemoSubmission
         ?? finalSummary.metaMaskFinalSameNetworkReady
+        ?? readiness.readyForBaseMainnetCutoverEnv
         ?? null,
       smartAccountDeployed:
         artifact.onchain?.smartAccountDeployed
