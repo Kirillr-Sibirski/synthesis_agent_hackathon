@@ -59,7 +59,8 @@ A principal-protected yield treasury where:
 - real signed constrained MetaMask delegation artifact generation now works in-repo (`npm run metamask:create-signed-delegation-artifact`)
 - a live MetaMask delegation redemption helper now exists in-repo (`npm run metamask:redeem-signed-delegation -- path/to/signed-delegation.json`), and its dry-run payload path has been exercised successfully with `tsx`
 - a one-command MetaMask live-flow orchestrator now exists in-repo (`npm run metamask:run-live-flow`) to assemble/save the artifact, deploy-if-needed, and redeem from the executor path; its dry-run path has been exercised successfully and now writes artifacts under `artifacts/metamask/`
-- MetaMask live-redemption readiness can now be checked in one step (`npm run metamask:preflight`) for env completeness, treasury code presence, smart-account deployment status, bundler reachability, and exact spend selector details
+- MetaMask live-redemption readiness can now be checked in one step (`npm run metamask:preflight`) for env completeness, treasury code presence, smart-account deployment status, bundler reachability, exact spend selector details, and final same-network Base mainnet readiness
+- final same-network readiness can now be refreshed as an artifact bundle in one pass (`npm run final:refresh-readiness-bundle`)
 
 ## Deployment target
 
@@ -91,4 +92,6 @@ See `submission/public-evidence-pack.md` for the public-safe judge index.
 
 - Sensitive submission / personal info is kept in local-only notes and excluded from git.
 - Secrets are env-based only; do not commit private keys.
+- The repo vendors `forge-std` so the test/deploy environment is reproducible.
+t private keys.
 - The repo vendors `forge-std` so the test/deploy environment is reproducible.

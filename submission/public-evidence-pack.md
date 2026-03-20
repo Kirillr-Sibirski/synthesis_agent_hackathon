@@ -102,13 +102,18 @@ Re-verified in-repo on 2026-03-20:
 - `~/.foundry/bin/forge test` → **31/31 passing**
 - `node --check frontend/app.js` → **passing**
 - `npm run metamask:preflight` → **selected chain = Base Sepolia, smart account undeployed, bundler not configured/reachable, readyForFinalSameNetworkRun=false**
+- `npm run final:validate-cutover-env` → **readyForBaseMainnetCutoverEnv=false**
 - `npm run final:validate-same-network` → **overallReadyForSameNetworkDemoSubmission=false**
+- `npm run final:refresh-readiness-bundle` → refreshes the full artifact set sequentially (**cutover env validation → MetaMask preflight → frontend validation → combined same-network report**)
 
 Current same-network validator blockers:
+- current env is still pointed at **Base Sepolia**, not Base mainnet
+- bundler is not configured/reachable
+- MetaMask smart account is not deployed yet
 - frontend Base mainnet addresses are not configured yet
 - receipt hash is not configured in frontend cutover data yet
 - current frontend actor config still overlaps roles on one address
-- no Base mainnet MetaMask preflight artifact exists yet
+- raw Base mainnet cutover env is also missing required final-run values
 
 The validator now also checks the public ERC-8004 discovery/package surface directly:
 - `agent.json`
