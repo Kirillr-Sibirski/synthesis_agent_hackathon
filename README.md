@@ -38,7 +38,7 @@ A principal-protected yield treasury where:
 ## Current status
 
 - Foundry installed and working in this environment
-- local Foundry test suite passing (`30/30`)
+- local Foundry test suite passing (`31/31`)
 - upgraded Base Sepolia deployment completed (`deployments/base-sepolia-v2.md`)
 - live Base Sepolia spend + receipt recorded on latest repo-head-aligned deployment
 - budget-tree allocation semantics implemented

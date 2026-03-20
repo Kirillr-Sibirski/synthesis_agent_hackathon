@@ -6,7 +6,7 @@
 - [x] README exists and is being maintained
 - [x] Foundry project is set up
 - [x] Contracts implemented
-- [x] Tests implemented and passing (`30/30`)
+- [x] Tests implemented and passing (`31/31`)
 - [x] Base Sepolia deployment completed
 - [x] Live onchain spend completed
 - [x] Deployment records written down
@@ -36,5 +36,5 @@
 - [ ] Real MetaMask Delegation Framework integration (smart-account derivation + treasury calldata prep are done; a real signed constrained delegation artifact is now generated in-repo; live redemption helpers now exist for both the signed-artifact path and a one-command live-flow path; `npm run metamask:preflight` was re-verified on 2026-03-20 and confirms treasury code is deployed, but the smart account is still undeployed and no bundler URL is configured/reachable; live delegation-backed execution still pending bundler-backed deployment/redemption proof on the final same-network target)
 - [~] Final ERC-8004 manifest linkage / public packaging cleanup around the completed identity registration (public-safe evidence pack, manifest draft, and execution log draft are all updated; final agent/project UUID packaging and final title/media fields still need cleanup)
 - [ ] Live-network real `wstETH` deployment path on the final same-network target
-- [~] Frontend/dashboard requirement (a first usable static wallet-connected dashboard now exists under `frontend/`; it now supports local `config.json` cutover for final deployment addresses and can inspect saved MetaMask artifact/live-flow JSON, but still needs final same-network deployment data and sponsor-complete polish)
+- [~] Frontend/dashboard requirement (a first usable static wallet-connected dashboard now exists under `frontend/`; it now supports local `config.json` cutover for final deployment addresses, can inspect saved MetaMask artifact/live-flow JSON, and now hydrates the relevant form fields directly from those artifacts for the judge flow, but it still needs final same-network deployment data and sponsor-complete polish)
 - [ ] Optional MCP layer if we decide to widen into the Lido MCP track

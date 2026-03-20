@@ -18,7 +18,8 @@ The Mar 20 shipping rules made a real frontend mandatory. This dashboard is the 
 - execute `spendFromBudget(...)`
 - inspect receipts in `ReceiptRegistry`
 - preview the exact MetaMask delegation spend calldata / hashes
-- inspect a saved MetaMask signed-delegation or live-flow JSON artifact and hydrate the relevant dashboard fields from it
+- inspect a saved MetaMask signed-delegation or live-flow JSON artifact
+- hydrate the relevant dashboard fields from loaded artifact JSON so judges can move from a saved MetaMask artifact into the onchain inspection / spend-intent flow without hand-copying hashes and addresses
 
 ## How to run
 
@@ -43,6 +44,11 @@ The dashboard now supports an optional local `config.json` in this directory.
 3. Keep `config.json` local-only (it is gitignored)
 
 This is the intended cutover path for the final same-network demo, so moving from prototype addresses to the live deployment does not require editing app code.
+
+## Validation notes
+
+- `node --check frontend/app.js` now passes after tightening the MetaMask artifact inspector wiring and helper logic.
+- The artifact inspector now safely handles both saved signed-delegation artifacts and the richer `run-live-flow` output shape.
 
 ## Current limitations
 

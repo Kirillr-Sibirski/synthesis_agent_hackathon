@@ -283,6 +283,9 @@ for (const id of [
   'demoExecutor',
   'demoRecipient',
   'metamaskPreview',
+  'artifactFile',
+  'artifactJson',
+  'artifactInspection',
   'activityLog',
 ]) {
   els[id] = document.getElementById(id);
@@ -383,6 +386,95 @@ async function loadDashboardConfig() {
 function setPanel(el, data) {
   el.classList.remove('empty');
   el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+}
+
+function asObject(value) {
+  return value && typeof value === 'object' ? value : {};
+}
+
+function asAddressOrEmpty(value) {
+  return typeof value === 'string' && value.trim() ? value.trim() : '';
+}
+
+function asBytes32OrEmpty(value) {
+  return typeof value === 'string' && /^0x[0-9a-fA-F]{64}$/.test(value.trim()) ? value.trim() : '';
+}
+
+function summarizeArtifact(rawArtifact) {
+  const artifact = asObject(rawArtifact);
+  const network = asObject(artifact.network);
+  const accounts = asObject(artifact.accounts);
+  const spendIntent = asObject(artifact.treasurySpendIntent);
+  const delegation = asObject(artifact.delegation);
+  const delegationMessage = asObject(delegation.message);
+  const caveats = Array.isArray(delegationMessage.caveats) ? delegationMessage.caveats : [];
+  const deployReceipt = asObject(artifact.deployReceipt);
+
+  return {
+    artifactKind:
+      artifact.redemptions || artifact.redemptionTransactionHash
+        ? 'live-flow output'
+        : artifact.signature || delegation.signature
+          ? 'signed delegation artifact'
+          : 'generic artifact',
+    chain: {
+      id: network.chainId ?? artifact.chainId ?? null,
+      name: network.chainName ?? artifact.chainName ?? null,
+    },
+    treasury: spendIntent.treasury ?? artifact.treasury ?? null,
+    smartAccount: accounts.delegatorSmartAccount ?? artifact.smartAccountAddress ?? null,
+    owner: accounts.owner ?? null,
+    redeemer: accounts.redeemer ?? artifact.redeemer ?? null,
+    recipient: accounts.recipient ?? spendIntent.recipient ?? null,
+    budgetId: spendIntent.budgetId ?? null,
+    selector: spendIntent.selector ?? null,
+    metadataURI: spendIntent.metadataURI ?? null,
+    receiptHash: spendIntent.receiptHash ?? null,
+    delegationManager: network.delegationManager ?? null,
+    caveatCount: caveats.length,
+    caveatEnforcers: caveats.map((caveat) => asObject(caveat).enforcer).filter(Boolean),
+    smartAccountDeployed:
+      artifact.smartAccountDeployed ?? artifact.onchain?.smartAccountDeployed ?? null,
+    deployTransactionHash: deployReceipt.transactionHash ?? null,
+    redemptionTransactionHash: artifact.redemptionTransactionHash ?? null,
+    qualificationStatus: artifact.qualificationStatus ?? artifact.readiness?.readyForLiveRedemption ?? null,
+  };
+}
+
+function applyArtifactToForm(rawArtifact) {
+  const artifact = asObject(rawArtifact);
+  const network = asObject(artifact.network);
+  const accounts = asObject(artifact.accounts);
+  const spendIntent = asObject(artifact.treasurySpendIntent);
+
+  if (network.chainId === 8453) {
+    els.chainSelect.value = 'base';
+  } else if (network.chainId === 84532) {
+    els.chainSelect.value = 'baseSepolia';
+  }
+
+  const preset = chainPreset(els.chainSelect.value);
+  els.rpcUrl.value = preset.rpcUrl || els.rpcUrl.value;
+  els.treasuryAddress.value = asAddressOrEmpty(spendIntent.treasury) || els.treasuryAddress.value;
+  els.budgetId.value = asBytes32OrEmpty(spendIntent.budgetId) || els.budgetId.value;
+  els.spendRecipient.value = asAddressOrEmpty(accounts.recipient ?? spendIntent.recipient) || els.spendRecipient.value;
+  els.demoRecipient.value = asAddressOrEmpty(accounts.recipient ?? spendIntent.recipient) || els.demoRecipient.value;
+  els.demoExecutor.value = asAddressOrEmpty(accounts.redeemer) || els.demoExecutor.value;
+  els.receiptHash.value = asBytes32OrEmpty(spendIntent.receiptHash) || els.receiptHash.value;
+  els.metadataUri.value = typeof spendIntent.metadataURI === 'string' && spendIntent.metadataURI.trim()
+    ? spendIntent.metadataURI.trim()
+    : els.metadataUri.value;
+
+  if (spendIntent.amountWstETH || spendIntent.amount) {
+    const rawAmount = spendIntent.amountWstETH ?? spendIntent.amount;
+    try {
+      els.spendAmount.value = formatEther(BigInt(rawAmount));
+    } catch {
+      // leave current field value untouched if parsing fails
+    }
+  }
+
+  updateExpectedChainStatus();
 }
 
 function bytes32FromText(text) {
