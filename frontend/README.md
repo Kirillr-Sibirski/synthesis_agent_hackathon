@@ -95,6 +95,13 @@ FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
 
 This writes `frontend/config.json` locally and gives you machine-checkable same-network dashboard + final-run readiness reports, so moving from prototype addresses to the live deployment does not require editing app code.
 
+The combined final readiness report now also checks the public ERC-8004 packaging surface (`agent.json`, `agent_log.json`, `.well-known/agent.json`, `.well-known/agent_log.json`) and emits a track-by-track honest qualification summary for:
+- Agents With Receipts / ERC-8004
+- Best Use of Delegations
+- stETH Agent Treasury
+- Let the Agent Cook
+- Synthesis Open Track
+
 ## Validation notes
 
 - `node --check frontend/app.js` now passes after tightening the MetaMask artifact inspector wiring and helper logic.

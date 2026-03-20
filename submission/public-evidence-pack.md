@@ -110,6 +110,14 @@ Current same-network validator blockers:
 - current frontend actor config still overlaps roles on one address
 - no Base mainnet MetaMask preflight artifact exists yet
 
+The validator now also checks the public ERC-8004 discovery/package surface directly:
+- `agent.json`
+- `agent_log.json`
+- `.well-known/agent.json`
+- `.well-known/agent_log.json`
+
+That keeps the repo honest about whether the project is actually discoverable and submission-shaped for ERC-8004, instead of only claiming it in prose.
+
 ## 8. Best honest track posture right now
 
 ### Strong now
