@@ -50,14 +50,12 @@ The goal is not to vaguely fit many tracks. The goal is to **fully qualify for a
 - `agent.json` and `agent_log.json` drafts exist
 
 #### Missing for full qualification
-- actual **ERC-8004 identity registration**
-- final manifest compatibility / registration artifact
+- final manifest compatibility / registration artifact cleanup around the already-recorded identity registration
 - final `agent.json`
 - final `agent_log.json`
 - explicit linkage from identity → manifest → onchain actions
 
 #### Minimum bar we should hit
-- register ERC-8004 identity
 - include identity tx hash / registry data in submission
 - finalize `agent.json`
 - finalize `agent_log.json`
@@ -130,7 +128,7 @@ It should not be our main strategic bet, but we should absolutely enter it.
 
 ### Must finish first
 1. **MetaMask Delegation Framework integration**
-2. **ERC-8004 registration**
+2. **ERC-8004 public linkage cleanup around the recorded registration**
 3. **final `agent.json` + `agent_log.json`**
 4. **README / submission flow for Let the Agent Cook**
 
@@ -166,8 +164,4 @@ That turns the project from “3-track fully qualified” into “4+ track serio
 - Agents With Receipts — ERC-8004
 - Let the Agent Cook
 - stETH Agent Treasury
-- Open Track
-- stETH Agent Treasury
-- Open Track
-y
 - Open Track

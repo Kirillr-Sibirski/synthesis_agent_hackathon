@@ -37,6 +37,7 @@ The project's Synthesis registration has already been completed and the onchain 
 - registration tx: `0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b`
 - public-facing agent manifest draft: `submission/agent.json`
 - public-facing execution log draft: `submission/agent_log.json`
+- public-safe judge evidence index: `submission/public-evidence-pack.md`
 
 ## Primary target tracks
 

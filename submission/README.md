@@ -10,6 +10,7 @@ This folder collects submission-facing artifacts for The Synthesis.
 - `submission-status.md` — checklist of what is done vs still needed
 - `agent.json` — draft agent manifest
 - `agent_log.json` — draft structured execution log
+- `public-evidence-pack.md` — public-safe judge index linking identity, deployment, receipt, and sponsor-track evidence
 - `private-registration.example.json` — redacted shape of the local-only Synthesis registration state
 
 ## Private vs public
@@ -27,3 +28,4 @@ The public draft package now already includes:
 - identity registration proof
 - agent manifest draft
 - agent execution log draft
+- a public-safe evidence index for judges (`public-evidence-pack.md`)

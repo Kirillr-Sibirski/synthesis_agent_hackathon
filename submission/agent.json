@@ -18,6 +18,11 @@
       "deploymentNote": "deployments/base-sepolia-v2.md"
     }
   ],
+  "publicEvidence": {
+    "judgeIndex": "submission/public-evidence-pack.md",
+    "latestDeployment": "deployments/base-sepolia-v2.md",
+    "roleSeparatedFlow": "deployments/base-sepolia-wsteth-role-separated.md"
+  },
   "supportedTools": [
     "foundry",
     "forge test",

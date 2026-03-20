@@ -60,5 +60,5 @@ The receipt model is strong, but we still need actual identity / registry integr
 
 1. Deploy `WstETHYieldTreasury` against real `wstETH` on an accepted network
 2. Replace or augment `DelegationAuthorizer` with a MetaMask-framework-compatible adapter
-3. Register ERC-8004 identity and finalize `agent.json` / `agent_log.json`
+3. Finalize `agent.json` / `agent_log.json` and tighten the public linkage from the recorded ERC-8004 registration to the live treasury receipts
 4. Run a fresh live spend on the sponsor-native stack and update deployment records

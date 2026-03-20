@@ -20,7 +20,8 @@
 - receipt-first execution model
 - machine-readable action evidence
 - explicit authorization provenance via matched rule IDs
-- natural fit for later ERC-8004 identity / manifest linkage
+- recorded Synthesis/ERC-8004 registration tx plus public manifest/log drafts
+- public-safe evidence index linking identity → manifests → onchain actions
 
 ### Synthesis Open Track
 - broad umbrella eligibility

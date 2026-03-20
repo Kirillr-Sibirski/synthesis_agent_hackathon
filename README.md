@@ -59,6 +59,19 @@ A principal-protected yield treasury where:
 - initial demo chain: **Base Sepolia**
 - later optional expansions: Status Sepolia, Base mainnet, Celo
 
+## Honest track posture
+
+Right now the project is strongest for:
+- **Agents With Receipts — ERC-8004**
+- **Synthesis Open Track**
+
+And it is materially closer for:
+- **Best Use of Delegations** — real MetaMask artifact generation is done; live bundler-backed deployment/redemption proof is still missing
+- **Let the Agent Cook** — needs final manifest/log framing polish
+- **stETH Agent Treasury** — needs a live deployment using real `wstETH` on an accepted network
+
+See `submission/public-evidence-pack.md` for the public-safe judge index.
+
 ## Notes
 
 - Sensitive submission / personal info is kept in local-only notes and excluded from git.
