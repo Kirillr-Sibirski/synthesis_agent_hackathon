@@ -101,15 +101,18 @@ Without a bundler endpoint we can still:
 - derive the MetaMask smart-account address
 - prepare exact treasury calldata
 - prepare the delegation shape and caveat plan
+- generate a signed delegation artifact
+- dry-run the final redemption payload shape with `DRY_RUN=true npm run metamask:redeem-signed-delegation -- path/to/signed-delegation.json`
 
-But we **cannot** yet broadcast the smart-account deployment / user operation that is needed for the strongest MetaMask track proof.
+But we **cannot** yet broadcast the smart-account deployment / user operation that is needed for the strongest MetaMask track proof on the selected same-network target.
 
 ## Remaining execution steps for full MetaMask qualification
 
-1. provide a working Base Sepolia `BUNDLER_URL`
+1. provide a working bundler endpoint for the selected final chain
 2. deploy/use the MetaMask smart account onchain
 3. create and sign a constrained delegation
-4. redeem that delegation through the live `DelegationManager`
+4. redeem that delegation through the live `DelegationManager` using:
+   - `npm run metamask:redeem-signed-delegation -- path/to/signed-delegation.json`
 5. execute a treasury spend through that path
 6. record tx hashes and update deployment/submission docs
 

@@ -15,6 +15,7 @@
     "metamask:encode-treasury-spend": "tsx integrations/metamask/encodeTreasurySpend.ts",
     "metamask:prepare-delegation-artifact": "tsx integrations/metamask/prepareDelegationArtifact.ts",
     "metamask:create-signed-delegation-artifact": "tsx integrations/metamask/createSignedDelegationArtifact.ts",
+    "metamask:redeem-signed-delegation": "tsx integrations/metamask/redeemSignedDelegation.ts",
     "metamask:preflight": "tsx integrations/metamask/preflight.ts"
   },
   "repository": {

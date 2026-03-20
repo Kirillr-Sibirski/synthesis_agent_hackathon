@@ -32,7 +32,7 @@ The remaining MetaMask blocker is now the **live onchain redemption path on the 
 Specifically, we still need:
 1. a working bundler endpoint for the selected final chain
 2. smart-account deployment/funding onchain
-3. delegation redemption through live `DelegationManager`
+3. delegation redemption through live `DelegationManager` (a repo helper now exists at `integrations/metamask/redeemSignedDelegation.ts`)
 4. treasury spend execution caused by that redemption
 
 ## Practical assessment
