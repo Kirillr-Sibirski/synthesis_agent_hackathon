@@ -1,5 +1,8 @@
 import 'dotenv/config';
 
+import { mkdirSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+
 import { encodeFunctionData, getAddress, keccak256, toBytes } from 'viem';
 
 import { chain, getSmartAccount, publicClient, smartAccountsEnvironment } from './utils.js';
@@ -10,6 +13,7 @@ const DEMO_RECIPIENT = process.env.DEMO_RECIPIENT as `0x${string}` | undefined;
 const DEMO_EXECUTOR = process.env.DEMO_EXECUTOR as `0x${string}` | undefined;
 const BUNDLER_URL = process.env.BUNDLER_URL;
 const WSTETH_ADDRESS = process.env.WSTETH_ADDRESS as `0x${string}` | undefined;
+const PREFLIGHT_OUT = process.env.PREFLIGHT_OUT;
 
 const BASE_MAINNET_CHAIN_ID = 8453;
 const BASE_MAINNET_WSTETH = '0x7f39c581f595b53c5cb5bbd8f2c9a0e1b8d9d2b2';
@@ -189,7 +193,15 @@ async function main() {
     },
   };
 
-  console.log(JSON.stringify(report, null, 2));
+  const output = JSON.stringify(report, null, 2);
+
+  if (PREFLIGHT_OUT) {
+    const resolved = path.resolve(process.cwd(), PREFLIGHT_OUT);
+    mkdirSync(path.dirname(resolved), { recursive: true });
+    writeFileSync(resolved, `${output}\n`);
+  }
+
+  console.log(output);
 }
 
 main().catch((err) => {

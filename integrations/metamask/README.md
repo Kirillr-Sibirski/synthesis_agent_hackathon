@@ -70,6 +70,7 @@ npm run metamask:preflight
   - checks bundler reachability
   - shows the exact encoded `spendFromBudget(...)` selector/intent shape
   - explicitly reports whether the setup is ready for the final **same-network Base mainnet** story
+  - can also save the report locally via `PREFLIGHT_OUT=... npm run metamask:preflight`
 
 - `metamask:create-signed-delegation-artifact`
   - generates a real signed constrained MetaMask delegation artifact

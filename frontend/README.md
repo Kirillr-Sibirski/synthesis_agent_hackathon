@@ -19,7 +19,7 @@ The Mar 20 shipping rules made a real frontend mandatory. This dashboard is the 
 - execute `spendFromBudget(...)`
 - inspect receipts in `ReceiptRegistry`
 - preview the exact MetaMask delegation spend calldata / hashes
-- inspect a saved MetaMask signed-delegation or live-flow JSON artifact
+- inspect a saved MetaMask signed-delegation, live-flow, or preflight JSON artifact
 - hydrate the relevant dashboard fields from loaded artifact JSON so judges can move from a saved MetaMask artifact into the onchain inspection / spend-intent flow without hand-copying hashes and addresses
 - persist the loaded MetaMask artifact in dashboard state so the role-separated story can reference the linked smart-account / redeemer / recipient data correctly
 - build a role-separated owner / manager / executor / recipient summary from the current dashboard state

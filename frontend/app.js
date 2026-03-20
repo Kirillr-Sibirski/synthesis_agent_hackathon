@@ -521,8 +521,8 @@ function applyArtifactToForm(rawArtifact) {
     ? spendIntent.metadataURI.trim()
     : els.metadataUri.value;
 
-  if (spendIntent.amountWstETH || spendIntent.amount) {
-    const rawAmount = spendIntent.amountWstETH ?? spendIntent.amount;
+  if (effectiveSpendIntent.amountWstETH || effectiveSpendIntent.amount) {
+    const rawAmount = effectiveSpendIntent.amountWstETH ?? effectiveSpendIntent.amount;
     try {
       els.spendAmount.value = formatEther(BigInt(rawAmount));
     } catch {
@@ -1023,4 +1023,9 @@ async function initDashboard() {
 
 initDashboard().catch((error) => {
   log('Dashboard init failed.', error?.message ?? String(error));
+});
+rd().catch((error) => {
+  log('Dashboard init failed.', error?.message ?? String(error));
+});
+.message ?? String(error));
 });
