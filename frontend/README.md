@@ -20,6 +20,7 @@ The Mar 20 shipping rules made a real frontend mandatory. This dashboard is the 
 - preview the exact MetaMask delegation spend calldata / hashes
 - inspect a saved MetaMask signed-delegation or live-flow JSON artifact
 - hydrate the relevant dashboard fields from loaded artifact JSON so judges can move from a saved MetaMask artifact into the onchain inspection / spend-intent flow without hand-copying hashes and addresses
+- build a role-separated owner / manager / executor / recipient summary from the current dashboard state
 
 ## How to run
 

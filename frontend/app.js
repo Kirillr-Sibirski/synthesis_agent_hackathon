@@ -294,6 +294,7 @@ for (const id of [
 let state = {
   account: null,
   walletClient: null,
+  loadedArtifact: null,
 };
 
 function selectedChain() {
@@ -844,6 +845,76 @@ async function loadArtifactFromFile() {
   await loadArtifactObject(artifact);
 }
 
+async function buildRoleSummary() {
+  let owner = null;
+  try {
+    if (els.treasuryAddress.value.trim() && els.rpcUrl.value.trim()) {
+      owner = await publicClient().readContract({
+        address: treasuryAddress(),
+        abi: TREASURY_ABI,
+        functionName: 'owner',
+      });
+    }
+  } catch (error) {
+    owner = null;
+    log('Owner lookup for role summary failed; continuing with available inputs.', error?.message ?? String(error));
+  }
+
+  const manager = els.budgetManager.value.trim() || null;
+  const executor = els.demoExecutor.value.trim() || null;
+  const recipient = (els.demoRecipient.value.trim() || els.spendRecipient.value.trim()) || null;
+  const artifactAccounts = state.loadedArtifact?.accounts ?? {};
+  const roles = { owner, manager, executor, recipient };
+  const normalized = Object.entries(roles)
+    .filter(([, value]) => value)
+    .map(([role, value]) => [role, getAddress(value)]);
+  const uniqueAddresses = [...new Set(normalized.map(([, value]) => value))];
+  const duplicateWarnings = [];
+
+  for (const address of uniqueAddresses) {
+    const matchingRoles = normalized.filter(([, value]) => value === address).map(([role]) => role);
+    if (matchingRoles.length > 1) {
+      duplicateWarnings.push({ address, roles: matchingRoles });
+    }
+  }
+
+  const summary = {
+    chain: {
+      id: selectedChain().id,
+      name: selectedChain().name,
+      sameNetworkReady: selectedChain().id === base.id,
+    },
+    budgetId: els.budgetId.value.trim() || bytes32FromText(els.budgetLabel.value.trim() || 'OPS_BUDGET'),
+    roles,
+    distinctRoleAddresses: uniqueAddresses.length,
+    fullySeparated:
+      Boolean(owner && manager && executor && recipient) && uniqueAddresses.length === 4,
+    duplicateWarnings,
+    artifactLinked: Boolean(state.loadedArtifact),
+    artifactAccounts: state.loadedArtifact
+      ? {
+          delegatorSmartAccount: artifactAccounts.delegatorSmartAccount ?? null,
+          redeemer: artifactAccounts.redeemer ?? artifactAccounts.delegate ?? null,
+          recipient: artifactAccounts.recipient ?? null,
+        }
+      : null,
+    demoFlow: [
+      'Show target chain and same-network status.',
+      'Show treasury owner and budget manager split.',
+      'Show executor and recipient roles.',
+      'If loaded, show the MetaMask artifact linkage to the executor/redeemer path.',
+      'Then demonstrate treasury summary, budget inspection, and receipt/proof flow.',
+    ],
+    note:
+      uniqueAddresses.length === 4
+        ? 'Owner / manager / executor / recipient are fully separated in the current dashboard state.'
+        : 'Some demo roles still overlap in the current dashboard state.',
+  };
+
+  setPanel(els.roleSummary, summary);
+  log('Built role-separated demo summary.', summary);
+}
+
 async function handle(action) {
   try {
     await action();
@@ -869,6 +940,7 @@ document.getElementById('loadReceipt').addEventListener('click', () => handle(lo
 document.getElementById('buildSpendIntent').addEventListener('click', () => handle(buildSpendIntent));
 document.getElementById('loadArtifactFile').addEventListener('click', () => handle(loadArtifactFromFile));
 document.getElementById('loadArtifactJson').addEventListener('click', () => handle(loadArtifactFromJson));
+document.getElementById('buildRoleSummary').addEventListener('click', () => handle(buildRoleSummary));
 els.chainSelect.addEventListener('change', () => {
   updateExpectedChainStatus();
   if (!els.rpcUrl.value.trim() || els.chainSelect.value === 'baseSepolia') {
