@@ -20,6 +20,7 @@
     "metamask:preflight": "tsx integrations/metamask/preflight.ts",
     "frontend:write-config": "tsx integrations/frontend/writeLocalConfig.ts",
     "frontend:validate-config": "tsx integrations/frontend/validateLocalConfig.ts",
+    "final:validate-cutover-env": "tsx integrations/final/validateCutoverEnv.ts",
     "final:validate-same-network": "tsx integrations/final/validateSameNetworkReadiness.ts",
     "final:refresh-readiness-bundle": "tsx integrations/final/refreshReadinessBundle.ts",
     "submission:refresh-public-agent-artifacts": "tsx integrations/submission/refreshPublicAgentArtifacts.ts"

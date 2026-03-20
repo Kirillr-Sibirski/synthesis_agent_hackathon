@@ -171,9 +171,17 @@ FRONTEND_VALIDATION_PATH=artifacts/frontend/validation.json \
   npm run final:validate-same-network
 ```
 
+Optional first check for the raw final-run env:
+
+```bash
+CUTOVER_ENV_VALIDATION_OUT=artifacts/final/cutover-env-validation.json \
+  npm run final:validate-cutover-env
+```
+
 Or refresh the entire readiness bundle in one pass:
 
 ```bash
+CUTOVER_ENV_VALIDATION_OUT=artifacts/final/cutover-env-validation.json \
 PREFLIGHT_OUT=artifacts/metamask/preflight-8453.json \
 FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json \
 FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
