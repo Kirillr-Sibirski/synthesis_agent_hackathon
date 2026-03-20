@@ -9,6 +9,10 @@ const TREASURY_ADDRESS = process.env.TREASURY_ADDRESS as `0x${string}` | undefin
 const DEMO_RECIPIENT = process.env.DEMO_RECIPIENT as `0x${string}` | undefined;
 const DEMO_EXECUTOR = process.env.DEMO_EXECUTOR as `0x${string}` | undefined;
 const BUNDLER_URL = process.env.BUNDLER_URL;
+const WSTETH_ADDRESS = process.env.WSTETH_ADDRESS as `0x${string}` | undefined;
+
+const BASE_MAINNET_CHAIN_ID = 8453;
+const BASE_MAINNET_WSTETH = '0x7f39c581f595b53c5cb5bbd8f2c9a0e1b8d9d2b2';
 
 async function probeBundler(url: string) {
   try {
@@ -92,10 +96,20 @@ async function main() {
       : null;
 
   const bundler = BUNDLER_URL ? await probeBundler(BUNDLER_URL) : { reachable: false, note: 'BUNDLER_URL not configured.' };
+  const selectedFinalChain = chain.id === BASE_MAINNET_CHAIN_ID;
+  const usingExpectedMainnetWstETH =
+    chain.id === BASE_MAINNET_CHAIN_ID
+      ? Boolean(WSTETH_ADDRESS && getAddress(WSTETH_ADDRESS) === getAddress(BASE_MAINNET_WSTETH))
+      : null;
   const readyForLiveRedemption =
     missingRequired.length === 0 &&
     treasuryDeployed &&
     bundler.reachable;
+  const readyForFinalSameNetworkRun =
+    selectedFinalChain &&
+    readyForLiveRedemption &&
+    smartAccountDeployed &&
+    usingExpectedMainnetWstETH === true;
 
   const report = {
     generatedAt: new Date().toISOString(),
@@ -104,11 +118,20 @@ async function main() {
       chainName: chain.name,
       delegationManager: smartAccountsEnvironment.DelegationManager,
       entryPoint: smartAccountsEnvironment.EntryPoint,
+      finalSameNetworkTarget: {
+        chainId: BASE_MAINNET_CHAIN_ID,
+        chainName: 'Base',
+        chainSelected: selectedFinalChain,
+        expectedWstETH: BASE_MAINNET_WSTETH,
+        configuredWstETH: WSTETH_ADDRESS ?? null,
+        usingExpectedMainnetWstETH,
+      },
     },
     env: {
       requiredConfigured: missingRequired.length === 0,
       missingRequired,
       bundlerConfigured: Boolean(BUNDLER_URL),
+      wstETHConfigured: Boolean(WSTETH_ADDRESS),
     },
     accounts: {
       delegatorSmartAccount: smartAccount.address,
@@ -136,15 +159,30 @@ async function main() {
       : null,
     readiness: {
       readyForLiveRedemption,
+      readyForFinalSameNetworkRun,
       remainingBlockers: [
         ...missingRequired.map((name) => `Missing env: ${name}`),
+        ...(!selectedFinalChain ? ['Selected chain is not Base mainnet yet; final same-network thesis is still unmet.'] : []),
         ...(!treasuryDeployed ? [`TREASURY_ADDRESS has no code on ${chain.name}.`] : []),
         ...(!bundler.reachable ? ['Bundler is not reachable/usable yet.'] : []),
         ...(smartAccountDeployed ? [] : ['MetaMask smart account still needs onchain deployment via user operation.']),
+        ...(chain.id === BASE_MAINNET_CHAIN_ID && usingExpectedMainnetWstETH === false
+          ? [`Configured WSTETH_ADDRESS does not match Base mainnet wstETH (${BASE_MAINNET_WSTETH}).`]
+          : []),
       ],
       nextSteps: [
-        `Ensure the treasury address points at the intended live ${chain.name} treasury deployment.`,
-        `Deploy/fund the MetaMask smart account through a working ${chain.name} bundler.`,
+        ...(selectedFinalChain
+          ? []
+          : ['Switch MetaMask integration env to Base mainnet (`METAMASK_CHAIN=base`) for the final same-network run.']),
+        selectedFinalChain
+          ? `Ensure the treasury address points at the intended live ${chain.name} treasury deployment.`
+          : 'After switching chains, point TREASURY_ADDRESS at the intended live Base mainnet treasury deployment.',
+        ...(chain.id === BASE_MAINNET_CHAIN_ID
+          ? ['Ensure WSTETH_ADDRESS is set to the real Base mainnet token address and the treasury story uses that same network.']
+          : []),
+        selectedFinalChain
+          ? `Deploy/fund the MetaMask smart account through a working ${chain.name} bundler.`
+          : 'After switching chains, deploy/fund the MetaMask smart account through a working Base mainnet bundler.',
         'Redeem the constrained delegation through DelegationManager from the authorized executor.',
         'Record the resulting treasury spend tx hash and update deployments/ and submission/.',
       ],

@@ -69,6 +69,7 @@ npm run metamask:preflight
   - checks whether the derived MetaMask smart account is already deployed
   - checks bundler reachability
   - shows the exact encoded `spendFromBudget(...)` selector/intent shape
+  - explicitly reports whether the setup is ready for the final **same-network Base mainnet** story
 
 - `metamask:create-signed-delegation-artifact`
   - generates a real signed constrained MetaMask delegation artifact

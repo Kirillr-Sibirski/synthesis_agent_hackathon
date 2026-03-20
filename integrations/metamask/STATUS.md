@@ -34,6 +34,7 @@ Latest re-verified preflight on `2026-03-20` confirms:
 - treasury code is deployed at `0xB38F8a149F95850cB5efF5fCE5621d36b8F8BBd0`
 - derived smart account is still **not** deployed onchain
 - no `BUNDLER_URL` is configured, so bundler reachability is currently false
+- the preflight now also reports `readyForFinalSameNetworkRun=false` and explicitly flags that the selected chain is still not Base mainnet
 
 Specifically, we still need:
 1. a working bundler endpoint for the selected final chain
