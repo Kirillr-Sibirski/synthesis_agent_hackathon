@@ -56,6 +56,7 @@ A principal-protected yield treasury where:
 - MetaMask delegation-preparation artifact generation now works in-repo (`npm run metamask:prepare-delegation-artifact`), including the exact encoded treasury selector and concrete Base Sepolia enforcer addresses
 - real signed constrained MetaMask delegation artifact generation now works in-repo (`npm run metamask:create-signed-delegation-artifact`)
 - a live MetaMask delegation redemption helper now exists in-repo (`npm run metamask:redeem-signed-delegation -- path/to/signed-delegation.json`), and its dry-run payload path has been exercised successfully with `tsx`
+- a one-command MetaMask live-flow orchestrator now exists in-repo (`npm run metamask:run-live-flow`) to assemble/save the artifact, deploy-if-needed, and redeem from the executor path; its dry-run path has been exercised successfully and now writes artifacts under `artifacts/metamask/`
 - MetaMask live-redemption readiness can now be checked in one step (`npm run metamask:preflight`) for env completeness, treasury code presence, smart-account deployment status, bundler reachability, and exact spend selector details
 
 ## Deployment target

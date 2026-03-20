@@ -3,36 +3,12 @@ import 'dotenv/config';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import {
-  ExecutionMode,
-  createExecution,
-  redeemDelegations,
-  type Delegation,
-} from '@metamask/smart-accounts-kit';
+import { ExecutionMode, createExecution, redeemDelegations } from '@metamask/smart-accounts-kit';
 import { createWalletClient, getAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
+import { json, type SignedDelegationArtifact } from './buildSignedDelegationArtifact.js';
 import { chain, publicClient, smartAccountsEnvironment, transport } from './utils.js';
-
-type SignedArtifact = {
-  network?: {
-    chainId?: number;
-    chainName?: string;
-    delegationManager?: `0x${string}`;
-  };
-  accounts?: {
-    delegate?: `0x${string}`;
-    redeemer?: `0x${string}`;
-    delegatorSmartAccount?: `0x${string}`;
-  };
-  smartAccountAddress?: `0x${string}`;
-  delegationManager?: `0x${string}`;
-  treasurySpendIntent?: {
-    treasury: `0x${string}`;
-    spendCallData: `0x${string}`;
-  };
-  delegation: Delegation;
-};
 
 const EXECUTOR_PRIVATE_KEY =
   (process.env.EXECUTOR_PRIVATE_KEY as `0x${string}` | undefined) ??
@@ -49,17 +25,9 @@ if (!ARTIFACT_PATH) {
   );
 }
 
-function loadArtifact(filePath: string): SignedArtifact {
+function loadArtifact(filePath: string): SignedDelegationArtifact {
   const resolved = path.resolve(process.cwd(), filePath);
-  return JSON.parse(readFileSync(resolved, 'utf8')) as SignedArtifact;
-}
-
-function json(value: unknown) {
-  return JSON.stringify(
-    value,
-    (_, current) => (typeof current === 'bigint' ? current.toString() : current),
-    2,
-  );
+  return JSON.parse(readFileSync(resolved, 'utf8')) as SignedDelegationArtifact;
 }
 
 async function main() {
@@ -72,24 +40,13 @@ async function main() {
   });
 
   const delegationManager = getAddress(
-    artifact.network?.delegationManager ??
-      artifact.delegationManager ??
-      smartAccountsEnvironment.DelegationManager,
+    artifact.network?.delegationManager ?? smartAccountsEnvironment.DelegationManager,
   );
-  const treasuryRaw = artifact.treasurySpendIntent?.treasury;
-  const callData = artifact.treasurySpendIntent?.spendCallData;
-  const smartAccountAddress = getAddress(
-    artifact.accounts?.delegatorSmartAccount ?? artifact.smartAccountAddress ?? artifact.delegation.delegator,
-  );
-  const expectedRedeemer = artifact.accounts?.redeemer ?? artifact.accounts?.delegate;
+  const treasury = getAddress(artifact.treasurySpendIntent.treasury);
+  const callData = artifact.treasurySpendIntent.spendCallData;
+  const smartAccountAddress = getAddress(artifact.accounts.delegatorSmartAccount);
+  const expectedRedeemer = artifact.accounts.redeemer ?? artifact.accounts.delegate;
 
-  if (!treasuryRaw) {
-    throw new Error('Artifact is missing treasurySpendIntent.treasury');
-  }
-  if (!callData) {
-    throw new Error('Artifact is missing treasurySpendIntent.spendCallData');
-  }
-  const treasury = getAddress(treasuryRaw);
   if (expectedRedeemer && getAddress(expectedRedeemer) !== getAddress(executorAccount.address)) {
     throw new Error(
       `Executor key does not match artifact redeemer. Expected ${expectedRedeemer}, got ${executorAccount.address}.`,

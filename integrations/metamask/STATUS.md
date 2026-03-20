@@ -38,7 +38,7 @@ Latest re-verified preflight on `2026-03-20` confirms:
 Specifically, we still need:
 1. a working bundler endpoint for the selected final chain
 2. smart-account deployment/funding onchain
-3. delegation redemption through live `DelegationManager` (a repo helper now exists at `integrations/metamask/redeemSignedDelegation.ts`)
+3. delegation redemption through live `DelegationManager` (repo helpers now exist at `integrations/metamask/redeemSignedDelegation.ts` and `integrations/metamask/runLiveDelegationFlow.ts`)
 4. treasury spend execution caused by that redemption
 
 ## Practical assessment
@@ -49,6 +49,8 @@ The project is now in a much better state than before:
 - MetaMask path has moved from abstract plan to actual smart-account + calldata + bundler scaffolding
 
 The remaining MetaMask gap is now the **live deployment/redemption proof**, not overall architecture or SDK shape correctness.
+
+A new one-command helper now exists at `integrations/metamask/runLiveDelegationFlow.ts`, and its `DRY_RUN=true` path was successfully exercised on 2026-03-20. That dry run assembled/saved a signed delegation artifact and the exact redemption payload, while confirming the current blocker is still the undeployed smart account / missing live bundler path.
 
 ## Local verification note
 
