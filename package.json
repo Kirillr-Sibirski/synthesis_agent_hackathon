@@ -13,7 +13,8 @@
     "metamask:derive-smart-account": "tsx integrations/metamask/deriveSmartAccount.ts",
     "metamask:deploy-smart-account": "tsx integrations/metamask/deploySmartAccount.ts",
     "metamask:encode-treasury-spend": "tsx integrations/metamask/encodeTreasurySpend.ts",
-    "metamask:prepare-delegation-artifact": "tsx integrations/metamask/prepareDelegationArtifact.ts"
+    "metamask:prepare-delegation-artifact": "tsx integrations/metamask/prepareDelegationArtifact.ts",
+    "metamask:create-signed-delegation-artifact": "tsx integrations/metamask/createSignedDelegationArtifact.ts"
   },
   "repository": {
     "type": "git",

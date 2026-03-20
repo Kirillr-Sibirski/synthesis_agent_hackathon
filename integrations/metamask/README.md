@@ -22,6 +22,21 @@ Use the real MetaMask framework to create a constrained delegation for the treas
 
 Then redeem that delegation and execute a treasury spend with onchain proof.
 
+That offchain constrained-delegation step is now implemented directly in-repo via:
+
+```bash
+npm run metamask:create-signed-delegation-artifact
+```
+
+The script creates a real signed MetaMask delegation artifact using the installed Smart Accounts Kit builders for:
+- allowed target
+- allowed method
+- exact calldata
+- redeemer restriction
+- limited call count
+- zero native value
+- bounded validity window
+
 ## Important discovery
 
 The delegator in the final proof flow must be an actual MetaMask **DeleGator / smart account**.

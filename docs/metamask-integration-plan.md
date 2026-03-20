@@ -49,7 +49,8 @@ Current progress:
 - the repo now also prepares exact treasury spend calldata via `npm run metamask:encode-treasury-spend`
 - bundler-aware deployment scaffolding exists via `npm run metamask:deploy-smart-account`
 - the repo now emits a concrete delegation-preparation artifact via `npm run metamask:prepare-delegation-artifact`
-- that artifact now derives the treasury selector directly from the encoded calldata and includes the concrete Base Sepolia enforcer addresses for AllowedTargets / ExactCalldata / Redeemer / LimitedCalls
+- the repo now also emits a **real signed constrained delegation artifact** via `npm run metamask:create-signed-delegation-artifact`
+- that signed artifact uses the installed Smart Accounts Kit caveat builders for AllowedTargets / AllowedMethods / ExactCalldata / Redeemer / LimitedCalls / ValueLte / Timestamp
 - next step is deploying/using that DeleGator in the live treasury flow once a Base Sepolia bundler endpoint is available
 
 ## Practical implementation path

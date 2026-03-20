@@ -51,6 +51,7 @@ A principal-protected yield treasury where:
 - submission draft package created under `submission/`
 - Base Sepolia MetaMask smart-account derivation now works in-repo
 - MetaMask delegation-preparation artifact generation now works in-repo (`npm run metamask:prepare-delegation-artifact`), including the exact encoded treasury selector and concrete Base Sepolia enforcer addresses
+- real signed constrained MetaMask delegation artifact generation now works in-repo (`npm run metamask:create-signed-delegation-artifact`)
 
 ## Deployment target
 
