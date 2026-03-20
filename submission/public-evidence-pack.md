@@ -95,25 +95,39 @@ Implemented evidence already in the repo:
 Honest blocker:
 - we still need a deployment using real `wstETH` on an accepted L2/mainnet for strongest Lido-track qualification
 
-## 7. Best honest track posture right now
+## 7. Latest validation snapshot (2026-03-20)
+
+Re-verified in-repo on 2026-03-20:
+- `~/.foundry/bin/forge test` → **31/31 passing**
+- `node --check frontend/app.js` → **passing**
+- `npm run metamask:preflight` → **selected chain = Base Sepolia, smart account undeployed, bundler not configured/reachable, readyForFinalSameNetworkRun=false**
+- `npm run final:validate-same-network` → **overallReadyForSameNetworkDemoSubmission=false**
+
+Current same-network validator blockers:
+- frontend Base mainnet addresses are not configured yet
+- receipt hash is not configured in frontend cutover data yet
+- current frontend actor config still overlaps roles on one address
+- no Base mainnet MetaMask preflight artifact exists yet
+
+## 8. Best honest track posture right now
 
 ### Strong now
 - **Agents With Receipts — ERC-8004**
 - **Synthesis Open Track**
 
 ### Credible but still missing one sponsor-native proof step
-- **Best Use of Delegations** — missing live MetaMask smart-account deployment/redemption proof
-- **Let the Agent Cook** — needs more final manifest/log framing polish
-- **stETH Agent Treasury** — needs real `wstETH` deployment path on accepted network
+- **Best Use of Delegations** — missing live MetaMask smart-account deployment/redemption proof on the final same-network target
+- **Let the Agent Cook** — needs final manifest/log framing plus a fully judge-ready same-network demo surface
+- **stETH Agent Treasury** — needs real `wstETH` deployment path on the final same-network target
 
-## 8. Fastest remaining path to honest 3+ track qualification
+## 9. Fastest remaining path to honest 3+ track qualification
 
 1. finish the live MetaMask bundler-backed deployment/redemption proof
 2. finalize `agent.json` and `agent_log.json` around the already-recorded ERC-8004 registration and live txs
 3. tighten the judge-facing autonomous loop / role-separated evidence
 4. optionally upgrade into real `wstETH` deployment for a stronger Lido claim
 
-## 9. Final same-network handoff template
+## 10. Final same-network handoff template
 
 When the final Base mainnet run happens, record it in:
 - `deployments/base-mainnet-cutover-template.md`

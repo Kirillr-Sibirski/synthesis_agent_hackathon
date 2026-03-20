@@ -72,6 +72,7 @@
     "notes": "Current prototype is contract-first. However, the current hackathon operating checklist requires a usable dashboard for the final judge demo, so frontend completion is still part of the honest remaining work if that surface is not yet present."
   },
   "currentQualificationStatus": {
+    "validatedAt": "2026-03-20T17:22:28Z",
     "strongNow": [
       "Agents With Receipts — ERC-8004",
       "Synthesis Open Track"
@@ -82,10 +83,26 @@
       "Let the Agent Cook"
     ],
     "sameNetworkFinalTarget": "Base Mainnet",
+    "latestValidation": {
+      "forgeTests": "31/31 passing",
+      "frontendSyntax": "node --check frontend/app.js passing",
+      "metaMaskPreflight": {
+        "selectedChain": "Base Sepolia",
+        "selectedChainId": 84532,
+        "smartAccountDeployed": false,
+        "bundlerConfigured": false,
+        "bundlerReachable": false,
+        "readyForFinalSameNetworkRun": false
+      },
+      "sameNetworkValidator": {
+        "overallReadyForSameNetworkDemoSubmission": false,
+        "frontendFinalDemoConfigReady": false
+      }
+    },
     "largestBlockers": [
-      "MetaMask smart-account deployment and live delegation redemption still need a working bundler-backed path.",
+      "MetaMask smart-account deployment and live delegation redemption still need a working bundler-backed path on Base mainnet.",
       "Real wstETH treasury deployment on the final same-network target is still pending.",
-      "Final judge-ready dashboard + packaging polish still needs completion."
+      "Frontend Base mainnet demo config is still incomplete and still has role overlap in the current config."
     ]
   }
 }

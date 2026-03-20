@@ -75,6 +75,12 @@ And it is materially closer for:
 - **Let the Agent Cook** — needs final manifest/log framing polish plus the required frontend demo surface
 - **stETH Agent Treasury** — needs a live deployment using real `wstETH` on the same final network as the rest of the sponsor story
 
+Latest verification snapshot (2026-03-20):
+- `forge test` → **31/31 passing**
+- `node --check frontend/app.js` → **passing**
+- `npm run metamask:preflight` → Base Sepolia selected, treasury deployed, smart account undeployed, bundler not configured/reachable, `readyForFinalSameNetworkRun=false`
+- `npm run final:validate-same-network` → `overallReadyForSameNetworkDemoSubmission=false`
+
 See `submission/public-evidence-pack.md` for the public-safe judge index.
 
 ## Notes
