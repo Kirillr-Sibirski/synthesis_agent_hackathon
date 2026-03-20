@@ -171,6 +171,15 @@ FRONTEND_VALIDATION_PATH=artifacts/frontend/validation.json \
   npm run final:validate-same-network
 ```
 
+Or refresh the entire readiness bundle in one pass:
+
+```bash
+PREFLIGHT_OUT=artifacts/metamask/preflight-8453.json \
+FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json \
+FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
+  npm run final:refresh-readiness-bundle
+```
+
 Expected env inputs:
 - preferred for mainnet cutover:
   - `FRONTEND_TREASURY_ADDRESS`

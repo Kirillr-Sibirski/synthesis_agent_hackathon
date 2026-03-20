@@ -75,6 +75,15 @@ FRONTEND_VALIDATION_PATH=artifacts/frontend/validation.json \
   npm run final:validate-same-network
 ```
 
+Or refresh the whole bundle in one ordered command:
+
+```bash
+PREFLIGHT_OUT=artifacts/metamask/preflight-84532.json \
+FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json \
+FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
+  npm run final:refresh-readiness-bundle
+```
+
 This writes `frontend/config.json` locally and gives you machine-checkable same-network dashboard + final-run readiness reports, so moving from prototype addresses to the live deployment does not require editing app code.
 
 ## Validation notes
