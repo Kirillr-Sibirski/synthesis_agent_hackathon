@@ -22,6 +22,7 @@ A principal-protected yield treasury where:
 - `deployments/` — concrete onchain deployment records
 - `submission/` — submission drafts, metadata, agent manifest, execution log
 - `integrations/` — sponsor-specific integration workspaces (for example MetaMask)
+- `frontend/` — static wallet-connected dashboard for the judge demo flow
 - `Memory/` — hackathon notes, competition research, idea development
 - `frontend/` — dashboard surface for the final judge demo flow (required by the current operating checklist; still unfinished if missing)
 - `foundry.toml` — Foundry config
@@ -78,4 +79,6 @@ See `submission/public-evidence-pack.md` for the public-safe judge index.
 
 - Sensitive submission / personal info is kept in local-only notes and excluded from git.
 - Secrets are env-based only; do not commit private keys.
+- The repo vendors `forge-std` so the test/deploy environment is reproducible.
+ys.
 - The repo vendors `forge-std` so the test/deploy environment is reproducible.

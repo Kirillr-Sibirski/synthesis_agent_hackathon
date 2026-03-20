@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delegated Yield Treasury Dashboard</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Synthesis hackathon dashboard</p>
+        <h1>Delegated Yield Treasury</h1>
+        <p class="subhead">
+          Wallet-connected control surface for the treasury, budgets, receipts, and MetaMask
+          delegation spend intent.
+        </p>
+      </div>
+      <div class="hero-card">
+        <div><strong>Target tracks</strong></div>
+        <ul>
+          <li>stETH Agent Treasury</li>
+          <li>Best Use of Delegations</li>
+          <li>Agents With Receipts — ERC-8004</li>
+          <li>Synthesis Open Track</li>
+        </ul>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <h2>1. Network & wallet</h2>
+        <div class="two-col">
+          <label>
+            Target chain
+            <select id="chainSelect">
+              <option value="base">Base mainnet</option>
+              <option value="baseSepolia" selected>Base Sepolia</option>
+            </select>
+          </label>
+          <label>
+            Public RPC URL
+            <input id="rpcUrl" placeholder="https://..." />
+          </label>
+        </div>
+        <div class="button-row">
+          <button id="prefillPrototype">Prefill Base Sepolia prototype</button>
+          <button id="connectWallet">Connect wallet</button>
+          <button id="switchChain">Switch chain in wallet</button>
+        </div>
+        <div class="status-grid">
+          <div>
+            <span class="label">Wallet</span>
+            <div id="walletStatus">Not connected</div>
+          </div>
+          <div>
+            <span class="label">Expected chain</span>
+            <div id="expectedChainStatus">Base Sepolia</div>
+          </div>
+          <div>
+            <span class="label">Same-network thesis</span>
+            <div id="sameNetworkStatus">Prototype only</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Contract addresses</h2>
+        <div class="two-col">
+          <label>
+            Treasury
+            <input id="treasuryAddress" placeholder="0x..." />
+          </label>
+          <label>
+            Asset (`wstETH` or mock)
+            <input id="assetAddress" placeholder="0x..." />
+          </label>
+          <label>
+            Receipt registry
+            <input id="receiptRegistryAddress" placeholder="0x..." />
+          </label>
+          <label>
+            Authorizer
+            <input id="authorizerAddress" placeholder="0x..." />
+          </label>
+        </div>
+        <p class="muted">
+          For Base mainnet, fill in the final same-network deployment addresses. The prefill button
+          only loads the current Base Sepolia prototype.
+        </p>
+      </section>
+
+      <section class="card wide">
+        <h2>3. Treasury summary</h2>
+        <div class="button-row">
+          <button id="loadTreasurySummary">Load treasury state</button>
+        </div>
+        <div id="treasurySummary" class="data-panel empty">Treasury state not loaded yet.</div>
+      </section>
+
+      <section class="card">
+        <h2>4. Budget helper & inspection</h2>
+        <label>
+          Budget label
+          <input id="budgetLabel" value="OPS_BUDGET" />
+        </label>
+        <div class="button-row">
+          <button id="deriveBudgetId">Hash label → budgetId</button>
+          <button id="inspectBudget">Inspect budget</button>
+        </div>
+        <label>
+          Budget ID
+          <input id="budgetId" placeholder="0x..." />
+        </label>
+        <div id="budgetInspection" class="data-panel empty">Budget inspection not run yet.</div>
+      </section>
+
+      <section class="card">
+        <h2>5. Owner / manager actions</h2>
+        <div class="two-col">
+          <label>
+            Parent budget ID (optional)
+            <input id="parentBudgetId" placeholder="0x00... for root budget" />
+          </label>
+          <label>
+            Budget manager
+            <input id="budgetManager" placeholder="0x..." />
+          </label>
+          <label>
+            Allocation (whole token units)
+            <input id="budgetAllocation" value="10" />
+          </label>
+          <label>
+            Active
+            <select id="budgetActive">
+              <option value="true" selected>true</option>
+              <option value="false">false</option>
+            </select>
+          </label>
+        </div>
+        <div class="button-row">
+          <button id="setAuthorizer">Set authorizer</button>
+          <button id="setReceiptRegistry">Set receipt registry</button>
+          <button id="configureBudget">Configure budget</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>6. Asset + spend actions</h2>
+        <div class="two-col">
+          <label>
+            Deposit amount (whole token units)
+            <input id="depositAmount" value="1" />
+          </label>
+          <label>
+            Spend amount (whole token units)
+            <input id="spendAmount" value="1" />
+          </label>
+          <label>
+            Recipient
+            <input id="spendRecipient" placeholder="0x..." />
+          </label>
+          <label>
+            Metadata URI
+            <input id="metadataUri" value="ipfs://dashboard-spend-1" />
+          </label>
+        </div>
+        <div class="button-row">
+          <button id="approveAsset">Approve asset for treasury</button>
+          <button id="depositPrincipal">Deposit principal</button>
+          <button id="spendFromBudget">Spend from budget</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>7. Receipt lookup</h2>
+        <label>
+          Receipt hash
+          <input id="receiptHash" placeholder="0x..." />
+        </label>
+        <div class="button-row">
+          <button id="loadReceipt">Load receipt</button>
+        </div>
+        <div id="receiptInspection" class="data-panel empty">Receipt not loaded yet.</div>
+      </section>
+
+      <section class="card">
+        <h2>8. MetaMask delegation spend intent</h2>
+        <div class="two-col">
+          <label>
+            Demo executor
+            <input id="demoExecutor" placeholder="0x..." />
+          </label>
+          <label>
+            Demo recipient
+            <input id="demoRecipient" placeholder="0x..." />
+          </label>
+        </div>
+        <div class="button-row">
+          <button id="buildSpendIntent">Preview spend calldata + hashes</button>
+        </div>
+        <div id="metamaskPreview" class="data-panel empty">
+          Delegation-ready spend intent not built yet.
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>Activity log</h2>
+        <pre id="activityLog" class="log"></pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Static dashboard. Serve with <code>python3 -m http.server</code> inside the
+        <code>frontend/</code> directory for browser wallet access.
+      </p>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
