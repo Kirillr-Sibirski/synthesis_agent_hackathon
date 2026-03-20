@@ -17,22 +17,33 @@ const CHAINS = {
   baseSepolia,
 };
 
-const DEFAULTS = {
-  baseSepolia: {
-    rpcUrl: 'https://sepolia.base.org',
-    treasury: '0xB38F8a149F95850cB5efF5fCE5621d36b8F8BBd0',
-    asset: '0x623f9f72342a3c2518c880d8372de90eaef200cd',
-    receiptRegistry: '0xEa7E65954B7A057f739AdC103D3547b9D99aa7f6',
-    authorizer: '0x4434F99f7655F94705217601706536Bd94273c2F',
+const BUILTIN_CONFIG = {
+  chains: {
+    baseSepolia: {
+      rpcUrl: 'https://sepolia.base.org',
+      treasury: '0xB38F8a149F95850cB5efF5fCE5621d36b8F8BBd0',
+      asset: '0x623f9f72342a3c2518c880d8372de90eaef200cd',
+      receiptRegistry: '0xEa7E65954B7A057f739AdC103D3547b9D99aa7f6',
+      authorizer: '0x4434F99f7655F94705217601706536Bd94273c2F',
+    },
+    base: {
+      rpcUrl: '',
+      treasury: '',
+      asset: '0x7f39c581f595b53c5cb5bbd8f2c9a0e1b8d9d2b2',
+      receiptRegistry: '',
+      authorizer: '',
+    },
   },
-  base: {
-    rpcUrl: '',
-    treasury: '',
-    asset: '0x7f39c581f595b53c5cb5bbd8f2c9a0e1b8d9d2b2',
-    receiptRegistry: '',
-    authorizer: '',
+  actors: {
+    budgetManager: '0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948',
+    spendRecipient: '0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948',
+    demoExecutor: '0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948',
+    demoRecipient: '0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948',
+    receiptHash: '0x1675e089e66f959833b06b6c503058d4fda53f62715d36d92176427095c95b0b',
   },
 };
+
+let dashboardConfig = structuredClone(BUILTIN_CONFIG);
 
 const TREASURY_ABI = [
   {
@@ -321,6 +332,54 @@ function log(message, detail) {
   els.activityLog.textContent = `${line}${tail}\n\n${els.activityLog.textContent}`.trim();
 }
 
+function chainPreset(chainKey) {
+  return dashboardConfig.chains[chainKey] ?? BUILTIN_CONFIG.chains[chainKey];
+}
+
+function applyActorDefaults() {
+  const actors = dashboardConfig.actors ?? BUILTIN_CONFIG.actors;
+  els.budgetManager.value = actors.budgetManager ?? '';
+  els.spendRecipient.value = actors.spendRecipient ?? '';
+  els.demoExecutor.value = actors.demoExecutor ?? '';
+  els.demoRecipient.value = actors.demoRecipient ?? '';
+  els.receiptHash.value = actors.receiptHash ?? '';
+}
+
+async function loadDashboardConfig() {
+  try {
+    const response = await fetch('./config.json', { cache: 'no-store' });
+    if (!response.ok) {
+      if (response.status !== 404) {
+        throw new Error(`config.json returned HTTP ${response.status}`);
+      }
+      return false;
+    }
+
+    const loaded = await response.json();
+    dashboardConfig = {
+      chains: {
+        baseSepolia: {
+          ...BUILTIN_CONFIG.chains.baseSepolia,
+          ...(loaded.chains?.baseSepolia ?? {}),
+        },
+        base: {
+          ...BUILTIN_CONFIG.chains.base,
+          ...(loaded.chains?.base ?? {}),
+        },
+      },
+      actors: {
+        ...BUILTIN_CONFIG.actors,
+        ...(loaded.actors ?? {}),
+      },
+    };
+    log('Loaded frontend config from config.json.');
+    return true;
+  } catch (error) {
+    log('Failed to load frontend config; using built-in defaults.', error?.message ?? String(error));
+    return false;
+  }
+}
+
 function setPanel(el, data) {
   el.classList.remove('empty');
   el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
@@ -343,7 +402,7 @@ function updateExpectedChainStatus() {
 }
 
 function prefillDefaults() {
-  const preset = DEFAULTS[els.chainSelect.value];
+  const preset = chainPreset(els.chainSelect.value);
   els.rpcUrl.value = preset.rpcUrl;
   els.treasuryAddress.value = preset.treasury;
   els.assetAddress.value = preset.asset;
@@ -696,16 +755,19 @@ document.getElementById('buildSpendIntent').addEventListener('click', () => hand
 els.chainSelect.addEventListener('change', () => {
   updateExpectedChainStatus();
   if (!els.rpcUrl.value.trim() || els.chainSelect.value === 'baseSepolia') {
-    const preset = DEFAULTS[els.chainSelect.value];
+    const preset = chainPreset(els.chainSelect.value);
     els.rpcUrl.value = preset.rpcUrl;
   }
 });
 
-prefillDefaults();
-els.budgetManager.value = '0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948';
-els.spendRecipient.value = '0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948';
-els.demoExecutor.value = '0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948';
-els.demoRecipient.value = '0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948';
-els.receiptHash.value = '0x1675e089e66f959833b06b6c503058d4fda53f62715d36d92176427095c95b0b';
-updateExpectedChainStatus();
-log('Dashboard ready. Serve frontend/ over HTTP for browser wallet access.');
+async function initDashboard() {
+  await loadDashboardConfig();
+  prefillDefaults();
+  applyActorDefaults();
+  updateExpectedChainStatus();
+  log('Dashboard ready. Serve frontend/ over HTTP for browser wallet access.');
+}
+
+initDashboard().catch((error) => {
+  log('Dashboard init failed.', error?.message ?? String(error));
+});

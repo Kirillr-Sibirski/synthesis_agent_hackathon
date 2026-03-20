@@ -33,6 +33,16 @@ Then open:
 http://localhost:4173
 ```
 
+## Configuring final deployments
+
+The dashboard now supports an optional local `config.json` in this directory.
+
+1. Copy `config.example.json` to `config.json`
+2. Fill in the final Base mainnet deployment addresses
+3. Keep `config.json` local-only (it is gitignored)
+
+This is the intended cutover path for the final same-network demo, so moving from prototype addresses to the live deployment does not require editing app code.
+
 ## Current limitations
 
 - tuned first for the `WstETHYieldTreasury` interface
@@ -45,4 +55,5 @@ http://localhost:4173
 - add explicit role-separated flow cards (owner / manager / executor / recipient)
 - add live tx history panels from deployment notes
 - add stronger receipt/provenance visualization
+- surface saved MetaMask delegation artifacts / live-flow outputs in the UI
 - move to a bundled app stack if needed after the main sponsor-complete path is locked

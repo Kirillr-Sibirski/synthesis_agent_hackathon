@@ -17,3 +17,6 @@ submission/private-registration.json
 
 # Local generated delegation artifacts / dry-run outputs
 artifacts/
+
+# Local frontend deployment config
+frontend/config.json

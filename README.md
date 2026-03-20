@@ -22,9 +22,8 @@ A principal-protected yield treasury where:
 - `deployments/` — concrete onchain deployment records
 - `submission/` — submission drafts, metadata, agent manifest, execution log
 - `integrations/` — sponsor-specific integration workspaces (for example MetaMask)
-- `frontend/` — static wallet-connected dashboard for the judge demo flow
+- `frontend/` — static wallet-connected dashboard for the judge demo flow, with optional local `config.json` support for final deployment cutover
 - `Memory/` — hackathon notes, competition research, idea development
-- `frontend/` — dashboard surface for the final judge demo flow (required by the current operating checklist; still unfinished if missing)
 - `foundry.toml` — Foundry config
 
 ## Current contracts
