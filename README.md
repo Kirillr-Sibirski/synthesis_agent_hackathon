@@ -47,6 +47,7 @@ A principal-protected yield treasury where:
 - receipts now capture the exact matched authorization rule ID
 - dedicated `wstETH`-specific treasury path implemented with exchange-rate-derived yield accounting
 - slash/rate-drop safety tested for the `wstETH` path
+- role-separated `wstETH` live-deployment tooling added (separate manager/executor/recipient path)
 - submission draft package created under `submission/`
 - Base Sepolia MetaMask smart-account derivation now works in-repo
 - MetaMask delegation-preparation artifact generation now works in-repo (`npm run metamask:prepare-delegation-artifact`), including the exact encoded treasury selector and concrete Base Sepolia enforcer addresses
