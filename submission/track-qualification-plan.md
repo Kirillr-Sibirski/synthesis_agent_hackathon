@@ -76,7 +76,6 @@ The goal is not to vaguely fit many tracks. The goal is to **fully qualify for a
 - `agent.json` and `agent_log.json` drafts exist
 
 #### Missing for full qualification
-- ERC-8004 identity registration
 - polished autonomous execution log
 - stronger framing of the full loop:
   - discover
@@ -167,4 +166,8 @@ That turns the project from “3-track fully qualified” into “4+ track serio
 - Agents With Receipts — ERC-8004
 - Let the Agent Cook
 - stETH Agent Treasury
+- Open Track
+- stETH Agent Treasury
+- Open Track
+y
 - Open Track
