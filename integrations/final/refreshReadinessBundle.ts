@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
-const PREFLIGHT_OUT = process.env.PREFLIGHT_OUT ?? 'artifacts/metamask/preflight-84532.json';
+const PREFLIGHT_OUT = process.env.PREFLIGHT_OUT ?? 'artifacts/metamask/preflight-8453.json';
 const FRONTEND_VALIDATION_OUT = process.env.FRONTEND_VALIDATION_OUT ?? 'artifacts/frontend/validation.json';
 const FINAL_READINESS_OUT = process.env.FINAL_READINESS_OUT ?? 'artifacts/final/same-network-readiness.json';
 const NPM_BIN = process.env.NPM_BIN ?? 'npm';

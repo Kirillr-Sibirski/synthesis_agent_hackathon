@@ -79,7 +79,7 @@ FRONTEND_VALIDATION_PATH=artifacts/frontend/validation.json \
 Or refresh the whole bundle in one ordered command:
 
 ```bash
-PREFLIGHT_OUT=artifacts/metamask/preflight-84532.json \
+PREFLIGHT_OUT=artifacts/metamask/preflight-8453.json \
 FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json \
 FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
   npm run final:refresh-readiness-bundle
