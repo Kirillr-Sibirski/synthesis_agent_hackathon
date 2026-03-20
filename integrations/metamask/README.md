@@ -71,7 +71,16 @@ npm run metamask:derive-smart-account
 npm run metamask:deploy-smart-account
 npm run metamask:encode-treasury-spend
 npm run metamask:prepare-delegation-artifact
+npm run metamask:create-signed-delegation-artifact
+npm run metamask:preflight
 ```
+
+`metamask:preflight` emits a live-readiness report that checks:
+- required env presence for the treasury spend intent
+- whether the derived MetaMask smart account is already deployed
+- whether `TREASURY_ADDRESS` currently has code on Base Sepolia
+- whether the configured bundler endpoint is reachable
+- the exact encoded `spendFromBudget(...)` selector/intent shape that the delegation must authorize
 
 `metamask:prepare-delegation-artifact` emits a sponsor-facing JSON artifact that ties together:
 - the derived MetaMask smart account

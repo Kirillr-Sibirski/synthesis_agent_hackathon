@@ -52,6 +52,7 @@ A principal-protected yield treasury where:
 - Base Sepolia MetaMask smart-account derivation now works in-repo
 - MetaMask delegation-preparation artifact generation now works in-repo (`npm run metamask:prepare-delegation-artifact`), including the exact encoded treasury selector and concrete Base Sepolia enforcer addresses
 - real signed constrained MetaMask delegation artifact generation now works in-repo (`npm run metamask:create-signed-delegation-artifact`)
+- MetaMask live-redemption readiness can now be checked in one step (`npm run metamask:preflight`) for env completeness, treasury code presence, smart-account deployment status, bundler reachability, and exact spend selector details
 
 ## Deployment target
 

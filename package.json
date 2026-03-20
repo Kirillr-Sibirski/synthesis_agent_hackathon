@@ -14,7 +14,8 @@
     "metamask:deploy-smart-account": "tsx integrations/metamask/deploySmartAccount.ts",
     "metamask:encode-treasury-spend": "tsx integrations/metamask/encodeTreasurySpend.ts",
     "metamask:prepare-delegation-artifact": "tsx integrations/metamask/prepareDelegationArtifact.ts",
-    "metamask:create-signed-delegation-artifact": "tsx integrations/metamask/createSignedDelegationArtifact.ts"
+    "metamask:create-signed-delegation-artifact": "tsx integrations/metamask/createSignedDelegationArtifact.ts",
+    "metamask:preflight": "tsx integrations/metamask/preflight.ts"
   },
   "repository": {
     "type": "git",
