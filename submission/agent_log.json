@@ -26,7 +26,7 @@
       "step": 4,
       "phase": "tooling",
       "action": "Installed Foundry on the VPS and ran the full test suite",
-      "result": "23/23 tests passing at repo head",
+      "result": "30/30 tests passing at repo head",
       "status": "success"
     },
     {
@@ -70,6 +70,18 @@
         "ownerAddress": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948"
       },
       "status": "success"
+    },
+    {
+      "step": 10,
+      "phase": "metamask-integration",
+      "action": "Implemented real MetaMask smart-account derivation, constrained delegation artifact generation, and live-readiness preflight tooling",
+      "result": {
+        "derivedSmartAccount": "0x08478FfC43E134ae9390720D41409B06f38fEB7d",
+        "delegationManager": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
+        "publicJudgeIndex": "submission/public-evidence-pack.md",
+        "remainingBlocker": "Bundler-backed smart-account deployment and live redemption proof still pending"
+      },
+      "status": "partial"
     }
   ]
 }
