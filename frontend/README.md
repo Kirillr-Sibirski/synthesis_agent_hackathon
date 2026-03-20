@@ -63,7 +63,7 @@ Then validate it with:
 
 ```bash
 FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json \
-METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-84532.json \
+METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-8453.json \
   npm run frontend:validate-config
 ```
 

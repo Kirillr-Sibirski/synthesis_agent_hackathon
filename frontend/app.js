@@ -539,7 +539,7 @@ function buildQualificationSummary() {
         : [
             'Load treasury state.',
             'Inspect the budget and role-separated summary.',
-            'Load a signed-delegation, preflight, or final readiness artifact to connect MetaMask proof to the treasury flow.',
+            'Load a signed-delegation, preflight, cutover-env, or final readiness artifact to connect MetaMask proof to the treasury flow.',
           ],
   };
 
