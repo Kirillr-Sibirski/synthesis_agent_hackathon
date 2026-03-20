@@ -71,7 +71,7 @@ And combine that with the MetaMask readiness artifact into one go/no-go report:
 
 ```bash
 FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
-METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-84532.json \
+METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-8453.json \
 FRONTEND_VALIDATION_PATH=artifacts/frontend/validation.json \
   npm run final:validate-same-network
 ```
