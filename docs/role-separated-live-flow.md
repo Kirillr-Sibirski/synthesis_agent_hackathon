@@ -24,6 +24,7 @@ The repo now contains a role-separated `wstETH` path:
 
 ## Intended flow
 
+### Mock/test flow
 1. Generate local-only role keys for manager / executor / recipient
 2. Wire those addresses into local `.env`
 3. Deploy mock `wstETH`
@@ -36,6 +37,18 @@ The repo now contains a role-separated `wstETH` path:
    - set authorization rule for executor -> recipient
 7. Execute spend with **executor private key**, not owner key
 8. Record resulting tx hashes and update deployment notes
+
+### Final same-network / real-asset flow
+1. Deploy `WstETHYieldTreasury` + `DelegationAuthorizer` + `ReceiptRegistry` on the final target network
+2. Point `WSTETH_ADDRESS` to the real token address on that same network
+3. Run `script/SetupLiveWstETHDemo.s.sol`
+4. Deposit principal from the owner wallet
+5. Ensure spendable headroom exists above the principal floor:
+   - either from real accrued yield already inside the treasury
+   - or from an explicit additional `wstETH` transfer to the treasury via `YIELD_TOPUP_WSTETH`
+6. Configure the root budget and executor rule
+7. Execute spend with **executor private key**, not owner key
+8. Record tx hashes and final state snapshot for judges
 
 ## Current state
 

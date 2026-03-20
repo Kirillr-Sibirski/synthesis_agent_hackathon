@@ -50,6 +50,7 @@ A principal-protected yield treasury where:
 - dedicated `wstETH`-specific treasury path implemented with exchange-rate-derived yield accounting
 - slash/rate-drop safety tested for the `wstETH` path
 - role-separated `wstETH` live-deployment tooling added (separate manager/executor/recipient path)
+- real-asset-compatible `wstETH` setup script added for the final same-network target (`script/SetupLiveWstETHDemo.s.sol`)
 - submission draft package created under `submission/`
 - Base Sepolia MetaMask smart-account derivation now works in-repo
 - MetaMask delegation-preparation artifact generation now works in-repo (`npm run metamask:prepare-delegation-artifact`), including the exact encoded treasury selector and concrete Base Sepolia enforcer addresses
@@ -79,6 +80,4 @@ See `submission/public-evidence-pack.md` for the public-safe judge index.
 
 - Sensitive submission / personal info is kept in local-only notes and excluded from git.
 - Secrets are env-based only; do not commit private keys.
-- The repo vendors `forge-std` so the test/deploy environment is reproducible.
-ys.
 - The repo vendors `forge-std` so the test/deploy environment is reproducible.

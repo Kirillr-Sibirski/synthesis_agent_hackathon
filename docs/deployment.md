@@ -47,7 +47,21 @@ forge script script/Deploy.s.sol:DeployScript \
 - live spend + receipt executed on the upgraded stack
 - see `deployments/base-sepolia-v2.md` for the latest addresses and tx hashes
 
+## Same-network upgrade path
+
+The current public prototype proofs are on Base Sepolia, but the final no-compromise thesis now targets **Base mainnet** so that:
+- ERC-8004 identity, real `wstETH`, and the final sponsor story all live on one network
+- the frontend can demonstrate one coherent environment instead of a split testnet/mainnet narrative
+
+For the live `wstETH` path, use:
+- `script/DeployWstETHTreasury.s.sol`
+- `script/SetupLiveWstETHDemo.s.sol`
+- `script/SpendFromWstETHBudget.s.sol`
+
+Important practical note:
+- a fresh principal deposit into `WstETHYieldTreasury` does **not** create immediate spendable yield by itself
+- for a near-term live demo, the treasury must already contain headroom above the principal floor, either from real accrued yield or from an explicit additional `wstETH` top-up sent directly to the treasury (`YIELD_TOPUP_WSTETH`)
+
 ## Possible next deployments later
 - Status Sepolia for gasless bonus
-- Base mainnet for stronger onchain artifact
 - Celo only if we intentionally extend track scope
