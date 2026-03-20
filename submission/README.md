@@ -10,6 +10,13 @@ This folder collects submission-facing artifacts for The Synthesis.
 - `submission-status.md` — checklist of what is done vs still needed
 - `agent.json` — draft agent manifest
 - `agent_log.json` — draft structured execution log
+- `private-registration.example.json` — redacted shape of the local-only Synthesis registration state
+
+## Private vs public
+
+- `submission/private-registration.json` is **local-only** and gitignored because it may contain sensitive registration state such as API credentials.
+- Only redacted/public-safe material should be used in committed submission artifacts.
+- Public-facing ERC-8004 proof should rely on non-secret fields such as the registration transaction, owner address, repo URL, deployment notes, and judge-facing manifests.
 
 ## Current status
 
