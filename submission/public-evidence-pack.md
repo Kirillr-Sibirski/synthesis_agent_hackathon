@@ -46,10 +46,13 @@ Judge-facing role-separation note:
 What is already true:
 - the repo contains separate owner / manager / executor / recipient flow tooling
 - a dedicated `WstETHYieldTreasury` path exists
-- deployment notes are recorded
+- live deployment transactions for the role-separated `wstETH` stack are recorded
+- the deployment note now explicitly documents the intended setup/spend content and the exact remaining curation gap
 
 What is still missing:
-- the strongest curated final tx set for the fully separated live story
+- the strongest curated final setup tx set with distinct actor addresses called out explicitly
+- the strongest curated executor-originated spend tx hash for the role-separated story
+- final post-spend state snapshot for the judge-facing role-separated narrative
 
 ## 5. MetaMask Delegation Framework evidence
 

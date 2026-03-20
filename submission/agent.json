@@ -64,6 +64,6 @@
   "computeConstraints": {
     "primaryEnvironment": "VPS-hosted OpenClaw session",
     "contractBuildTool": "Foundry",
-    "notes": "Current prototype is contract-first; no frontend is required for the core demo."
+    "notes": "Current prototype is contract-first. However, the current hackathon operating checklist requires a usable dashboard for the final judge demo, so frontend completion is still part of the honest remaining work if that surface is not yet present."
   }
 }

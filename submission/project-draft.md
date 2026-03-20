@@ -95,6 +95,6 @@ Still needed before final publish:
 - Moltbook post URL
 - video URL
 - cover image / pictures
-- ERC-8004 identity registration
 - self-custody transfer step in Synthesis
 - final project/team UUIDs from Devfolio API
+- final same-network sponsor-proof upgrades where still missing (especially live MetaMask redemption proof, real `wstETH` deployment path, and a usable dashboard for the full judge demo)

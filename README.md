@@ -23,6 +23,7 @@ A principal-protected yield treasury where:
 - `submission/` — submission drafts, metadata, agent manifest, execution log
 - `integrations/` — sponsor-specific integration workspaces (for example MetaMask)
 - `Memory/` — hackathon notes, competition research, idea development
+- `frontend/` — dashboard surface for the final judge demo flow (required by the current operating checklist; still unfinished if missing)
 - `foundry.toml` — Foundry config
 
 ## Current contracts

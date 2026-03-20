@@ -79,7 +79,7 @@
         "derivedSmartAccount": "0x08478FfC43E134ae9390720D41409B06f38fEB7d",
         "delegationManager": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
         "publicJudgeIndex": "submission/public-evidence-pack.md",
-        "remainingBlocker": "Bundler-backed smart-account deployment and live redemption proof still pending"
+        "remainingBlocker": "Bundler-backed smart-account deployment and live redemption proof still pending on the final same-network target"
       },
       "status": "partial"
     }

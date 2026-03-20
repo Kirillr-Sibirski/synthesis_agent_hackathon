@@ -32,8 +32,11 @@
 
 ## Biggest quality upgrades still worth doing
 
-- [ ] Separate owner / manager / executor / recipient roles in a live deployment (tooling/scripts exist and a generated deployment note now exists at `deployments/base-sepolia-wsteth-role-separated.md`; final polish is verifying/curating the strongest tx set for judges)
+- [~] Separate owner / manager / executor / recipient roles in a live deployment (tooling/scripts exist and the generated deployment note at `deployments/base-sepolia-wsteth-role-separated.md` now clearly distinguishes what is already proven versus what still needs final tx curation)
 - [ ] Real MetaMask Delegation Framework integration (smart-account derivation + treasury calldata prep are done; a real signed constrained delegation artifact is now generated in-repo; a live-readiness preflight now checks env/treasury/bundler/smart-account status in one step; a lightweight Solidity compile-sanity test exists for treasury + enforcer imports; live delegation-backed execution still pending bundler-backed deployment/redemption proof)
 - [ ] Final ERC-8004 manifest linkage / public packaging cleanup around the completed identity registration
+- [ ] Live-network real `wstETH` deployment path on an accepted L2/mainnet
+- [ ] Optional MCP layer if we decide to widen into the Lido MCP track
+g cleanup around the completed identity registration
 - [ ] Live-network real `wstETH` deployment path on an accepted L2/mainnet
 - [ ] Optional MCP layer if we decide to widen into the Lido MCP track
