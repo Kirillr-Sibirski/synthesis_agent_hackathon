@@ -19,7 +19,8 @@
     "metamask:run-live-flow": "tsx integrations/metamask/runLiveDelegationFlow.ts",
     "metamask:preflight": "tsx integrations/metamask/preflight.ts",
     "frontend:write-config": "tsx integrations/frontend/writeLocalConfig.ts",
-    "frontend:validate-config": "tsx integrations/frontend/validateLocalConfig.ts"
+    "frontend:validate-config": "tsx integrations/frontend/validateLocalConfig.ts",
+    "final:validate-same-network": "tsx integrations/final/validateSameNetworkReadiness.ts"
   },
   "repository": {
     "type": "git",

@@ -61,10 +61,21 @@ npm run frontend:write-config
 Then validate it with:
 
 ```bash
-METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-84532.json npm run frontend:validate-config
+FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json \
+METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-84532.json \
+  npm run frontend:validate-config
 ```
 
-This writes `frontend/config.json` locally and gives you a machine-checkable same-network dashboard readiness report, so moving from prototype addresses to the live deployment does not require editing app code.
+And combine that with the MetaMask readiness artifact into one go/no-go report:
+
+```bash
+FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
+METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-84532.json \
+FRONTEND_VALIDATION_PATH=artifacts/frontend/validation.json \
+  npm run final:validate-same-network
+```
+
+This writes `frontend/config.json` locally and gives you machine-checkable same-network dashboard + final-run readiness reports, so moving from prototype addresses to the live deployment does not require editing app code.
 
 ## Validation notes
 

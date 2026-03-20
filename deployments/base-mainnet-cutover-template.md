@@ -157,7 +157,18 @@ FRONTEND_CHAIN=base npm run frontend:write-config
 Then validate the generated dashboard config:
 
 ```bash
-METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-8453.json npm run frontend:validate-config
+FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json \
+METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-8453.json \
+  npm run frontend:validate-config
+```
+
+Then generate the combined same-network go/no-go report:
+
+```bash
+FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
+METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-8453.json \
+FRONTEND_VALIDATION_PATH=artifacts/frontend/validation.json \
+  npm run final:validate-same-network
 ```
 
 Expected env inputs:
