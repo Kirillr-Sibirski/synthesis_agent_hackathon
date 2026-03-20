@@ -23,7 +23,7 @@ The Mar 20 shipping rules made a real frontend mandatory. This dashboard is the 
 - hydrate the relevant dashboard fields from loaded artifact JSON so judges can move from a saved MetaMask artifact into the onchain inspection / spend-intent flow without hand-copying hashes and addresses
 - persist the loaded MetaMask artifact in dashboard state so the role-separated story can reference the linked smart-account / redeemer / recipient data correctly
 - build a role-separated owner / manager / executor / recipient summary from the current dashboard state
-- build an honest qualification / readiness summary showing current chain selection, loaded artifact readiness flags, and remaining blockers for the final same-network sponsor run
+- build an honest qualification / readiness summary showing current chain selection, loaded artifact readiness flags, and remaining blockers for the final same-network sponsor run, including cutover-env validation artifacts
 
 ## How to run
 
