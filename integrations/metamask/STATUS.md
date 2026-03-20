@@ -42,4 +42,10 @@ The project is now in a much better state than before:
 - ERC-8004 / identity path is materially stronger
 - MetaMask path has moved from abstract plan to actual smart-account + calldata + bundler scaffolding
 
-The remaining MetaMask gap is now **specific SDK-shape correctness**, not overall architecture.
+The remaining MetaMask gap is now the **live deployment/redemption proof**, not overall architecture or SDK shape correctness.
+
+## Local verification note
+
+A lightweight `test/MetaMaskDelegationIntegration.t.sol` compile-sanity test now avoids the delegation-framework `BaseTest` import stack after a prior local compile run hit a deep Yul/stack error while pulling in the full framework test harness.
+
+That keeps the sponsor-facing integration evidence lighter and more realistic for this repo, but final verification of the Solidity side still requires a runtime with Foundry (`forge`) installed.
