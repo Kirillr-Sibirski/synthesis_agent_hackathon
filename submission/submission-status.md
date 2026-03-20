@@ -32,7 +32,7 @@
 
 ## Biggest quality upgrades still worth doing
 
-- [ ] Separate owner / manager / executor / recipient roles in a live deployment (tooling/scripts now exist for the `wstETH` path; latest live verification/recording still needs to be written down cleanly)
+- [ ] Separate owner / manager / executor / recipient roles in a live deployment (tooling/scripts exist and a generated deployment note now exists at `deployments/base-sepolia-wsteth-role-separated.md`; final polish is verifying/curating the strongest tx set for judges)
 - [ ] Real MetaMask Delegation Framework integration (smart-account derivation + treasury calldata prep are done; a real signed constrained delegation artifact is now generated in-repo; live delegation-backed execution still pending bundler-backed deployment/redemption proof)
 - [ ] Real ERC-8004 identity registration and manifest linkage
 - [ ] Live-network real `wstETH` deployment path on an accepted L2/mainnet

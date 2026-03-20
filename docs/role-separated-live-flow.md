@@ -39,7 +39,10 @@ The repo now contains a role-separated `wstETH` path:
 
 ## Current state
 
-The role-separated deployment/setup/spend tooling is implemented. The remaining work is to cleanly verify and record the latest live tx hashes/state snapshot in a dedicated deployment note.
+The role-separated deployment/setup/spend tooling is implemented. A generated deployment note now exists at:
+- `deployments/base-sepolia-wsteth-role-separated.md`
+
+The remaining work is to curate/verify the strongest subset of those txs and state snapshots for the final judge-facing story.
 
 ## Why this helps track fit
 
