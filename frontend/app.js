@@ -408,57 +408,94 @@ function summarizeArtifact(rawArtifact) {
   const network = asObject(artifact.network);
   const accounts = asObject(artifact.accounts);
   const spendIntent = asObject(artifact.treasurySpendIntent);
+  const fallbackSpendIntent = asObject(artifact.spendIntent);
+  const effectiveSpendIntent = Object.keys(spendIntent).length ? spendIntent : fallbackSpendIntent;
   const delegation = asObject(artifact.delegation);
   const delegationMessage = asObject(delegation.message);
   const caveats = Array.isArray(delegationMessage.caveats) ? delegationMessage.caveats : [];
   const deployReceipt = asObject(artifact.deployReceipt);
   const readiness = asObject(artifact.readiness);
+  const summary = asObject(artifact.summary);
+  const currentState = asObject(artifact.currentState);
+  const inputs = asObject(artifact.inputs);
+
+  const artifactKind =
+    artifact.redemptions || artifact.redemptionTransactionHash
+      ? 'live-flow output'
+      : artifact.signature || delegation.signature
+        ? 'signed delegation artifact'
+        : Object.keys(summary).length && 'overallReadyForSameNetworkDemoSubmission' in summary
+          ? 'final readiness report'
+          : artifact.readiness || artifact.bundler || artifact.onchain
+            ? 'preflight report'
+            : Object.keys(inputs).length && (inputs.preflightPath || inputs.frontendValidationPath)
+              ? 'final readiness report'
+              : 'generic artifact';
 
   return {
-    artifactKind:
-      artifact.redemptions || artifact.redemptionTransactionHash
-        ? 'live-flow output'
-        : artifact.signature || delegation.signature
-          ? 'signed delegation artifact'
-          : 'generic artifact',
+    artifactKind,
     chain: {
-      id: network.chainId ?? artifact.chainId ?? null,
-      name: network.chainName ?? artifact.chainName ?? null,
+      id: network.chainId ?? artifact.chainId ?? currentState.selectedChainId ?? currentState.expectedFinalChainId ?? null,
+      name: network.chainName ?? artifact.chainName ?? currentState.selectedChain ?? currentState.expectedFinalChain ?? null,
     },
-    treasury: spendIntent.treasury ?? artifact.treasury ?? null,
+    treasury: effectiveSpendIntent.treasury ?? artifact.treasury ?? artifact.onchain?.treasuryAddress ?? null,
     smartAccount: accounts.delegatorSmartAccount ?? artifact.smartAccountAddress ?? null,
     owner: accounts.owner ?? null,
-    redeemer: accounts.redeemer ?? artifact.redeemer ?? null,
-    recipient: accounts.recipient ?? spendIntent.recipient ?? null,
-    budgetId: spendIntent.budgetId ?? null,
-    selector: spendIntent.selector ?? null,
-    metadataURI: spendIntent.metadataURI ?? null,
-    receiptHash: spendIntent.receiptHash ?? null,
+    redeemer: accounts.redeemer ?? accounts.executor ?? artifact.redeemer ?? null,
+    recipient: accounts.recipient ?? effectiveSpendIntent.recipient ?? null,
+    budgetId: effectiveSpendIntent.budgetId ?? null,
+    selector: effectiveSpendIntent.selector ?? null,
+    metadataURI: effectiveSpendIntent.metadataURI ?? null,
+    receiptHash: effectiveSpendIntent.receiptHash ?? null,
     delegationManager: network.delegationManager ?? null,
     caveatCount: caveats.length,
     caveatEnforcers: caveats.map((caveat) => asObject(caveat).enforcer).filter(Boolean),
     smartAccountDeployed:
-      artifact.smartAccountDeployed ?? artifact.onchain?.smartAccountDeployed ?? null,
+      artifact.smartAccountDeployed ?? artifact.onchain?.smartAccountDeployed ?? currentState.smartAccountDeployed ?? null,
     deployTransactionHash: deployReceipt.transactionHash ?? null,
     redemptionTransactionHash: artifact.redemptionTransactionHash ?? null,
-    qualificationStatus: artifact.qualificationStatus ?? readiness.readyForLiveRedemption ?? null,
-    sameNetworkReady: readiness.readyForFinalSameNetworkRun ?? null,
-    remainingBlockers: Array.isArray(readiness.remainingBlockers) ? readiness.remainingBlockers : [],
-    nextSteps: Array.isArray(readiness.nextSteps) ? readiness.nextSteps : [],
+    qualificationStatus:
+      artifact.qualificationStatus
+      ?? summary.overallReadyForSameNetworkDemoSubmission
+      ?? summary.metaMaskFinalSameNetworkReady
+      ?? readiness.readyForLiveRedemption
+      ?? null,
+    sameNetworkReady:
+      readiness.readyForFinalSameNetworkRun
+      ?? summary.overallReadyForSameNetworkDemoSubmission
+      ?? summary.metaMaskFinalSameNetworkReady
+      ?? null,
+    remainingBlockers:
+      Array.isArray(readiness.remainingBlockers) ? readiness.remainingBlockers
+      : Array.isArray(artifact.blockers) ? artifact.blockers
+      : [],
+    nextSteps:
+      Array.isArray(readiness.nextSteps) ? readiness.nextSteps
+      : Array.isArray(artifact.nextActions) ? artifact.nextActions
+      : [],
   };
 }
 
 function buildQualificationSummary() {
   const artifact = asObject(state.loadedArtifact);
   const readiness = asObject(artifact.readiness);
+  const finalSummary = asObject(artifact.summary);
+  const currentState = asObject(artifact.currentState);
   const chain = selectedChain();
-  const remainingBlockers = Array.isArray(readiness.remainingBlockers) ? readiness.remainingBlockers : [];
+  const remainingBlockers = Array.isArray(readiness.remainingBlockers)
+    ? readiness.remainingBlockers
+    : Array.isArray(artifact.blockers)
+      ? artifact.blockers
+      : [];
+  const artifactSummary = summarizeArtifact(artifact);
 
   const summary = {
     chain: {
       id: chain.id,
       name: chain.name,
       sameNetworkTargetSelected: chain.id === base.id,
+      artifactSelectedChain: currentState.selectedChain ?? artifactSummary.chain.name ?? null,
+      artifactExpectedFinalChain: currentState.expectedFinalChain ?? null,
     },
     currentInputs: {
       treasury: els.treasuryAddress.value.trim() || null,
@@ -470,27 +507,40 @@ function buildQualificationSummary() {
       recipient: (els.demoRecipient.value.trim() || els.spendRecipient.value.trim()) || null,
     },
     artifactLoaded: Boolean(state.loadedArtifact),
-    artifactKind: summarizeArtifact(artifact).artifactKind,
+    artifactKind: artifactSummary.artifactKind,
     readiness: {
-      readyForLiveRedemption: readiness.readyForLiveRedemption ?? null,
-      readyForFinalSameNetworkRun: readiness.readyForFinalSameNetworkRun ?? null,
-      smartAccountDeployed: artifact.onchain?.smartAccountDeployed ?? artifact.smartAccountDeployed ?? null,
-      bundlerReachable: artifact.bundler?.reachable ?? null,
+      readyForLiveRedemption:
+        readiness.readyForLiveRedemption
+        ?? finalSummary.metaMaskFinalSameNetworkReady
+        ?? null,
+      readyForFinalSameNetworkRun:
+        readiness.readyForFinalSameNetworkRun
+        ?? finalSummary.overallReadyForSameNetworkDemoSubmission
+        ?? finalSummary.metaMaskFinalSameNetworkReady
+        ?? null,
+      smartAccountDeployed:
+        artifact.onchain?.smartAccountDeployed
+        ?? artifact.smartAccountDeployed
+        ?? currentState.smartAccountDeployed
+        ?? null,
+      bundlerReachable: artifact.bundler?.reachable ?? currentState.bundlerReachable ?? null,
       remainingBlockers,
     },
     honestTrackPosture:
-      chain.id === base.id && readiness.readyForFinalSameNetworkRun
+      (readiness.readyForFinalSameNetworkRun === true || finalSummary.overallReadyForSameNetworkDemoSubmission === true)
         ? 'Final same-network sponsor run is selected and reported ready.'
         : chain.id === base.id
           ? 'Base mainnet is selected, but final sponsor proof is still incomplete.'
           : 'Still operating in prototype/testnet mode; not the final same-network thesis.',
     nextJudgeActions: remainingBlockers.length
       ? remainingBlockers
-      : [
-          'Load treasury state.',
-          'Inspect the budget and role-separated summary.',
-          'Load a signed-delegation or live-flow artifact to connect MetaMask proof to the treasury flow.',
-        ],
+      : Array.isArray(artifact.nextActions) && artifact.nextActions.length
+        ? artifact.nextActions
+        : [
+            'Load treasury state.',
+            'Inspect the budget and role-separated summary.',
+            'Load a signed-delegation, preflight, or final readiness artifact to connect MetaMask proof to the treasury flow.',
+          ],
   };
 
   setPanel(els.qualificationSummary, summary);
@@ -502,24 +552,37 @@ function applyArtifactToForm(rawArtifact) {
   const network = asObject(artifact.network);
   const accounts = asObject(artifact.accounts);
   const spendIntent = asObject(artifact.treasurySpendIntent);
+  const fallbackSpendIntent = asObject(artifact.spendIntent);
+  const effectiveSpendIntent = Object.keys(spendIntent).length ? spendIntent : fallbackSpendIntent;
+  const currentState = asObject(artifact.currentState);
 
-  if (network.chainId === 8453) {
+  const artifactChainId = network.chainId ?? currentState.selectedChainId ?? null;
+  if (artifactChainId === 8453) {
     els.chainSelect.value = 'base';
-  } else if (network.chainId === 84532) {
+  } else if (artifactChainId === 84532) {
     els.chainSelect.value = 'baseSepolia';
   }
 
   const preset = chainPreset(els.chainSelect.value);
   els.rpcUrl.value = preset.rpcUrl || els.rpcUrl.value;
-  els.treasuryAddress.value = asAddressOrEmpty(spendIntent.treasury) || els.treasuryAddress.value;
-  els.budgetId.value = asBytes32OrEmpty(spendIntent.budgetId) || els.budgetId.value;
-  els.spendRecipient.value = asAddressOrEmpty(accounts.recipient ?? spendIntent.recipient) || els.spendRecipient.value;
-  els.demoRecipient.value = asAddressOrEmpty(accounts.recipient ?? spendIntent.recipient) || els.demoRecipient.value;
-  els.demoExecutor.value = asAddressOrEmpty(accounts.redeemer) || els.demoExecutor.value;
-  els.receiptHash.value = asBytes32OrEmpty(spendIntent.receiptHash) || els.receiptHash.value;
-  els.metadataUri.value = typeof spendIntent.metadataURI === 'string' && spendIntent.metadataURI.trim()
-    ? spendIntent.metadataURI.trim()
-    : els.metadataUri.value;
+  els.treasuryAddress.value =
+    asAddressOrEmpty(effectiveSpendIntent.treasury ?? artifact.treasury ?? artifact.onchain?.treasuryAddress)
+    || els.treasuryAddress.value;
+  els.budgetId.value = asBytes32OrEmpty(effectiveSpendIntent.budgetId) || els.budgetId.value;
+  els.spendRecipient.value =
+    asAddressOrEmpty(accounts.recipient ?? effectiveSpendIntent.recipient)
+    || els.spendRecipient.value;
+  els.demoRecipient.value =
+    asAddressOrEmpty(accounts.recipient ?? effectiveSpendIntent.recipient)
+    || els.demoRecipient.value;
+  els.demoExecutor.value =
+    asAddressOrEmpty(accounts.redeemer ?? accounts.executor)
+    || els.demoExecutor.value;
+  els.receiptHash.value = asBytes32OrEmpty(effectiveSpendIntent.receiptHash) || els.receiptHash.value;
+  els.metadataUri.value =
+    typeof effectiveSpendIntent.metadataURI === 'string' && effectiveSpendIntent.metadataURI.trim()
+      ? effectiveSpendIntent.metadataURI.trim()
+      : els.metadataUri.value;
 
   if (effectiveSpendIntent.amountWstETH || effectiveSpendIntent.amount) {
     const rawAmount = effectiveSpendIntent.amountWstETH ?? effectiveSpendIntent.amount;
@@ -1023,9 +1086,4 @@ async function initDashboard() {
 
 initDashboard().catch((error) => {
   log('Dashboard init failed.', error?.message ?? String(error));
-});
-rd().catch((error) => {
-  log('Dashboard init failed.', error?.message ?? String(error));
-});
-.message ?? String(error));
 });
