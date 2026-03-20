@@ -29,6 +29,12 @@ The generated artifact includes a signed delegation that binds:
 
 The remaining MetaMask blocker is now the **live onchain redemption path on the final same-network target**, not SDK shape correctness.
 
+Latest re-verified preflight on `2026-03-20` confirms:
+- required env for the current Base Sepolia preflight is present
+- treasury code is deployed at `0xB38F8a149F95850cB5efF5fCE5621d36b8F8BBd0`
+- derived smart account is still **not** deployed onchain
+- no `BUNDLER_URL` is configured, so bundler reachability is currently false
+
 Specifically, we still need:
 1. a working bundler endpoint for the selected final chain
 2. smart-account deployment/funding onchain

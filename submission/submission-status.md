@@ -33,8 +33,8 @@
 ## Biggest quality upgrades still worth doing
 
 - [~] Separate owner / manager / executor / recipient roles in a live deployment (tooling/scripts exist and the generated deployment note at `deployments/base-sepolia-wsteth-role-separated.md` now clearly distinguishes what is already proven versus what still needs final tx curation)
-- [ ] Real MetaMask Delegation Framework integration (smart-account derivation + treasury calldata prep are done; a real signed constrained delegation artifact is now generated in-repo; a live redemption helper script now exists for the signed artifact path; a live-readiness preflight now checks env/treasury/bundler/smart-account status in one step; live delegation-backed execution still pending bundler-backed deployment/redemption proof on the final same-network target)
-- [ ] Final ERC-8004 manifest linkage / public packaging cleanup around the completed identity registration
+- [ ] Real MetaMask Delegation Framework integration (smart-account derivation + treasury calldata prep are done; a real signed constrained delegation artifact is now generated in-repo; a live redemption helper script now exists for the signed artifact path; `npm run metamask:preflight` was re-verified on 2026-03-20 and confirms treasury code is deployed, but the smart account is still undeployed and no bundler URL is configured/reachable; live delegation-backed execution still pending bundler-backed deployment/redemption proof on the final same-network target)
+- [~] Final ERC-8004 manifest linkage / public packaging cleanup around the completed identity registration (public-safe evidence pack, manifest draft, and execution log draft are all updated; final agent/project UUID packaging and final title/media fields still need cleanup)
 - [ ] Live-network real `wstETH` deployment path on the final same-network target
 - [~] Frontend/dashboard requirement (a first usable static wallet-connected dashboard now exists under `frontend/`; it still needs final same-network deployment addresses and sponsor-complete polish)
 - [ ] Optional MCP layer if we decide to widen into the Lido MCP track

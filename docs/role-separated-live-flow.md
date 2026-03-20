@@ -55,7 +55,10 @@ The repo now contains a role-separated `wstETH` path:
 The role-separated deployment/setup/spend tooling is implemented. A generated deployment note now exists at:
 - `deployments/base-sepolia-wsteth-role-separated.md`
 
-The remaining work is to curate/verify the strongest subset of those txs and state snapshots for the final judge-facing story.
+The current remaining work is not missing code paths; it is evidence curation and final rerun quality:
+- copy in the strongest final setup tx hashes with distinct actor addresses called out explicitly
+- capture the strongest executor-originated spend tx hash
+- attach a final post-spend state snapshot for the judge-facing narrative
 
 ## Why this helps track fit
 

@@ -16,6 +16,11 @@
       "name": "Base Sepolia",
       "chainId": 84532,
       "deploymentNote": "deployments/base-sepolia-v2.md"
+    },
+    {
+      "name": "Base Mainnet",
+      "chainId": 8453,
+      "deploymentNote": "ERC-8004 identity registration via Synthesis only; treasury deployment on this chain is still pending"
     }
   ],
   "publicEvidence": {
@@ -65,5 +70,22 @@
     "primaryEnvironment": "VPS-hosted OpenClaw session",
     "contractBuildTool": "Foundry",
     "notes": "Current prototype is contract-first. However, the current hackathon operating checklist requires a usable dashboard for the final judge demo, so frontend completion is still part of the honest remaining work if that surface is not yet present."
+  },
+  "currentQualificationStatus": {
+    "strongNow": [
+      "Agents With Receipts — ERC-8004",
+      "Synthesis Open Track"
+    ],
+    "credibleButIncomplete": [
+      "Best Use of Delegations",
+      "stETH Agent Treasury",
+      "Let the Agent Cook"
+    ],
+    "sameNetworkFinalTarget": "Base Mainnet",
+    "largestBlockers": [
+      "MetaMask smart-account deployment and live delegation redemption still need a working bundler-backed path.",
+      "Real wstETH treasury deployment on the final same-network target is still pending.",
+      "Final judge-ready dashboard + packaging polish still needs completion."
+    ]
   }
 }

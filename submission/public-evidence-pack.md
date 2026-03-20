@@ -72,9 +72,10 @@ Concrete current public values:
 - derived MetaMask smart account: `0x08478FfC43E134ae9390720D41409B06f38fEB7d`
 - DelegationManager: `0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3`
 - intended live treasury target: `0xB38F8a149F95850cB5efF5fCE5621d36b8F8BBd0`
+- latest verified preflight status: env configured = yes, treasury deployed = yes, smart account deployed = no, bundler configured/reachable = no
 
 Honest blocker:
-- live delegation-backed execution is still blocked by the missing/unfinished bundler-backed smart-account deployment and redemption proof
+- live delegation-backed execution is still blocked by the missing bundler-backed smart-account deployment and redemption proof
 
 That means the MetaMask story is now materially real, but not yet fully sponsor-complete.
 
