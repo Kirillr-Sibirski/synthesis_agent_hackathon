@@ -205,6 +205,27 @@
       </section>
 
       <section class="card wide">
+        <h2>9. MetaMask artifact inspector</h2>
+        <div class="two-col">
+          <label>
+            Load saved artifact JSON file
+            <input id="artifactFile" type="file" accept="application/json,.json" />
+          </label>
+          <label>
+            Or paste artifact / live-flow JSON
+            <textarea id="artifactJson" rows="8" placeholder="Paste signed-delegation or live-flow JSON here"></textarea>
+          </label>
+        </div>
+        <div class="button-row">
+          <button id="loadArtifactFile">Load file</button>
+          <button id="loadArtifactJson">Load pasted JSON</button>
+        </div>
+        <div id="artifactInspection" class="data-panel empty">
+          MetaMask artifact not loaded yet.
+        </div>
+      </section>
+
+      <section class="card wide">
         <h2>Activity log</h2>
         <pre id="activityLog" class="log"></pre>
       </section>

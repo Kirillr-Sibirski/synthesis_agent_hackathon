@@ -18,6 +18,7 @@ The Mar 20 shipping rules made a real frontend mandatory. This dashboard is the 
 - execute `spendFromBudget(...)`
 - inspect receipts in `ReceiptRegistry`
 - preview the exact MetaMask delegation spend calldata / hashes
+- inspect a saved MetaMask signed-delegation or live-flow JSON artifact and hydrate the relevant dashboard fields from it
 
 ## How to run
 

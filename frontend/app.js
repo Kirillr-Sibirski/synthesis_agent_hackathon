@@ -729,6 +729,29 @@ async function buildSpendIntent() {
   log('Built MetaMask delegation spend intent preview.', preview);
 }
 
+async function loadArtifactObject(rawArtifact) {
+  const summary = summarizeArtifact(rawArtifact);
+  applyArtifactToForm(rawArtifact);
+  setPanel(els.artifactInspection, summary);
+  log('Loaded MetaMask artifact into dashboard.', summary);
+}
+
+async function loadArtifactFromJson() {
+  const text = els.artifactJson.value.trim();
+  if (!text) throw new Error('Paste artifact JSON first.');
+  const artifact = JSON.parse(text);
+  await loadArtifactObject(artifact);
+}
+
+async function loadArtifactFromFile() {
+  const file = els.artifactFile.files?.[0];
+  if (!file) throw new Error('Choose a JSON file first.');
+  const text = await file.text();
+  els.artifactJson.value = text;
+  const artifact = JSON.parse(text);
+  await loadArtifactObject(artifact);
+}
+
 async function handle(action) {
   try {
     await action();
@@ -752,6 +775,8 @@ document.getElementById('depositPrincipal').addEventListener('click', () => hand
 document.getElementById('spendFromBudget').addEventListener('click', () => handle(spendFromBudget));
 document.getElementById('loadReceipt').addEventListener('click', () => handle(loadReceipt));
 document.getElementById('buildSpendIntent').addEventListener('click', () => handle(buildSpendIntent));
+document.getElementById('loadArtifactFile').addEventListener('click', () => handle(loadArtifactFromFile));
+document.getElementById('loadArtifactJson').addEventListener('click', () => handle(loadArtifactFromJson));
 els.chainSelect.addEventListener('change', () => {
   updateExpectedChainStatus();
   if (!els.rpcUrl.value.trim() || els.chainSelect.value === 'baseSepolia') {
