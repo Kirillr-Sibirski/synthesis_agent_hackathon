@@ -18,7 +18,8 @@
     "metamask:redeem-signed-delegation": "tsx integrations/metamask/redeemSignedDelegation.ts",
     "metamask:run-live-flow": "tsx integrations/metamask/runLiveDelegationFlow.ts",
     "metamask:preflight": "tsx integrations/metamask/preflight.ts",
-    "frontend:write-config": "tsx integrations/frontend/writeLocalConfig.ts"
+    "frontend:write-config": "tsx integrations/frontend/writeLocalConfig.ts",
+    "frontend:validate-config": "tsx integrations/frontend/validateLocalConfig.ts"
   },
   "repository": {
     "type": "git",

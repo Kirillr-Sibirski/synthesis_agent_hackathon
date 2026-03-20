@@ -58,7 +58,13 @@ Scripted path:
 npm run frontend:write-config
 ```
 
-This writes `frontend/config.json` locally and is the intended cutover path for the final same-network demo, so moving from prototype addresses to the live deployment does not require editing app code.
+Then validate it with:
+
+```bash
+METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-84532.json npm run frontend:validate-config
+```
+
+This writes `frontend/config.json` locally and gives you a machine-checkable same-network dashboard readiness report, so moving from prototype addresses to the live deployment does not require editing app code.
 
 ## Validation notes
 

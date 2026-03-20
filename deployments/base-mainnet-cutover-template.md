@@ -154,6 +154,12 @@ Preferred write path:
 FRONTEND_CHAIN=base npm run frontend:write-config
 ```
 
+Then validate the generated dashboard config:
+
+```bash
+METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-8453.json npm run frontend:validate-config
+```
+
 Expected env inputs:
 - preferred for mainnet cutover:
   - `FRONTEND_TREASURY_ADDRESS`
