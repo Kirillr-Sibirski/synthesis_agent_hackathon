@@ -112,3 +112,16 @@ Honest blocker:
 2. finalize `agent.json` and `agent_log.json` around the already-recorded ERC-8004 registration and live txs
 3. tighten the judge-facing autonomous loop / role-separated evidence
 4. optionally upgrade into real `wstETH` deployment for a stronger Lido claim
+
+## 9. Final same-network handoff template
+
+When the final Base mainnet run happens, record it in:
+- `deployments/base-mainnet-cutover-template.md`
+
+That template is meant to unify the remaining proof collection into one judge-facing source for:
+- Base mainnet treasury addresses
+- role-separated actor mapping
+- real `wstETH` funding / spendable-headroom proof
+- MetaMask smart-account deployment + redemption proof
+- final spend + receipt proof
+- frontend `config.json` cutover values

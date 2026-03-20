@@ -58,6 +58,14 @@ For the live `wstETH` path, use:
 - `script/SetupLiveWstETHDemo.s.sol`
 - `script/SpendFromWstETHBudget.s.sol`
 
+Use `deployments/base-mainnet-cutover-template.md` as the single place to record the final same-network run:
+- core contract addresses
+- role-separated actors
+- `wstETH` principal + top-up / accrued-yield proof
+- MetaMask smart-account deployment + redemption proof
+- live spend / receipt proof
+- frontend cutover values for `frontend/config.json`
+
 Important practical note:
 - a fresh principal deposit into `WstETHYieldTreasury` does **not** create immediate spendable yield by itself
 - for a near-term live demo, the treasury must already contain headroom above the principal floor, either from real accrued yield or from an explicit additional `wstETH` top-up sent directly to the treasury (`YIELD_TOPUP_WSTETH`)
