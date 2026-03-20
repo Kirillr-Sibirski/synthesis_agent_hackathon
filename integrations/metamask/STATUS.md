@@ -48,4 +48,6 @@ The remaining MetaMask gap is now the **live deployment/redemption proof**, not 
 
 A lightweight `test/MetaMaskDelegationIntegration.t.sol` compile-sanity test now avoids the delegation-framework `BaseTest` import stack after a prior local compile run hit a deep Yul/stack error while pulling in the full framework test harness.
 
+For the new TypeScript redemption helper, a repo-level `npx tsc --noEmit ...` check is currently noisy because upstream dependency types in this workspace assume a newer TS target/config than that ad-hoc command provides. The practical validation used here is a successful `tsx` dry run of `integrations/metamask/redeemSignedDelegation.ts`, which confirmed the payload-building path and fixed a real BigInt JSON serialization bug.
+
 That keeps the sponsor-facing integration evidence lighter and more realistic for this repo, but final verification of the Solidity side still requires a runtime with Foundry (`forge`) installed.
