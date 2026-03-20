@@ -56,13 +56,19 @@ function main() {
     frontendAssetConfigured: has('FRONTEND_ASSET_ADDRESS'),
     frontendAssetIsBaseMainnet: has('FRONTEND_ASSET_ADDRESS') && sameAddress(env('FRONTEND_ASSET_ADDRESS'), BASE_MAINNET_WSTETH),
     frontendBudgetManagerConfigured: has('FRONTEND_BUDGET_MANAGER'),
+    frontendSpendRecipientConfigured: has('FRONTEND_SPEND_RECIPIENT'),
     frontendDemoExecutorConfigured: has('FRONTEND_DEMO_EXECUTOR'),
     frontendDemoRecipientConfigured: has('FRONTEND_DEMO_RECIPIENT'),
     frontendReceiptHashConfigured: has('FRONTEND_RECEIPT_HASH'),
   };
 
   const roleAddresses = [env('TREASURY_OWNER'), env('MANAGER_ADDRESS'), env('EXECUTOR_ADDRESS'), env('RECIPIENT_ADDRESS')].filter(Boolean);
-  const frontendRoleAddresses = [env('FRONTEND_BUDGET_MANAGER'), env('FRONTEND_DEMO_EXECUTOR'), env('FRONTEND_DEMO_RECIPIENT')].filter(Boolean);
+  const frontendRoleAddresses = [
+    env('FRONTEND_BUDGET_MANAGER'),
+    env('FRONTEND_SPEND_RECIPIENT'),
+    env('FRONTEND_DEMO_EXECUTOR'),
+    env('FRONTEND_DEMO_RECIPIENT'),
+  ].filter(Boolean);
 
   const report = {
     generatedAt: new Date().toISOString(),
@@ -76,13 +82,15 @@ function main() {
       backendDistinctAddresses: distinctAddresses(roleAddresses),
       backendFullySeparated: roleAddresses.length >= 4 && distinctAddresses(roleAddresses) === roleAddresses.length,
       frontendDistinctAddresses: distinctAddresses(frontendRoleAddresses),
-      frontendFullySeparated: frontendRoleAddresses.length >= 3 && distinctAddresses(frontendRoleAddresses) === frontendRoleAddresses.length,
+      frontendFullySeparated: frontendRoleAddresses.length >= 4 && distinctAddresses(frontendRoleAddresses) === frontendRoleAddresses.length,
     },
     readiness: {
       readyForBaseMainnetCutoverEnv:
         Object.values(checks).every(Boolean) &&
         roleAddresses.length >= 4 &&
-        distinctAddresses(roleAddresses) === roleAddresses.length,
+        distinctAddresses(roleAddresses) === roleAddresses.length &&
+        frontendRoleAddresses.length >= 4 &&
+        distinctAddresses(frontendRoleAddresses) === frontendRoleAddresses.length,
       missing: Object.entries(checks)
         .filter(([, ok]) => !ok)
         .map(([name]) => name),
@@ -90,8 +98,11 @@ function main() {
         ...(roleAddresses.length >= 4 && distinctAddresses(roleAddresses) !== roleAddresses.length
           ? ['Backend role addresses are not fully separated yet.']
           : []),
-        ...(frontendRoleAddresses.length >= 3 && distinctAddresses(frontendRoleAddresses) !== frontendRoleAddresses.length
+        ...(frontendRoleAddresses.length >= 4 && distinctAddresses(frontendRoleAddresses) !== frontendRoleAddresses.length
           ? ['Frontend role addresses are not fully separated yet.']
+          : []),
+        ...(frontendRoleAddresses.length > 0 && frontendRoleAddresses.length < 4
+          ? ['Frontend role env is incomplete; expected budget manager, spend recipient, demo executor, and demo recipient.']
           : []),
       ],
     },

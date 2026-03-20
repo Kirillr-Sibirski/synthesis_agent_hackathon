@@ -61,6 +61,7 @@ A principal-protected yield treasury where:
 - a one-command MetaMask live-flow orchestrator now exists in-repo (`npm run metamask:run-live-flow`) to assemble/save the artifact, deploy-if-needed, and redeem from the executor path; its dry-run path has been exercised successfully and now writes artifacts under `artifacts/metamask/`
 - MetaMask live-redemption readiness can now be checked in one step (`npm run metamask:preflight`) for env completeness, treasury code presence, smart-account deployment status, bundler reachability, exact spend selector details, and final same-network Base mainnet readiness
 - final same-network readiness can now be refreshed as an artifact bundle in one pass (`npm run final:refresh-readiness-bundle`)
+- final Base mainnet cutover env validation now explicitly requires four distinct frontend demo actors as well as four distinct backend roles, so the role-separated judge flow cannot be overstated by config defaults
 
 ## Deployment target
 

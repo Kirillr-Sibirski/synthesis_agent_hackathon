@@ -59,6 +59,7 @@ The current remaining work is not missing code paths; it is evidence curation an
 - copy in the strongest final setup tx hashes with distinct actor addresses called out explicitly
 - capture the strongest executor-originated spend tx hash
 - attach a final post-spend state snapshot for the judge-facing narrative
+- fill the final Base mainnet frontend cutover env with four distinct actor addresses (`FRONTEND_BUDGET_MANAGER`, `FRONTEND_SPEND_RECIPIENT`, `FRONTEND_DEMO_EXECUTOR`, `FRONTEND_DEMO_RECIPIENT`) so the dashboard story does not collapse roles by accident
 
 ## Why this helps track fit
 

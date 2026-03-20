@@ -31,7 +31,7 @@ const BASE_SEPOLIA_DEFAULTS = {
   authorizer: '0x4434F99f7655F94705217601706536Bd94273c2F',
 };
 
-const FRONTEND_CHAIN = ((process.env.FRONTEND_CHAIN ?? 'base') as ChainKey);
+const FRONTEND_CHAIN = (process.env.FRONTEND_CHAIN ?? 'base') as ChainKey;
 const OUT_PATH = process.env.FRONTEND_CONFIG_OUT ?? 'frontend/config.json';
 const ENV_CHAIN_RAW = (process.env.METAMASK_CHAIN ?? '').trim().toLowerCase();
 
@@ -108,10 +108,11 @@ function buildConfig(): FrontendConfig {
 
   const manager = choose(env('FRONTEND_BUDGET_MANAGER'), env('MANAGER_ADDRESS'), env('TREASURY_OWNER'));
   const executor = choose(env('FRONTEND_DEMO_EXECUTOR'), env('EXECUTOR_ADDRESS'), env('DEMO_EXECUTOR'));
-  const recipient = choose(env('FRONTEND_DEMO_RECIPIENT'), env('RECIPIENT_ADDRESS'), env('DEMO_RECIPIENT'));
+  const spendRecipient = choose(env('FRONTEND_SPEND_RECIPIENT'), env('RECIPIENT_ADDRESS'));
+  const demoRecipient = choose(env('FRONTEND_DEMO_RECIPIENT'), env('DEMO_RECIPIENT'), spendRecipient);
   const receiptHash = choose(env('FRONTEND_RECEIPT_HASH'), env('RECEIPT_HASH'));
 
-  const config: FrontendConfig = {
+  return {
     chains: {
       base: {
         rpcUrl: baseRpc,
@@ -130,14 +131,12 @@ function buildConfig(): FrontendConfig {
     },
     actors: {
       budgetManager: manager,
-      spendRecipient: recipient,
+      spendRecipient,
       demoExecutor: executor,
-      demoRecipient: recipient,
+      demoRecipient,
       receiptHash,
     },
   };
-
-  return config;
 }
 
 function main() {
