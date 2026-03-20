@@ -1,0 +1,113 @@
+{
+  "name": "TBD",
+  "workingName": "Delegated Yield Treasury Agent",
+  "operatorWallet": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+  "erc8004": {
+    "status": "registered_via_synthesis",
+    "agentId": null,
+    "ownerAddress": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+    "registry": "Base Mainnet via Synthesis registration flow",
+    "registrationTx": "0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b",
+    "note": "Registration completed through Synthesis; API credentials and private registration state remain local-only."
+  },
+  "repoURL": "https://github.com/Kirillr-Sibirski/synthesis_agent_hackathon",
+  "deployedChains": [
+    {
+      "name": "Base Sepolia",
+      "chainId": 84532,
+      "deploymentNote": "deployments/base-sepolia-v2.md"
+    },
+    {
+      "name": "Base Mainnet",
+      "chainId": 8453,
+      "deploymentNote": "ERC-8004 identity registration via Synthesis only; treasury deployment on this chain is still pending"
+    }
+  ],
+  "publicEvidence": {
+    "judgeIndex": "submission/public-evidence-pack.md",
+    "latestDeployment": "deployments/base-sepolia-v2.md",
+    "roleSeparatedFlow": "deployments/base-sepolia-wsteth-role-separated.md"
+  },
+  "supportedTools": [
+    "foundry",
+    "forge test",
+    "forge script",
+    "base-sepolia-rpc",
+    "git",
+    "openclaw-workspace-memory"
+  ],
+  "techStack": [
+    "Solidity 0.8.26",
+    "Foundry",
+    "forge-std",
+    "Base Sepolia",
+    "OpenClaw"
+  ],
+  "taskCategories": [
+    "yield-treasury-management",
+    "delegated-budget-management",
+    "receipt-first-agent-payments",
+    "onchain-authorization-provenance"
+  ],
+  "capabilities": [
+    "protect principal baseline",
+    "compute yield-only spendable balance",
+    "configure root budgets",
+    "configure child budgets under managers",
+    "enforce wildcard and exact-match delegation rules",
+    "record receipts with evidence/result hashes",
+    "record matched authorization rule IDs"
+  ],
+  "safety": {
+    "principalProtection": true,
+    "delegatedSpendingOnly": true,
+    "budgetCaps": true,
+    "timeWindowSupport": true,
+    "ruleRevocation": true,
+    "receiptAuditTrail": true
+  },
+  "computeConstraints": {
+    "primaryEnvironment": "VPS-hosted OpenClaw session",
+    "contractBuildTool": "Foundry",
+    "notes": "Current prototype is contract-first. However, the current hackathon operating checklist requires a usable dashboard for the final judge demo, so frontend completion is still part of the honest remaining work if that surface is not yet present."
+  },
+  "currentQualificationStatus": {
+    "validatedAt": "2026-03-20T17:22:28Z",
+    "strongNow": [
+      "Agents With Receipts — ERC-8004",
+      "Synthesis Open Track"
+    ],
+    "credibleButIncomplete": [
+      "Best Use of Delegations",
+      "stETH Agent Treasury",
+      "Let the Agent Cook"
+    ],
+    "sameNetworkFinalTarget": "Base Mainnet",
+    "latestValidation": {
+      "forgeTests": "31/31 passing",
+      "frontendSyntax": "node --check frontend/app.js passing",
+      "metaMaskPreflight": {
+        "selectedChain": "Base Sepolia",
+        "selectedChainId": 84532,
+        "smartAccountDeployed": false,
+        "bundlerConfigured": false,
+        "bundlerReachable": false,
+        "readyForFinalSameNetworkRun": false
+      },
+      "sameNetworkValidator": {
+        "overallReadyForSameNetworkDemoSubmission": false,
+        "frontendFinalDemoConfigReady": false
+      }
+    },
+    "largestBlockers": [
+      "MetaMask smart-account deployment and live delegation redemption still need a working bundler-backed path on Base mainnet.",
+      "Real wstETH treasury deployment on the final same-network target is still pending.",
+      "Frontend Base mainnet demo config is still incomplete and still has role overlap in the current config."
+    ]
+  },
+  "publicArtifactMirror": {
+    "source": "submission/agent.json",
+    "refreshedAt": "2026-03-20T19:24:05.006Z",
+    "note": "This root-facing artifact mirrors the canonical public-safe submission file for judge discovery."
+  }
+}

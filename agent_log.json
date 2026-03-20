@@ -1,0 +1,112 @@
+{
+  "project": "Delegated Yield Treasury (working title)",
+  "entries": [
+    {
+      "step": 1,
+      "phase": "research",
+      "action": "Compared Synthesis tracks and visible public competition",
+      "result": "Selected Lido + Delegations + receipts as strongest strategic lane",
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "phase": "design",
+      "action": "Evaluated multiple concepts and selected delegated yield treasury as final direction",
+      "result": "Chose principal-protected, yield-only treasury with hierarchical budgets and receipts",
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "phase": "implementation",
+      "action": "Set up Foundry repo and authored smart contracts, tests, and scripts",
+      "result": "Working Solidity prototype with treasury, authorizer, and receipt registry",
+      "status": "success"
+    },
+    {
+      "step": 4,
+      "phase": "tooling",
+      "action": "Installed Foundry on the VPS and ran the full test suite",
+      "result": "31/31 tests passing at repo head",
+      "status": "success"
+    },
+    {
+      "step": 5,
+      "phase": "deployment",
+      "action": "Deployed initial contract set to Base Sepolia and executed first live spend",
+      "result": "Initial deployment artifacts recorded in deployments/base-sepolia.md",
+      "status": "success"
+    },
+    {
+      "step": 6,
+      "phase": "iteration",
+      "action": "Upgraded contracts to include explicit rule-linked receipt provenance and redeployed",
+      "result": "Latest deployment artifacts recorded in deployments/base-sepolia-v2.md",
+      "status": "success"
+    },
+    {
+      "step": 7,
+      "phase": "self-correction",
+      "action": "Attempted spend on fresh deployment before setup completed",
+      "result": "Observed InactiveBudget revert, waited for setup, reran spend successfully",
+      "status": "recovered"
+    },
+    {
+      "step": 8,
+      "phase": "onchain-proof",
+      "action": "Executed live spend on the upgraded Base Sepolia deployment",
+      "result": {
+        "txHash": "0x91746c08a18f8946758ce24f903116256eec4e7a976eb826057c989a8a2abb71",
+        "receiptHash": "0x1675e089e66f959833b06b6c503058d4fda53f62715d36d92176427095c95b0b",
+        "ruleId": "0xb56d4562b1973e16677a44ced06d00a94e45f8981edbd0e25c00fa49c2e6c8e8"
+      },
+      "status": "success"
+    },
+    {
+      "step": 9,
+      "phase": "identity",
+      "action": "Completed Synthesis registration and triggered onchain ERC-8004 identity registration",
+      "result": {
+        "registrationTx": "0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b",
+        "ownerAddress": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948"
+      },
+      "status": "success"
+    },
+    {
+      "step": 10,
+      "phase": "metamask-integration",
+      "action": "Implemented real MetaMask smart-account derivation, constrained delegation artifact generation, and live-readiness preflight tooling",
+      "result": {
+        "derivedSmartAccount": "0x08478FfC43E134ae9390720D41409B06f38fEB7d",
+        "delegationManager": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
+        "publicJudgeIndex": "submission/public-evidence-pack.md",
+        "remainingBlocker": "Bundler-backed smart-account deployment and live redemption proof still pending on the final same-network target"
+      },
+      "status": "partial"
+    },
+    {
+      "step": 11,
+      "phase": "qualification-hardening",
+      "action": "Re-validated the highest-priority sponsor blockers and refreshed the public-safe submission artifacts",
+      "result": {
+        "forgeTests": "pass",
+        "metamaskPreflight": {
+          "treasuryDeployed": true,
+          "smartAccountDeployed": false,
+          "bundlerConfigured": false,
+          "bundlerReachable": false
+        },
+        "updatedFiles": [
+          "submission/public-evidence-pack.md",
+          "submission/submission-status.md",
+          "submission/agent.json"
+        ]
+      },
+      "status": "success"
+    }
+  ],
+  "publicArtifactMirror": {
+    "source": "submission/agent_log.json",
+    "refreshedAt": "2026-03-20T19:24:05.006Z",
+    "note": "This root-facing artifact mirrors the canonical public-safe submission file for judge discovery."
+  }
+}

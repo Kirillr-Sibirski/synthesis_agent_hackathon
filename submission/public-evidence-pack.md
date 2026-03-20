@@ -16,6 +16,7 @@ The project has already completed Synthesis registration and recorded the result
 - registration tx: `0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b`
 - public manifest draft: `submission/agent.json`
 - public execution log draft: `submission/agent_log.json`
+- judge-discovery mirrors can now be refreshed to repo root and `.well-known/` with `npm run submission:refresh-public-agent-artifacts`
 
 Private API credentials and registration state remain local-only in `submission/private-registration.json` and are intentionally excluded from git.
 

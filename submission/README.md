@@ -29,3 +29,10 @@ The public draft package now already includes:
 - agent manifest draft
 - agent execution log draft
 - a public-safe evidence index for judges (`public-evidence-pack.md`)
+- a scripted way to mirror the manifest/log to repo-root and `.well-known/` for judge discovery:
+
+```bash
+npm run submission:refresh-public-agent-artifacts
+```
+
+That command only uses the committed public-safe submission files and does **not** read or publish `submission/private-registration.json`.

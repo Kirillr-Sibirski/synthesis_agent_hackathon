@@ -21,8 +21,8 @@
 - [ ] Final project name
 - [ ] Final track list confirmation
 - [~] Public-facing ERC-8004 identity / manifest linkage polish (registration tx is recorded; local-only registration state is now explicitly separated from public submission artifacts; public-safe evidence index added in `submission/public-evidence-pack.md`; final agent/project UUID packaging still needs cleanup)
-- [ ] `agent.json` finalization
-- [ ] `agent_log.json` finalization
+- [~] `agent.json` finalization (public-safe draft exists in `submission/`, and root / `.well-known/` discovery mirrors can now be refreshed with `npm run submission:refresh-public-agent-artifacts`; final title/project UUID/media fields still pending)
+- [~] `agent_log.json` finalization (public-safe draft exists in `submission/`, and root / `.well-known/` discovery mirrors can now be refreshed with `npm run submission:refresh-public-agent-artifacts`; final title/project UUID/media fields still pending)
 - [ ] Moltbook post URL
 - [ ] Video URL
 - [ ] Cover image / pictures

@@ -25,6 +25,8 @@ A principal-protected yield treasury where:
 - `integrations/` — sponsor-specific integration workspaces (for example MetaMask)
 - `frontend/` — static wallet-connected dashboard for the judge demo flow, with optional local `config.json` support and an env-driven cutover helper for final deployment switching
 - `Memory/` — hackathon notes, competition research, idea development
+- `agent.json` / `agent_log.json` — root-level public-safe mirrors for judge / DevSpot-style discovery
+- `.well-known/agent.json` / `.well-known/agent_log.json` — optional discovery mirrors generated from the same public-safe submission sources
 - `foundry.toml` — Foundry config
 
 ## Current contracts
@@ -81,6 +83,7 @@ Latest verification snapshot (2026-03-20):
 - `node --check frontend/app.js` → **passing**
 - `npm run metamask:preflight` → Base Sepolia selected, treasury deployed, smart account undeployed, bundler not configured/reachable, `readyForFinalSameNetworkRun=false`
 - `npm run final:validate-same-network` → `overallReadyForSameNetworkDemoSubmission=false`
+- `npm run submission:refresh-public-agent-artifacts` → refreshes root-level and `.well-known/` public-safe mirrors of `submission/agent.json` and `submission/agent_log.json`
 
 See `submission/public-evidence-pack.md` for the public-safe judge index.
 
