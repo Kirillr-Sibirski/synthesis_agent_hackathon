@@ -27,6 +27,3 @@ A human funds a treasury with principal. The agent can only spend yield, and onl
 ## Judge-facing one-liner
 
 "The agent can spend yield, not principal. Different budgets can be delegated separately. Every spend leaves a verifiable receipt."
-r
-
-"The agent can spend yield, not principal. Different budgets can be delegated separately. Every spend leaves a verifiable receipt."

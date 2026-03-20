@@ -49,7 +49,7 @@ A principal-protected yield treasury where:
 - slash/rate-drop safety tested for the `wstETH` path
 - submission draft package created under `submission/`
 - Base Sepolia MetaMask smart-account derivation now works in-repo
-- MetaMask delegation-preparation artifact generation now works in-repo (`npm run metamask:prepare-delegation-artifact`)
+- MetaMask delegation-preparation artifact generation now works in-repo (`npm run metamask:prepare-delegation-artifact`), including the exact encoded treasury selector and concrete Base Sepolia enforcer addresses
 
 ## Deployment target
 

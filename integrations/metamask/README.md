@@ -62,7 +62,9 @@ npm run metamask:prepare-delegation-artifact
 - the derived MetaMask smart account
 - the live DelegationManager address
 - the exact treasury spend calldata
+- the exact selector derived from that encoded calldata
 - the intended delegate / executor
+- the concrete Base Sepolia enforcer addresses for AllowedTargets / ExactCalldata / Redeemer / LimitedCalls
 - the caveat shape we need for honest track qualification
 - the remaining live-execution blocker (`BUNDLER_URL`, if still missing)
 

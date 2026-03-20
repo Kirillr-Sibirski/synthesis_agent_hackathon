@@ -43,6 +43,7 @@ async function main() {
       metadataURI,
     ],
   });
+  const spendSelector = spendCallData.slice(0, 10);
 
   const artifact = {
     generatedAt: new Date().toISOString(),
@@ -70,7 +71,7 @@ async function main() {
       delegator: smartAccount.address,
       delegate: demoExecutor,
       target: treasuryAddress,
-      selector: '0x20ec93f8',
+      selector: spendSelector,
       description:
         'Delegate may redeem a MetaMask delegation that executes exactly one treasury spendFromBudget(...) call for the prepared OPS_BUDGET spend intent.',
       recommendedCaveats: [
@@ -80,6 +81,12 @@ async function main() {
         'Call count = 1',
         'Native token value = 0',
       ],
+      sponsorNativeEnforcers: {
+        allowedTargets: smartAccountsEnvironment.caveatEnforcers.AllowedTargetsEnforcer,
+        exactCalldata: smartAccountsEnvironment.caveatEnforcers.ExactCalldataEnforcer,
+        redeemer: smartAccountsEnvironment.caveatEnforcers.RedeemerEnforcer,
+        limitedCalls: smartAccountsEnvironment.caveatEnforcers.LimitedCallsEnforcer,
+      },
     },
     nextLiveSteps: [
       'Fund/deploy the MetaMask smart account via bundler-backed user operation.',
