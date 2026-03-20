@@ -138,13 +138,13 @@ async function main() {
       readyForLiveRedemption,
       remainingBlockers: [
         ...missingRequired.map((name) => `Missing env: ${name}`),
-        ...(!treasuryDeployed ? ['TREASURY_ADDRESS has no code on Base Sepolia.'] : []),
+        ...(!treasuryDeployed ? [`TREASURY_ADDRESS has no code on ${chain.name}.`] : []),
         ...(!bundler.reachable ? ['Bundler is not reachable/usable yet.'] : []),
         ...(smartAccountDeployed ? [] : ['MetaMask smart account still needs onchain deployment via user operation.']),
       ],
       nextSteps: [
-        'Ensure the treasury address points at the intended live Base Sepolia treasury deployment.',
-        'Deploy/fund the MetaMask smart account through a working Base Sepolia bundler.',
+        `Ensure the treasury address points at the intended live ${chain.name} treasury deployment.`,
+        `Deploy/fund the MetaMask smart account through a working ${chain.name} bundler.`,
         'Redeem the constrained delegation through DelegationManager from the authorized executor.',
         'Record the resulting treasury spend tx hash and update deployments/ and submission/.',
       ],

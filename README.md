@@ -56,8 +56,9 @@ A principal-protected yield treasury where:
 
 ## Deployment target
 
-- initial demo chain: **Base Sepolia**
-- later optional expansions: Status Sepolia, Base mainnet, Celo
+- current public prototype proofs: **Base Sepolia**
+- required final same-network thesis target: **Base mainnet**
+- why: ERC-8004 registration lives on Base mainnet, real `wstETH` is available there, and the no-compromise sponsor story now requires the final stack to converge on one network
 
 ## Honest track posture
 
@@ -66,9 +67,9 @@ Right now the project is strongest for:
 - **Synthesis Open Track**
 
 And it is materially closer for:
-- **Best Use of Delegations** — real MetaMask artifact generation is done; live bundler-backed deployment/redemption proof is still missing
-- **Let the Agent Cook** — needs final manifest/log framing polish
-- **stETH Agent Treasury** — needs a live deployment using real `wstETH` on an accepted network
+- **Best Use of Delegations** — real MetaMask artifact generation is done; live bundler-backed deployment/redemption proof is still missing on the final same-network target
+- **Let the Agent Cook** — needs final manifest/log framing polish plus the required frontend demo surface
+- **stETH Agent Treasury** — needs a live deployment using real `wstETH` on the same final network as the rest of the sponsor story
 
 See `submission/public-evidence-pack.md` for the public-safe judge index.
 

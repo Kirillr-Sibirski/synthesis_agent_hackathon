@@ -42,7 +42,7 @@ Current protocol strengths:
 - `agent.json` and `agent_log.json` drafts exist in `submission/`
 
 Still missing for full sponsor-native compliance:
-- actual ERC-8004 identity registration
+- final public linkage from the completed ERC-8004 registration to the manifest/log package
 - real manifest compatibility confirmation with the relevant registry / format
 
 ## What still blocks highest-confidence sponsor fit

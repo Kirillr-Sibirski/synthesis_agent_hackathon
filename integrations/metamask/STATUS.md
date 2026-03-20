@@ -27,10 +27,10 @@ The generated artifact includes a signed delegation that binds:
 
 ## Current blocker
 
-The remaining MetaMask blocker is now the **live onchain redemption path**, not SDK shape correctness.
+The remaining MetaMask blocker is now the **live onchain redemption path on the final same-network target**, not SDK shape correctness.
 
 Specifically, we still need:
-1. a working Base Sepolia bundler endpoint
+1. a working bundler endpoint for the selected final chain
 2. smart-account deployment/funding onchain
 3. delegation redemption through live `DelegationManager`
 4. treasury spend execution caused by that redemption

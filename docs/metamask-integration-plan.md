@@ -52,7 +52,7 @@ Current progress:
 - the repo now also emits a **real signed constrained delegation artifact** via `npm run metamask:create-signed-delegation-artifact`
 - that signed artifact uses the installed Smart Accounts Kit caveat builders for AllowedTargets / AllowedMethods / ExactCalldata / Redeemer / LimitedCalls / ValueLte / Timestamp
 - the repo now also includes `npm run metamask:preflight`, which checks env completeness, smart-account deployment status, treasury code presence, exact spend selector shape, and whether a configured bundler endpoint is reachable
-- next step is deploying/using that DeleGator in the live treasury flow once a Base Sepolia bundler endpoint is available
+- next step is deploying/using that DeleGator in the live treasury flow on the final same-network target once a working bundler endpoint is available
 
 ## Practical implementation path
 

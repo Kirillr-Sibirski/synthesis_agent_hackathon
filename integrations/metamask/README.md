@@ -93,7 +93,9 @@ npm run metamask:preflight
 - the remaining live-execution blocker (`BUNDLER_URL`, if still missing)
 
 ### Required env for deployment
-- `BUNDLER_URL` — ERC-4337 bundler endpoint for Base Sepolia
+- `METAMASK_CHAIN` — `base` or `base-sepolia` (default: `base-sepolia`)
+- `RPC_URL` — RPC for the selected chain (preferred)
+- `BUNDLER_URL` — ERC-4337 bundler endpoint for the selected chain
 
 Without a bundler endpoint we can still:
 - derive the MetaMask smart-account address

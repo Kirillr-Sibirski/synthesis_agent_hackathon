@@ -124,7 +124,7 @@ async function main() {
       validBefore: beforeThreshold,
     },
     nextLiveSteps: [
-      'Fund and deploy the MetaMask smart account via a Base Sepolia bundler.',
+      `Fund and deploy the MetaMask smart account via a ${chain.name} bundler.`,
       'Redeem this delegation through DelegationManager from the authorized executor.',
       'Execute the treasury spend and record tx hashes in deployments/ and submission/.',
     ],
