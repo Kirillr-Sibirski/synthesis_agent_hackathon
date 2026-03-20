@@ -286,6 +286,8 @@ for (const id of [
   'artifactFile',
   'artifactJson',
   'artifactInspection',
+  'roleSummary',
+  'qualificationSummary',
   'activityLog',
 ]) {
   els[id] = document.getElementById(id);
@@ -410,6 +412,7 @@ function summarizeArtifact(rawArtifact) {
   const delegationMessage = asObject(delegation.message);
   const caveats = Array.isArray(delegationMessage.caveats) ? delegationMessage.caveats : [];
   const deployReceipt = asObject(artifact.deployReceipt);
+  const readiness = asObject(artifact.readiness);
 
   return {
     artifactKind:
@@ -438,8 +441,60 @@ function summarizeArtifact(rawArtifact) {
       artifact.smartAccountDeployed ?? artifact.onchain?.smartAccountDeployed ?? null,
     deployTransactionHash: deployReceipt.transactionHash ?? null,
     redemptionTransactionHash: artifact.redemptionTransactionHash ?? null,
-    qualificationStatus: artifact.qualificationStatus ?? artifact.readiness?.readyForLiveRedemption ?? null,
+    qualificationStatus: artifact.qualificationStatus ?? readiness.readyForLiveRedemption ?? null,
+    sameNetworkReady: readiness.readyForFinalSameNetworkRun ?? null,
+    remainingBlockers: Array.isArray(readiness.remainingBlockers) ? readiness.remainingBlockers : [],
+    nextSteps: Array.isArray(readiness.nextSteps) ? readiness.nextSteps : [],
   };
+}
+
+function buildQualificationSummary() {
+  const artifact = asObject(state.loadedArtifact);
+  const readiness = asObject(artifact.readiness);
+  const chain = selectedChain();
+  const remainingBlockers = Array.isArray(readiness.remainingBlockers) ? readiness.remainingBlockers : [];
+
+  const summary = {
+    chain: {
+      id: chain.id,
+      name: chain.name,
+      sameNetworkTargetSelected: chain.id === base.id,
+    },
+    currentInputs: {
+      treasury: els.treasuryAddress.value.trim() || null,
+      asset: els.assetAddress.value.trim() || null,
+      authorizer: els.authorizerAddress.value.trim() || null,
+      receiptRegistry: els.receiptRegistryAddress.value.trim() || null,
+      budgetId: els.budgetId.value.trim() || null,
+      executor: els.demoExecutor.value.trim() || null,
+      recipient: (els.demoRecipient.value.trim() || els.spendRecipient.value.trim()) || null,
+    },
+    artifactLoaded: Boolean(state.loadedArtifact),
+    artifactKind: summarizeArtifact(artifact).artifactKind,
+    readiness: {
+      readyForLiveRedemption: readiness.readyForLiveRedemption ?? null,
+      readyForFinalSameNetworkRun: readiness.readyForFinalSameNetworkRun ?? null,
+      smartAccountDeployed: artifact.onchain?.smartAccountDeployed ?? artifact.smartAccountDeployed ?? null,
+      bundlerReachable: artifact.bundler?.reachable ?? null,
+      remainingBlockers,
+    },
+    honestTrackPosture:
+      chain.id === base.id && readiness.readyForFinalSameNetworkRun
+        ? 'Final same-network sponsor run is selected and reported ready.'
+        : chain.id === base.id
+          ? 'Base mainnet is selected, but final sponsor proof is still incomplete.'
+          : 'Still operating in prototype/testnet mode; not the final same-network thesis.',
+    nextJudgeActions: remainingBlockers.length
+      ? remainingBlockers
+      : [
+          'Load treasury state.',
+          'Inspect the budget and role-separated summary.',
+          'Load a signed-delegation or live-flow artifact to connect MetaMask proof to the treasury flow.',
+        ],
+  };
+
+  setPanel(els.qualificationSummary, summary);
+  log('Built qualification summary.', summary);
 }
 
 function applyArtifactToForm(rawArtifact) {
@@ -492,6 +547,11 @@ function updateExpectedChainStatus() {
   els.sameNetworkStatus.textContent = els.chainSelect.value === 'base'
     ? 'Same-network target selected'
     : 'Prototype / not final same-network thesis';
+
+  if (els.sameNetworkStatus) {
+    els.sameNetworkStatus.classList.remove('ok', 'warn');
+    els.sameNetworkStatus.classList.add(els.chainSelect.value === 'base' ? 'ok' : 'warn');
+  }
 }
 
 function prefillDefaults() {
@@ -823,9 +883,11 @@ async function buildSpendIntent() {
 }
 
 async function loadArtifactObject(rawArtifact) {
+  state.loadedArtifact = asObject(rawArtifact);
   const summary = summarizeArtifact(rawArtifact);
   applyArtifactToForm(rawArtifact);
   setPanel(els.artifactInspection, summary);
+  buildQualificationSummary();
   log('Loaded MetaMask artifact into dashboard.', summary);
 }
 
@@ -941,6 +1003,7 @@ document.getElementById('buildSpendIntent').addEventListener('click', () => hand
 document.getElementById('loadArtifactFile').addEventListener('click', () => handle(loadArtifactFromFile));
 document.getElementById('loadArtifactJson').addEventListener('click', () => handle(loadArtifactFromJson));
 document.getElementById('buildRoleSummary').addEventListener('click', () => handle(buildRoleSummary));
+document.getElementById('buildQualificationSummary').addEventListener('click', () => handle(buildQualificationSummary));
 els.chainSelect.addEventListener('change', () => {
   updateExpectedChainStatus();
   if (!els.rpcUrl.value.trim() || els.chainSelect.value === 'baseSepolia') {
@@ -954,6 +1017,7 @@ async function initDashboard() {
   prefillDefaults();
   applyActorDefaults();
   updateExpectedChainStatus();
+  buildQualificationSummary();
   log('Dashboard ready. Serve frontend/ over HTTP for browser wallet access.');
 }
 
