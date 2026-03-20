@@ -20,6 +20,7 @@ A principal-protected yield treasury where:
 - `script/` — deployment and demo scripts
 - `docs/` — architecture, build plan, track mapping, deployment, demo flow
 - `deployments/` — concrete onchain deployment records, including the final Base mainnet cutover template
+- `env/` — local-only cutover env templates and final-run scaffolding
 - `submission/` — submission drafts, metadata, agent manifest, execution log
 - `integrations/` — sponsor-specific integration workspaces (for example MetaMask)
 - `frontend/` — static wallet-connected dashboard for the judge demo flow, with optional local `config.json` support and an env-driven cutover helper for final deployment switching

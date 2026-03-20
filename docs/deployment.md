@@ -66,7 +66,13 @@ Use `deployments/base-mainnet-cutover-template.md` as the single place to record
 - live spend / receipt proof
 - frontend cutover values for `frontend/config.json`
 
-For the dashboard cutover itself, fill `.env` and run:
+For the dashboard cutover itself, start from:
+
+```bash
+env/base-mainnet-cutover.example.env
+```
+
+Copy its values into local `.env`, fill the final Base mainnet fields, and then run:
 
 ```bash
 npm run frontend:write-config

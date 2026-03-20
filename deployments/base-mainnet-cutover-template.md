@@ -181,6 +181,7 @@ FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
 ```
 
 Expected env inputs:
+- recommended starting point: copy `env/base-mainnet-cutover.example.env` into local `.env` and fill it for the final run
 - preferred for mainnet cutover:
   - `FRONTEND_TREASURY_ADDRESS`
   - `FRONTEND_AUTHORIZER_ADDRESS`

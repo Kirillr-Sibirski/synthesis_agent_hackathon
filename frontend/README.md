@@ -49,10 +49,11 @@ Manual path:
 3. Keep `config.json` local-only (it is gitignored)
 
 Scripted path:
-1. Fill `.env` with the final deployment values
-2. For Base mainnet cutover, prefer explicit `FRONTEND_*` vars (for example `FRONTEND_TREASURY_ADDRESS`, `FRONTEND_AUTHORIZER_ADDRESS`, `FRONTEND_RECEIPT_REGISTRY_ADDRESS`, `FRONTEND_ASSET_ADDRESS`, `FRONTEND_DEMO_EXECUTOR`, `FRONTEND_DEMO_RECIPIENT`, `FRONTEND_RECEIPT_HASH`)
-3. Set `FRONTEND_CHAIN=base`
-4. Run:
+1. Start from `env/base-mainnet-cutover.example.env`
+2. Fill local `.env` with the final deployment values
+3. For Base mainnet cutover, prefer explicit `FRONTEND_*` vars (for example `FRONTEND_TREASURY_ADDRESS`, `FRONTEND_AUTHORIZER_ADDRESS`, `FRONTEND_RECEIPT_REGISTRY_ADDRESS`, `FRONTEND_ASSET_ADDRESS`, `FRONTEND_DEMO_EXECUTOR`, `FRONTEND_DEMO_RECIPIENT`, `FRONTEND_RECEIPT_HASH`)
+4. Set `FRONTEND_CHAIN=base`
+5. Run:
 
 ```bash
 npm run frontend:write-config
