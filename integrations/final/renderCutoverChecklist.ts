@@ -80,9 +80,11 @@ ${bulletList(trackMatrix, '- track qualification data unavailable')}
 
 - network: ${code(preflight?.network?.chainName)} (${code(preflight?.network?.chainId)})
 - final target network: ${code(preflight?.network?.finalSameNetworkTarget?.chainName)} (${code(preflight?.network?.finalSameNetworkTarget?.chainId)})
-- configured Base mainnet \`wstETH\`: ${code(preflight?.network?.finalSameNetworkTarget?.configuredWstETH)}
+- final target chain currently selected: ${yesNo(preflight?.network?.finalSameNetworkTarget?.chainSelected)}
+- configured \`WSTETH_ADDRESS\` in current MetaMask env: ${code(preflight?.network?.finalSameNetworkTarget?.configuredWstETH)}
 - expected Base mainnet \`wstETH\`: ${code(preflight?.network?.finalSameNetworkTarget?.expectedWstETH)}
-- using expected mainnet \`wstETH\`: ${yesNo(preflight?.network?.finalSameNetworkTarget?.usingExpectedMainnetWstETH)}
+- configured address matches Base mainnet \`wstETH\`: ${yesNo(preflight?.network?.finalSameNetworkTarget?.configuredWstETHMatchesBaseMainnet)}
+- using expected mainnet \`wstETH\` on the selected chain: ${yesNo(preflight?.network?.finalSameNetworkTarget?.usingExpectedMainnetWstETH)}
 - smart account: ${code(preflight?.accounts?.delegatorSmartAccount)}
 - executor: ${code(preflight?.accounts?.executor)}
 - recipient: ${code(preflight?.accounts?.recipient)}
@@ -90,6 +92,7 @@ ${bulletList(trackMatrix, '- track qualification data unavailable')}
 - smart account deployed: ${yesNo(preflight?.onchain?.smartAccountDeployed)}
 - bundler reachable: ${yesNo(preflight?.bundler?.reachable)}
 - ready for final same-network run: ${yesNo(preflight?.readiness?.readyForFinalSameNetworkRun)}
+- note: ${preflight?.network?.finalSameNetworkTarget?.chainSelected === true ? 'selected chain is already Base mainnet, so the mainnet compatibility booleans should be read literally' : 'selected chain is not Base mainnet yet, so treat any configured addresses as provisional until the chain is switched and the report is regenerated'}
 
 ## Frontend/demo snapshot
 

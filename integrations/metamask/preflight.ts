@@ -101,10 +101,11 @@ async function main() {
 
   const bundler = BUNDLER_URL ? await probeBundler(BUNDLER_URL) : { reachable: false, note: 'BUNDLER_URL not configured.' };
   const selectedFinalChain = chain.id === BASE_MAINNET_CHAIN_ID;
+  const configuredWstETHMatchesBaseMainnet = WSTETH_ADDRESS
+    ? getAddress(WSTETH_ADDRESS) === getAddress(BASE_MAINNET_WSTETH)
+    : false;
   const usingExpectedMainnetWstETH =
-    chain.id === BASE_MAINNET_CHAIN_ID
-      ? Boolean(WSTETH_ADDRESS && getAddress(WSTETH_ADDRESS) === getAddress(BASE_MAINNET_WSTETH))
-      : null;
+    chain.id === BASE_MAINNET_CHAIN_ID ? configuredWstETHMatchesBaseMainnet : null;
   const readyForLiveRedemption =
     missingRequired.length === 0 &&
     treasuryDeployed &&
@@ -128,6 +129,7 @@ async function main() {
         chainSelected: selectedFinalChain,
         expectedWstETH: BASE_MAINNET_WSTETH,
         configuredWstETH: WSTETH_ADDRESS ?? null,
+        configuredWstETHMatchesBaseMainnet,
         usingExpectedMainnetWstETH,
       },
     },
@@ -167,6 +169,9 @@ async function main() {
       remainingBlockers: [
         ...missingRequired.map((name) => `Missing env: ${name}`),
         ...(!selectedFinalChain ? ['Selected chain is not Base mainnet yet; final same-network thesis is still unmet.'] : []),
+        ...(WSTETH_ADDRESS && !configuredWstETHMatchesBaseMainnet
+          ? [`Configured WSTETH_ADDRESS does not match the Base mainnet canonical wstETH address (${BASE_MAINNET_WSTETH}).`]
+          : []),
         ...(!treasuryDeployed ? [`TREASURY_ADDRESS has no code on ${chain.name}.`] : []),
         ...(!bundler.reachable ? ['Bundler is not reachable/usable yet.'] : []),
         ...(smartAccountDeployed ? [] : ['MetaMask smart account still needs onchain deployment via user operation.']),

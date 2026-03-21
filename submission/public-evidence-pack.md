@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-21T09:24:46.315Z
+Generated at: 2026-03-21T11:23:47.067Z
 
 ## 1. Public repo
 
@@ -42,6 +42,9 @@ Latest generated preflight artifact:
 - path: `artifacts/metamask/preflight-8453.json`
 - selected chain: `Base Sepolia` (`84532`)
 - final target chain: `Base` (`8453`)
+- final target chain currently selected: `no`
+- configured `WSTETH_ADDRESS` in current MetaMask env: `0x623f9f72342a3c2518c880d8372de90eaef200cd`
+- configured address matches Base mainnet `wstETH`: `no`
 - smart account: `0x08478FfC43E134ae9390720D41409B06f38fEB7d`
 - treasury deployed: `yes`
 - smart account deployed: `no`
@@ -103,6 +106,7 @@ Current validation summary:
 
 Current same-network validator blockers:
 - Selected chain is not Base mainnet yet; final same-network thesis is still unmet.
+- Configured WSTETH_ADDRESS does not match the Base mainnet canonical wstETH address (0x7f39c581f595b53c5cb5bbd8f2c9a0e1b8d9d2b2).
 - Bundler is not reachable/usable yet.
 - MetaMask smart account still needs onchain deployment via user operation.
 - Frontend missing: base.treasuryPresent

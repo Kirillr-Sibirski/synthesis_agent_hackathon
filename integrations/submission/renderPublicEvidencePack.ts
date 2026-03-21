@@ -106,6 +106,9 @@ Latest generated preflight artifact:
 - path: \`${rel(PREFLIGHT_PATH)}\`
 - selected chain: \`${preflight?.network?.chainName ?? 'unknown'}\` (\`${preflight?.network?.chainId ?? 'unknown'}\`)
 - final target chain: \`${preflight?.network?.finalSameNetworkTarget?.chainName ?? 'Base'}\` (\`${preflight?.network?.finalSameNetworkTarget?.chainId ?? 8453}\`)
+- final target chain currently selected: \`${yesNo(preflight?.network?.finalSameNetworkTarget?.chainSelected)}\`
+- configured \`WSTETH_ADDRESS\` in current MetaMask env: \`${preflight?.network?.finalSameNetworkTarget?.configuredWstETH ?? 'pending'}\`
+- configured address matches Base mainnet \`wstETH\`: \`${yesNo(preflight?.network?.finalSameNetworkTarget?.configuredWstETHMatchesBaseMainnet)}\`
 - smart account: \`${preflight?.accounts?.delegatorSmartAccount ?? 'pending'}\`
 - treasury deployed: \`${yesNo(preflight?.onchain?.treasuryDeployed)}\`
 - smart account deployed: \`${yesNo(preflight?.onchain?.smartAccountDeployed)}\`
