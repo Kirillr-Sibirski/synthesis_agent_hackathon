@@ -162,6 +162,8 @@ METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-8453.json \
   npm run frontend:validate-config
 ```
 
+The MetaMask preflight path must match the chain you actually generated (`preflight-84532.json` for Base Sepolia, `preflight-8453.json` for Base mainnet). If omitted, the validators now infer the default from `METAMASK_CHAIN`.
+
 Then generate the combined same-network go/no-go report:
 
 ```bash

@@ -3,7 +3,9 @@ import 'dotenv/config';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
-const PREFLIGHT_OUT = process.env.PREFLIGHT_OUT ?? 'artifacts/metamask/preflight-8453.json';
+import { resolvePreflightArtifactPath } from '../metamask/preflightArtifactPath.js';
+
+const PREFLIGHT_OUT = resolvePreflightArtifactPath(process.env.PREFLIGHT_OUT);
 const FRONTEND_VALIDATION_OUT = process.env.FRONTEND_VALIDATION_OUT ?? 'artifacts/frontend/validation.json';
 const CUTOVER_ENV_VALIDATION_OUT = process.env.CUTOVER_ENV_VALIDATION_OUT ?? 'artifacts/final/cutover-env-validation.json';
 const FINAL_READINESS_OUT = process.env.FINAL_READINESS_OUT ?? 'artifacts/final/same-network-readiness.json';

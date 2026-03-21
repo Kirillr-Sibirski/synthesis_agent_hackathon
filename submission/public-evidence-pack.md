@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-21T16:03:33.538Z
+Generated at: 2026-03-21T17:25:42.957Z
 
 ## 1. Public repo
 
@@ -47,7 +47,7 @@ Latest generated preflight artifact:
 - configured address matches Base mainnet `wstETH`: `no`
 - smart account: `0x08478FfC43E134ae9390720D41409B06f38fEB7d`
 - treasury deployed: `yes`
-- smart account deployed: `no`
+- smart account deployed: `yes`
 - bundler reachable: `no`
 - bundler chain matches selected network: `no`
 - bundler ready for selected-network user operations: `no`
@@ -69,7 +69,7 @@ Latest cutover-env validation artifact:
 - real Base mainnet `wstETH` configured: `no`
 - treasury configured: `yes`
 - authorizer configured: `yes`
-- receipt registry configured: `yes`
+- receipt registry configured: `no`
 - backend roles fully separated: `no`
 - frontend roles fully separated in env: `no`
 
@@ -88,7 +88,7 @@ Latest frontend validation artifact:
 - Base treasury present: `no`
 - Base receipt registry present: `no`
 - Base authorizer present: `no`
-- receipt hash present: `yes`
+- receipt hash present: `no`
 - distinct frontend actor addresses: `1`
 
 Honest blocker:
@@ -111,23 +111,34 @@ Current same-network validator blockers:
 - Selected chain is not Base mainnet yet; final same-network thesis is still unmet.
 - Configured WSTETH_ADDRESS does not match the Base mainnet canonical wstETH address (0x7f39c581f595b53c5cb5bbd8f2c9a0e1b8d9d2b2).
 - Bundler is not reachable/usable yet.
-- MetaMask smart account still needs onchain deployment via user operation.
+- TREASURY_EXECUTOR_ADDRESS is not set; for the MetaMask path the treasury authorizer must allow the smart-account address as executor.
 - Frontend missing: base.treasuryPresent
 - Frontend missing: base.receiptRegistryPresent
 - Frontend missing: base.authorizerPresent
-- Role overlap still present in frontend config: [{"address":"0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948","roles":["budgetManager","spendRecipient","demoExecutor","demoRecipient"]}]
+- Frontend missing: actors.spendRecipientPresent
+- Frontend missing: actors.receiptHashPresent
+- Role overlap still present in frontend config: [{"address":"0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948","roles":["budgetManager","demoExecutor","demoRecipient"]}]
 - Loaded MetaMask preflight artifact is not yet ready for the final same-network run.
 - Cutover env missing: metaMaskChainIsBase
 - Cutover env missing: frontendChainIsBase
+- Cutover env missing: rpcConfigured
 - Cutover env missing: bundlerConfigured
+- Cutover env missing: executorKeyConfigured
 - Cutover env missing: wstETHIsBaseMainnet
+- Cutover env missing: receiptRegistryConfigured
+- Cutover env missing: managerConfigured
+- Cutover env missing: executorConfigured
+- Cutover env missing: recipientConfigured
 - Cutover env missing: frontendTreasuryConfigured
 - Cutover env missing: frontendAuthorizerConfigured
 - Cutover env missing: frontendReceiptRegistryConfigured
 - Cutover env missing: frontendAssetConfigured
 - Cutover env missing: frontendAssetIsBaseMainnet
-- Backend role addresses are not fully separated yet.
-- Frontend role addresses are not fully separated yet.
+- Cutover env missing: frontendBudgetManagerConfigured
+- Cutover env missing: frontendSpendRecipientConfigured
+- Cutover env missing: frontendDemoExecutorConfigured
+- Cutover env missing: frontendDemoRecipientConfigured
+- Cutover env missing: frontendReceiptHashConfigured
 ## 8. Best honest track posture right now
 
 ### Strong now

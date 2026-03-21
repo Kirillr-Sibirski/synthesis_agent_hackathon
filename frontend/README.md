@@ -67,6 +67,8 @@ METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-8453.json \
   npm run frontend:validate-config
 ```
 
+Use a `METAMASK_PREFLIGHT_PATH` that matches the chain you actually generated (`preflight-84532.json` for Base Sepolia, `preflight-8453.json` for Base mainnet). If you omit it, the validators now default from `METAMASK_CHAIN`.
+
 And combine that with the MetaMask readiness artifact into one go/no-go report:
 
 ```bash
@@ -92,6 +94,8 @@ FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json \
 FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
   npm run final:refresh-readiness-bundle
 ```
+
+Again, keep `PREFLIGHT_OUT` aligned with the selected `METAMASK_CHAIN`; if you omit it, the bundle refresh now chooses the chain-matching default automatically.
 
 This writes `frontend/config.json` locally and gives you machine-checkable same-network dashboard + final-run readiness reports, so moving from prototype addresses to the live deployment does not require editing app code. The same bundle refresh now also emits a generated Base mainnet env handoff at `artifacts/final/cutover-env-checklist.md`, a human-readable final cutover handoff at `artifacts/final/cutover-checklist.md`, and refreshes `submission/public-evidence-pack.md` from the latest public-safe readiness artifacts, so the operator checklist and judge-facing docs stay aligned with the real validator output. If you need to skip the public manifest/log mirror refresh for any reason, set `REFRESH_PUBLIC_AGENT_ARTIFACTS=false` before running the bundle refresh.
 

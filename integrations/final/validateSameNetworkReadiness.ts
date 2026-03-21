@@ -3,7 +3,9 @@ import 'dotenv/config';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-const PREFLIGHT_PATH = process.env.METAMASK_PREFLIGHT_PATH ?? 'artifacts/metamask/preflight-8453.json';
+import { resolvePreflightArtifactPath } from '../metamask/preflightArtifactPath.js';
+
+const PREFLIGHT_PATH = resolvePreflightArtifactPath(process.env.METAMASK_PREFLIGHT_PATH);
 const FRONTEND_VALIDATION_PATH = process.env.FRONTEND_VALIDATION_PATH ?? 'artifacts/frontend/validation.json';
 const CUTOVER_ENV_VALIDATION_PATH = process.env.CUTOVER_ENV_VALIDATION_PATH ?? 'artifacts/final/cutover-env-validation.json';
 const AGENT_MANIFEST_PATH = process.env.AGENT_MANIFEST_PATH ?? 'agent.json';
@@ -192,10 +194,10 @@ function main() {
     blockers,
     nextActions: uniq([
       ...(!preflightLoaded
-        ? ['Generate a MetaMask preflight artifact with: PREFLIGHT_OUT=artifacts/metamask/preflight-8453.json npm run metamask:preflight']
+        ? [`Generate a MetaMask preflight artifact with: PREFLIGHT_OUT=${PREFLIGHT_PATH} npm run metamask:preflight`]
         : []),
       ...(!frontendValidationLoaded
-        ? ['Generate a frontend validation artifact with: FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json METAMASK_PREFLIGHT_PATH=artifacts/metamask/preflight-8453.json npm run frontend:validate-config']
+        ? [`Generate a frontend validation artifact with: FRONTEND_VALIDATION_OUT=artifacts/frontend/validation.json METAMASK_PREFLIGHT_PATH=${PREFLIGHT_PATH} npm run frontend:validate-config`]
         : []),
       ...(!cutoverEnvValidationLoaded
         ? ['Generate a cutover env validation artifact with: CUTOVER_ENV_VALIDATION_OUT=artifacts/final/cutover-env-validation.json npm run final:validate-cutover-env']

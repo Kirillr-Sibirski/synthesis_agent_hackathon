@@ -3,8 +3,10 @@ import 'dotenv/config';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { resolvePreflightArtifactPath } from '../metamask/preflightArtifactPath.js';
+
 const AGENT_MANIFEST_PATH = process.env.AGENT_MANIFEST_PATH ?? 'agent.json';
-const PREFLIGHT_PATH = process.env.METAMASK_PREFLIGHT_PATH ?? 'artifacts/metamask/preflight-8453.json';
+const PREFLIGHT_PATH = resolvePreflightArtifactPath(process.env.METAMASK_PREFLIGHT_PATH);
 const CUTOVER_ENV_VALIDATION_PATH = process.env.CUTOVER_ENV_VALIDATION_PATH ?? 'artifacts/final/cutover-env-validation.json';
 const FRONTEND_VALIDATION_PATH = process.env.FRONTEND_VALIDATION_PATH ?? 'artifacts/frontend/validation.json';
 const FINAL_READINESS_PATH = process.env.FINAL_READINESS_OUT ?? 'artifacts/final/same-network-readiness.json';
