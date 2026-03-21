@@ -5,24 +5,24 @@
 :root {
   color-scheme: dark;
   --background: 75 100% 1%;
-  --foreground: 345 100% 99%;
-  --card: 18 33% 9%;
-  --card-foreground: 345 100% 99%;
-  --popover: 18 33% 9%;
-  --popover-foreground: 345 100% 99%;
+  --foreground: 330 33% 99%;
+  --card: 18 25% 8%;
+  --card-foreground: 330 33% 99%;
+  --popover: 18 25% 8%;
+  --popover-foreground: 330 33% 99%;
   --primary: 12 60% 50%;
-  --primary-foreground: 345 100% 99%;
-  --secondary: 16 28% 14%;
-  --secondary-foreground: 345 100% 99%;
-  --muted: 16 22% 18%;
-  --muted-foreground: 345 20% 78%;
+  --primary-foreground: 330 33% 99%;
+  --secondary: 18 18% 12%;
+  --secondary-foreground: 330 33% 99%;
+  --muted: 18 14% 16%;
+  --muted-foreground: 330 14% 82%;
   --accent: 12 60% 50%;
-  --accent-foreground: 345 100% 99%;
-  --danger: 12 68% 44%;
-  --success: 12 52% 54%;
-  --warning: 12 72% 58%;
-  --border: 14 31% 26%;
-  --input: 14 31% 26%;
+  --accent-foreground: 330 33% 99%;
+  --danger: 12 60% 50%;
+  --success: 12 48% 42%;
+  --warning: 12 68% 56%;
+  --border: 12 28% 26%;
+  --input: 12 22% 24%;
   --ring: 12 60% 50%;
   --radius: 1rem;
   --font-display: "Avenir Next", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -42,10 +42,10 @@ body {
   margin: 0;
   color: hsl(var(--foreground));
   background:
-    radial-gradient(circle at top left, rgba(205, 83, 52, 0.22), transparent 28%),
-    radial-gradient(circle at 85% 10%, rgba(255, 251, 252, 0.08), transparent 22%),
-    radial-gradient(circle at 50% 120%, rgba(205, 83, 52, 0.18), transparent 34%),
-    linear-gradient(180deg, #010400 0%, #110604 48%, #010400 100%);
+    radial-gradient(circle at top left, rgba(205, 83, 52, 0.24), transparent 30%),
+    radial-gradient(circle at 85% 10%, rgba(255, 251, 252, 0.06), transparent 24%),
+    radial-gradient(circle at 50% 120%, rgba(205, 83, 52, 0.16), transparent 36%),
+    linear-gradient(180deg, #010400 0%, #070200 52%, #010400 100%);
   font-family: var(--font-display), system-ui, sans-serif;
 }
 

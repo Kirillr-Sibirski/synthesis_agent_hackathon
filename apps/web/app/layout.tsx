@@ -4,7 +4,7 @@ import type { ReactElement, ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Delegated Yield Treasury',
+  title: 'Agent Allowance Protocol',
   description: 'Judge dashboard for treasury status, receipt proof, MetaMask artifacts, and readiness.',
   metadataBase: new URL('https://localhost'),
   icons: {

@@ -1,4 +1,4 @@
-export const APP_NAME = 'Delegated Yield Treasury';
+export const APP_NAME = 'Agent Allowance Protocol';
 export const APP_TAGLINE =
   'Judge-ready dashboard for treasury status, budget state, receipt lookup, MetaMask proof, and readiness.';
 

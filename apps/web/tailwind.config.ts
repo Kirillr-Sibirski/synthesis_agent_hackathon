@@ -37,11 +37,11 @@ const config: Config = {
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
-        glow: '0 20px 60px rgba(10, 17, 32, 0.35)',
+        glow: '0 20px 60px rgba(1, 4, 0, 0.42)',
       },
       backgroundImage: {
         'radial-fade':
-          'radial-gradient(circle at top, rgba(46, 212, 183, 0.18), transparent 34%), radial-gradient(circle at 85% 10%, rgba(245, 190, 86, 0.12), transparent 28%), linear-gradient(180deg, #07111f 0%, #0a1323 100%)',
+          'radial-gradient(circle at top, rgba(205, 83, 52, 0.18), transparent 34%), radial-gradient(circle at 85% 10%, rgba(255, 251, 252, 0.08), transparent 28%), linear-gradient(180deg, #010400 0%, #070200 100%)',
       },
     },
   },
