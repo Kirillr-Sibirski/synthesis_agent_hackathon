@@ -6,32 +6,32 @@ This folder is the live workspace for turning the project from delegation-shaped
 
 - `@metamask/smart-accounts-kit` installed in the repo
 - MetaMask `delegation-framework` vendored under `contracts/lib/delegation-framework`
-- Base Sepolia environment data confirmed from the SDK
+- Base mainnet environment data confirmed from the SDK and current live proof artifacts
 - strict qualification plan written in:
   - `Memory/Submission/track-qualification-plan.md`
   - `Memory/ProjectDocs/metamask-integration-plan.md`
 
-## Current implementation goal
+## Current implementation status
 
-Use the real MetaMask framework to create a constrained delegation for the treasury spend flow:
+The repo now uses the real MetaMask framework to create and redeem a constrained delegation for the treasury spend flow:
 - target = treasury
 - method = `spendFromBudget(...)`
 - constrained redeemer
 - limited calls
 - exact or tightly-scoped calldata
 
-Then redeem that delegation and execute a treasury spend with onchain proof.
+That flow has already been executed on Base mainnet with onchain proof.
 
-## Important discovery
+## Important discovery that shaped the final implementation
 
 The delegator in the final proof flow must be an actual MetaMask **DeleGator / smart account**.
 A plain EOA-signed delegation artifact is not enough on its own, because `DelegationManager` executes via `executeFromExecutor(...)` on the delegator contract.
 
-So the next concrete implementation step is:
-- create/deploy a MetaMask DeleGator smart account on the final same-network target
-- bind treasury permissions to that smart account
-- redeem the delegation through the live DelegationManager
-- record the resulting treasury spend + receipt tx hashes
+The repo now handles that correctly by:
+- deriving and deploying the MetaMask smart account on Base mainnet
+- binding treasury permissions to that smart account via `TREASURY_EXECUTOR_ADDRESS`
+- redeeming the delegation through the live `DelegationManager`
+- recording the resulting treasury spend + receipt tx hashes in `Memory/Deployments/base-mainnet-metamask-live.md`
 
 ## Current concrete progress
 
@@ -44,9 +44,9 @@ bun run metamask:derive-smart-account
 Current derived address for the current owner key on the currently configured chain:
 - owner: `0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948`
 - smart account: `0x08478FfC43E134ae9390720D41409B06f38fEB7d`
-- Base Sepolia delegation manager: `0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3`
+- Base mainnet delegation manager: `0xDB9B1e94B5b69Df7e401DDbedE43491141047dB3`
 
-At the moment this smart account is still **derived**, not yet deployed onchain.
+This smart account is now deployed onchain on Base mainnet and is the treasury-side executor in the live proof.
 
 ## Repo scripts
 
@@ -69,7 +69,7 @@ bun run metamask:preflight
   - checks whether the derived MetaMask smart account is already deployed
   - checks bundler reachability and whether the bundler is actually on the selected chain
   - shows the exact encoded `spendFromBudget(...)` selector/intent shape
-  - explicitly reports whether the setup is ready for the final **same-network Base mainnet** story
+  - explicitly reports whether the setup is ready for the live **same-network Base mainnet** story
   - can also save the report locally via `PREFLIGHT_OUT=... bun run metamask:preflight`
 
 - `metamask:create-signed-delegation-artifact`
@@ -115,7 +115,7 @@ Without a bundler endpoint we can still:
 - dry-run the full deploy/create/redeem orchestration with:
   - `DRY_RUN=true bun run metamask:run-live-flow`
 
-But we **cannot** yet broadcast the smart-account deployment / user operation that is needed for the strongest MetaMask track proof on the selected same-network target.
+But we **cannot** broadcast the smart-account deployment / user operation path again on a fresh target until a working bundler is configured for that target.
 
 ## Important treasury-authorizer alignment
 
@@ -139,18 +139,26 @@ You can handle that in either of two ways:
 - pre-fund the derived smart-account address manually
 - set `SMART_ACCOUNT_FUNDING_WEI` so the helper tops up the counterfactual smart-account address from the owner EOA before attempting deployment
 
-## Remaining execution steps for full MetaMask qualification
+## Current live proof set
 
-1. provide a working bundler endpoint for the selected final chain (and verify the endpoint itself reports that same chain ID)
-2. align the treasury authorizer with `TREASURY_EXECUTOR_ADDRESS=<derived-smart-account-address>`
-3. pre-fund the smart account (or set `SMART_ACCOUNT_FUNDING_WEI`) for the first unsponsored deployment if no paymaster is used
-4. deploy/use the MetaMask smart account onchain
-5. create and sign a constrained delegation
-6. redeem that delegation through the live `DelegationManager` using either:
-   - `bun run metamask:redeem-signed-delegation -- path/to/signed-delegation.json`
-   - `bun run metamask:run-live-flow`
-7. execute a treasury spend through that path
-8. record tx hashes and update deployment/submission docs
+Latest recorded Base mainnet proof includes:
+1. patched treasury deployment on Base mainnet
+2. real Base mainnet `wstETH` treasury setup and budget/rule wiring
+3. MetaMask smart-account deployment through the configured bundler
+4. constrained delegation artifact generation for the live treasury calldata
+5. delegation redemption through the live `DelegationManager`
+6. receipt-backed treasury spend proving the smart-account executor
+
+Primary evidence:
+- `Memory/Deployments/base-mainnet-metamask-live.md`
+- `artifacts/metamask/preflight-8453.json`
+- `artifacts/metamask/signed-delegation-8453.json`
+
+## Remaining practical work
+
+1. keep docs and judge-facing dashboard output aligned with the latest generated artifacts
+2. preserve the separation between redeemer EOA and treasury executor smart account in all future reruns
+3. rerun the flow only when we intentionally rotate roles, deployment addresses, or live proof values
 
 ## Why this matters
 

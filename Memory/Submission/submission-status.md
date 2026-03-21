@@ -8,7 +8,9 @@
 - [x] Contracts implemented
 - [x] Tests implemented and last recorded passing snapshot captured (`31/31`)
 - [x] Base Sepolia deployment completed
+- [x] Base mainnet deployment completed
 - [x] Live onchain spend completed
+- [x] Live MetaMask delegation redemption completed
 - [x] Deployment records written down
 - [x] Project description draft written
 - [x] Problem statement draft written
@@ -32,9 +34,9 @@
 
 ## Biggest quality upgrades still worth doing
 
-- [~] Separate owner / manager / executor / recipient roles in a live deployment (tooling/scripts exist; the Base mainnet cutover env + frontend validator explicitly require distinct frontend role wiring too; the remaining work is to finish a clean final proof set)
-- [~] Real MetaMask Delegation Framework integration (Base Sepolia now has live smart-account deployment, live delegation redemption, and a live receipt-backed treasury spend proof in `Memory/Deployments/base-sepolia-metamask-live.md`; the remaining work is reproducing that proof on the final same-network Base mainnet target)
+- [x] Separate owner / manager / executor / recipient roles in a live deployment (current Base mainnet env validates with distinct backend roles, and the frontend validator accepts the intended recipient overlap only)
+- [x] Real MetaMask Delegation Framework integration (live Base mainnet proof now recorded in `Memory/Deployments/base-mainnet-metamask-live.md`)
 - [~] Final ERC-8004 manifest linkage / public packaging cleanup (public-safe evidence pack exists, discovery mirrors exist, and the validator checks the same public-safe artifacts; final agent/project UUID packaging plus final title/media fields still need cleanup)
-- [ ] Live-network real `wstETH` deployment path on the final same-network target (final proof collection is scaffolded in `Memory/Deployments/base-mainnet-cutover-template.md`, and the final env wiring has a dedicated `env/base-mainnet-cutover.example.env` template)
-- [~] Frontend/dashboard requirement (the static dashboard exists under `frontend/`; it supports local `config.json` cutover, env-driven config generation, validation, and artifact hydration, but it still needs the final same-network deployment data and sponsor-complete polish)
+- [x] Live-network real `wstETH` deployment path on the final same-network target (live Base mainnet proof now recorded in `Memory/Deployments/base-mainnet-metamask-live.md`)
+- [x] Frontend/dashboard requirement (the Next.js dashboard validates against the live Base mainnet proof/config set)
 - [ ] Optional MCP layer if we decide to widen into the Lido MCP track

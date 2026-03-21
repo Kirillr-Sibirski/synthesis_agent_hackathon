@@ -258,26 +258,28 @@ async function main() {
           ? [`Configured WSTETH_ADDRESS does not match Base mainnet wstETH (${BASE_MAINNET_WSTETH}).`]
           : []),
       ],
-      nextSteps: [
-        ...(selectedFinalChain
-          ? []
-          : ['Switch MetaMask integration env to Base mainnet (`METAMASK_CHAIN=base`) for the final same-network run.']),
-        selectedFinalChain
-          ? `Ensure the treasury address points at the intended live ${chain.name} treasury deployment.`
-          : 'After switching chains, point TREASURY_ADDRESS at the intended live Base mainnet treasury deployment.',
-        `Set TREASURY_EXECUTOR_ADDRESS=${smartAccount.address} so the treasury authorizer matches the MetaMask smart-account caller rather than the redeemer EOA.`,
-        ...(chain.id === BASE_MAINNET_CHAIN_ID
-          ? ['Ensure WSTETH_ADDRESS is set to the real Base mainnet token address and the treasury story uses that same network.']
-          : []),
-        ...(smartAccountDeployed || smartAccountFundingReady
-          ? []
-          : ['Pre-fund the counterfactual smart account or set SMART_ACCOUNT_FUNDING_WEI before attempting the first unsponsored bundler deployment.']),
-        selectedFinalChain
-          ? `Deploy/fund the MetaMask smart account through a working ${chain.name} bundler.`
-          : 'After switching chains, deploy/fund the MetaMask smart account through a working Base mainnet bundler.',
-        'Redeem the constrained delegation through DelegationManager from the authorized executor.',
-        'Record the resulting treasury spend tx hash and update Memory/Deployments/ and Memory/Submission/.',
-      ],
+      nextSteps: readyForFinalSameNetworkRun
+        ? ['Refresh the public evidence pack, dashboard config, and deployment notes from this live Base mainnet proof set.']
+        : [
+            ...(selectedFinalChain
+              ? []
+              : ['Switch MetaMask integration env to Base mainnet (`METAMASK_CHAIN=base`) for the final same-network run.']),
+            selectedFinalChain
+              ? `Ensure the treasury address points at the intended live ${chain.name} treasury deployment.`
+              : 'After switching chains, point TREASURY_ADDRESS at the intended live Base mainnet treasury deployment.',
+            `Set TREASURY_EXECUTOR_ADDRESS=${smartAccount.address} so the treasury authorizer matches the MetaMask smart-account caller rather than the redeemer EOA.`,
+            ...(chain.id === BASE_MAINNET_CHAIN_ID
+              ? ['Ensure WSTETH_ADDRESS is set to the real Base mainnet token address and the treasury story uses that same network.']
+              : []),
+            ...(smartAccountDeployed || smartAccountFundingReady
+              ? []
+              : ['Pre-fund the counterfactual smart account or set SMART_ACCOUNT_FUNDING_WEI before attempting the first unsponsored bundler deployment.']),
+            selectedFinalChain
+              ? `Deploy/fund the MetaMask smart account through a working ${chain.name} bundler.`
+              : 'After switching chains, deploy/fund the MetaMask smart account through a working Base mainnet bundler.',
+            'Redeem the constrained delegation through DelegationManager from the authorized executor.',
+            'Record the resulting treasury spend tx hash and update Memory/Deployments/ and Memory/Submission/.',
+          ],
     },
   };
 

@@ -24,8 +24,8 @@ const tabs: Array<{ key: TabKey; label: string }> = [
 
 function Field({ label, value }: { label: string; value: string }): React.JSX.Element {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-      <p className="text-[0.65rem] uppercase tracking-[0.18em] text-slate-400">{label}</p>
+    <div className="metric-tile p-3">
+      <p className="section-kicker">{label}</p>
       <p className="mt-1 break-words font-mono text-sm text-slate-100">{value}</p>
     </div>
   );
@@ -33,7 +33,7 @@ function Field({ label, value }: { label: string; value: string }): React.JSX.El
 
 function JsonBlock({ value }: { value: unknown }): React.JSX.Element {
   return (
-    <pre className="max-h-[24rem] overflow-auto rounded-2xl border border-white/10 bg-black/30 p-4 font-mono text-[0.78rem] leading-6 text-slate-200">
+    <pre className="code-block max-h-[24rem] overflow-auto font-mono text-[0.78rem] leading-6 text-slate-200">
       {JSON.stringify(value, null, 2)}
     </pre>
   );
@@ -63,10 +63,11 @@ export function ProofWorkspace({ snapshot }: ProofWorkspaceProps): React.JSX.Ele
   const delegationMessage = delegation.delegation as Record<string, any>;
 
   return (
-    <Card className="h-full">
+    <Card className="panel-surface h-full">
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
+            <p className="section-kicker">Proof workspace</p>
             <CardTitle>MetaMask artifact and proof view</CardTitle>
             <CardDescription>
               The dashboard keeps the signed delegation, live proof, and readiness story together.
@@ -81,9 +82,10 @@ export function ProofWorkspace({ snapshot }: ProofWorkspaceProps): React.JSX.Ele
           {tabs.map((item) => (
             <Button
               key={item.key}
-              variant={tab === item.key ? 'default' : 'outline'}
+              variant={tab === item.key ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setTab(item.key)}
+              className={tab === item.key ? '' : 'soft-pill border-white/10 bg-white/5 hover:bg-white/10'}
             >
               {item.label}
             </Button>
@@ -140,21 +142,21 @@ export function ProofWorkspace({ snapshot }: ProofWorkspaceProps): React.JSX.Ele
           <div className="space-y-4">
             <div className="grid gap-3 md:grid-cols-2">
               {snapshot.proof.liveProofTxs.map((entry) => (
-                <div key={entry.hash} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400">{entry.label}</p>
+                <div key={entry.hash} className="metric-tile">
+                  <p className="section-kicker">{entry.label}</p>
                   <p className="mt-1 text-sm font-medium text-slate-100">{entry.description}</p>
                   <p className="mt-3 break-all font-mono text-sm text-primary">{entry.hash}</p>
                 </div>
               ))}
             </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Live proof note</p>
+            <div className="data-stack">
+              <p className="section-kicker">Live proof note</p>
               <Separator className="my-3" />
               <pre className="max-h-[24rem] overflow-auto whitespace-pre-wrap font-mono text-sm leading-6 text-slate-200">
                 {snapshot.proof.liveProofNote}
               </pre>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="data-stack">
               <div className="grid gap-3 md:grid-cols-2">
                 <Field label="Receipt executor" value={shortAddress(snapshot.receipt.executor)} />
                 <Field label="Receipt recipient" value={shortAddress(snapshot.receipt.recipient)} />
@@ -176,7 +178,7 @@ export function ProofWorkspace({ snapshot }: ProofWorkspaceProps): React.JSX.Ele
 
             <div className="grid gap-3">
               {snapshot.readiness.honestTracks.map((track) => (
-                <div key={track.key} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div key={track.key} className="metric-tile">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="font-medium text-slate-100">{track.label}</p>
@@ -191,24 +193,24 @@ export function ProofWorkspace({ snapshot }: ProofWorkspaceProps): React.JSX.Ele
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Blockers</p>
+              <div className="data-stack">
+                <p className="section-kicker">Blockers</p>
                 <Separator className="my-3" />
                 <ul className="space-y-2 text-sm text-slate-200">
                   {snapshot.readiness.blockers.map((blocker) => (
-                    <li key={blocker} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                    <li key={blocker} className="metric-tile rounded-xl px-3 py-2">
                       {blocker}
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Next actions</p>
+              <div className="data-stack">
+                <p className="section-kicker">Next actions</p>
                 <Separator className="my-3" />
                 <ul className="space-y-2 text-sm text-slate-200">
                   {snapshot.readiness.nextActions.map((action) => (
-                    <li key={action} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                    <li key={action} className="metric-tile rounded-xl px-3 py-2">
                       {action}
                     </li>
                   ))}

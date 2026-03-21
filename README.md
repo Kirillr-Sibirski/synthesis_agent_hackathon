@@ -16,10 +16,10 @@ Hackathon repo for a delegated, yield-only treasury with receipt-backed spends, 
 
 ## Current status
 
-- Base Sepolia MetaMask path is live end-to-end: smart-account deployment, delegation redemption, treasury spend, and receipt proof
-- The Lido-style `wstETH` treasury path is implemented in `contracts/` and ready for the final Base mainnet cutover once the wallet has mainnet gas
+- Live Base mainnet proof now exists for the full MetaMask + `wstETH` path: treasury deployment, smart-account deployment, delegation redemption, treasury spend, and receipt proof
+- The Lido-style `wstETH` treasury path is running against real Base mainnet `wstETH` in the recorded live proof
 - The repo now has a real Next.js dashboard in `apps/web/` instead of the old static prototype
-- The remaining sponsor-complete blocker is still the final same-network Base mainnet deployment and proof collection pass
+- Current readiness validators and dashboard config are aligned with the live Base mainnet deployment
 
 ## Key commands
 
@@ -37,6 +37,7 @@ bun run verify:demo
 
 - Judge dashboard: `apps/web/`
 - MetaMask workspace: `tools/metamask/`
+- Live Base mainnet deployment note: `Memory/Deployments/base-mainnet-metamask-live.md`
 - Final cutover template: `Memory/Deployments/base-mainnet-cutover-template.md`
 - Public evidence index: `Memory/Submission/public-evidence-pack.md`
 

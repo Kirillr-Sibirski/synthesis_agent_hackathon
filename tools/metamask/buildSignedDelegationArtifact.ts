@@ -157,7 +157,7 @@ export async function buildSignedDelegationArtifact(): Promise<SignedDelegationA
   return {
     generatedAt: new Date().toISOString(),
     qualificationStatus:
-      'Constrained MetaMask delegation artifact generated and signed offchain. Live onchain redemption still requires bundler-backed smart-account deployment and redeem flow.',
+      'Constrained MetaMask delegation artifact generated for the current treasury env. Live proof status is tracked separately in preflight and deployment notes.',
     network: {
       chainId: chain.id,
       chainName: chain.name,
@@ -196,10 +196,8 @@ export async function buildSignedDelegationArtifact(): Promise<SignedDelegationA
       validBefore: beforeThreshold,
     },
     nextLiveSteps: [
-      `Configure the treasury authorizer rule so executor=${smartAccount.address} for the MetaMask path.`,
-      `Fund and deploy the MetaMask smart account via a ${chain.name} bundler.`,
-      'Redeem this delegation through DelegationManager from the authorized executor.',
-      'Execute the treasury spend and record tx hashes in Memory/Deployments/ and Memory/Submission/.',
+      'Use this artifact with the matching env and treasury calldata if you need to rerun the live flow.',
+      'Refresh the generated preflight and judge-facing deployment notes after any live rerun.',
     ],
   };
 }

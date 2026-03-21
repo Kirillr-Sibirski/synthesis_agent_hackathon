@@ -16,8 +16,8 @@ interface ReceiptLookupProps {
 
 function LookupField({ label, value }: { label: string; value: string }): React.JSX.Element {
   return (
-    <div className="space-y-1">
-      <p className="text-xs uppercase tracking-[0.18em] text-slate-400">{label}</p>
+    <div className="metric-tile space-y-1">
+      <p className="section-kicker">{label}</p>
       <p className="break-all font-mono text-sm text-slate-100">{value}</p>
     </div>
   );
@@ -60,10 +60,11 @@ export function ReceiptLookup({ snapshot }: ReceiptLookupProps): React.JSX.Eleme
   }, [runLookup, snapshot.receipt.lookupHash]);
 
   return (
-    <Card className="h-full">
+    <Card className="panel-surface h-full">
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
+            <p className="section-kicker">Receipt explorer</p>
             <CardTitle>Receipt lookup</CardTitle>
             <CardDescription>Search the receipt registry proof path by hash, task, or budget reference.</CardDescription>
           </div>
@@ -100,7 +101,7 @@ export function ReceiptLookup({ snapshot }: ReceiptLookupProps): React.JSX.Eleme
                 setQuery(entry.hash);
                 void runLookup(entry.hash);
               }}
-              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:border-primary/30 hover:bg-primary/10"
+              className="soft-pill px-3 py-1.5 text-xs"
             >
               {entry.label}: {shortHash(entry.hash)}
             </button>
@@ -126,8 +127,8 @@ export function ReceiptLookup({ snapshot }: ReceiptLookupProps): React.JSX.Eleme
               <LookupField label="Tx hash" value={result.txHash ?? '—'} />
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-              <p className="mb-3 text-xs uppercase tracking-[0.18em] text-slate-400">Details</p>
+            <div className="data-stack">
+              <p className="mb-3 section-kicker">Details</p>
               <div className="grid gap-3 md:grid-cols-2">
                 {result.details.map((entry) => (
                   <LookupField key={entry.label} label={entry.label} value={entry.value} />

@@ -14,7 +14,7 @@ Delegated Yield Treasury is a contract primitive for giving autonomous agents a 
 
 Every spend is permissioned through delegation-style rules with recipient constraints, selector constraints, amount caps, and expiry windows. When a spend occurs, the treasury records a structured receipt containing the task ID, budget ID, evidence hash, result hash, metadata URI, and — critically — the exact delegation `ruleId` that authorized the action. This makes the system auditable, accountable, and much closer to a trust primitive than a normal agent wallet.
 
-The current prototype is written in Solidity, tested with Foundry, and deployed on Base Sepolia with live transaction proofs. It already demonstrates principal protection, budget-tree semantics, constrained delegated execution, and receipt-producing treasury spends. The repo now also contains a dedicated `WstETHYieldTreasury` path that models real `wstETH` semantics correctly by tracking principal in stETH-equivalent units and deriving spendable yield from the changing `stEthPerToken()` exchange rate. The strongest public proof today is still the Base Sepolia flow; the final Lido / MetaMask judge story is intended to land on the same-network Base mainnet path once the remaining deployment data is wired.
+The current prototype is written in Solidity, tested with Foundry, and now has a recorded live Base mainnet proof. It demonstrates principal protection, budget-tree semantics, constrained delegated execution, receipt-producing treasury spends, and a real MetaMask smart-account redemption flow against live Base mainnet `wstETH`. The repo also contains a dedicated `WstETHYieldTreasury` path that models real `wstETH` semantics by tracking principal in stETH-equivalent units and deriving spendable yield from the changing `stEthPerToken()` exchange rate.
 
 ## Problem statement
 Autonomous agents are starting to coordinate, transact, and pay for services onchain, but the current financial primitives for doing so are weak. In most agent systems, the operator still faces a bad choice: either give the agent direct wallet control and accept principal risk, or keep the human fully in the loop and give up meaningful autonomy.
@@ -28,7 +28,7 @@ Delegated Yield Treasury addresses that problem by separating principal from spe
 
 ## Current deployment proof
 See:
-- `deployments/base-sepolia-v2.md`
+- `Memory/Deployments/base-mainnet-metamask-live.md`
 
 ## ERC-8004 / identity proof
 
@@ -81,8 +81,8 @@ The project's Synthesis registration has already been completed and the onchain 
 
 Ready now:
 - public repo
-- onchain Base Sepolia deployment
-- live spend tx
+- onchain Base mainnet deployment
+- live MetaMask delegation redemption + spend tx
 - receipt-producing flow
 - tested contracts
 - architecture docs
@@ -97,4 +97,4 @@ Still needed before final publish:
 - cover image / pictures
 - self-custody transfer step in Synthesis
 - final project/team UUIDs from Devfolio API
-- final same-network sponsor-proof upgrades where still missing, especially the live MetaMask redemption proof, real `wstETH` deployment path, and final dashboard cutover data for the full judge demo
+- final branding and packaging polish around the already-live Base mainnet proof set

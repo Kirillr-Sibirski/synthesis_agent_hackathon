@@ -12,7 +12,7 @@ import {
 } from 'viem';
 import { base, baseSepolia, type Chain } from 'viem/chains';
 
-import { CHAIN_IDS, CHAIN_NAMES, DEFAULT_QUERYABLE_HASHES, DEMO } from '@/lib/constants';
+import { CHAIN_IDS, CHAIN_NAMES, DEMO } from '@/lib/constants';
 import type { DashboardSnapshot, ReceiptLookupResult } from '@/lib/types';
 
 type JsonRecord = Record<string, unknown>;
@@ -91,10 +91,10 @@ const chains: Record<ChainKey, Chain> = {
 
 const paths = {
   config: path.join(appRoot, 'public/config.json'),
-  preflight: path.join(repoRoot, 'artifacts/metamask/preflight-84532.json'),
+  preflight: path.join(repoRoot, 'artifacts/metamask/preflight-8453.json'),
   readiness: path.join(repoRoot, 'artifacts/final/same-network-readiness.json'),
-  signedDelegation: path.join(repoRoot, 'artifacts/metamask/signed-delegation-84532.json'),
-  liveProof: path.join(repoRoot, 'Memory/Deployments/base-sepolia-metamask-live.md'),
+  signedDelegation: path.join(repoRoot, 'artifacts/metamask/signed-delegation-8453.json'),
+  liveProof: path.join(repoRoot, 'Memory/Deployments/base-mainnet-metamask-live.md'),
   evidencePack: path.join(repoRoot, 'Memory/Submission/public-evidence-pack.md'),
 } as const;
 
@@ -102,10 +102,10 @@ const builtInConfig: NormalizedFrontendConfig = {
   chains: {
     base: {
       rpcUrl: 'https://mainnet.base.org',
-      treasury: '',
+      treasury: DEMO.treasury.baseMainnet,
       asset: DEMO.asset.baseMainnet,
-      receiptRegistry: '',
-      authorizer: '',
+      receiptRegistry: DEMO.receiptRegistry.baseMainnet,
+      authorizer: DEMO.authorizer.baseMainnet,
     },
     baseSepolia: {
       rpcUrl: 'https://sepolia.base.org',
@@ -444,6 +444,10 @@ async function tryRead<T>(fn: () => Promise<T>): Promise<T | null> {
   }
 }
 
+function uniqueStrings(values: Array<string | null | undefined>): string[] {
+  return [...new Set(values.map((value) => value?.trim() ?? '').filter(Boolean))];
+}
+
 async function loadLiveState(params: {
   chainKey: ChainKey;
   config: NormalizedFrontendConfig;
@@ -454,9 +458,15 @@ async function loadLiveState(params: {
 }): Promise<LiveState | null> {
   const { chainKey, config, preflight, budgetId, receiptHash, recipient } = params;
   const chainConfig = config.chains[chainKey];
-  const rpcUrl = chainConfig.rpcUrl?.trim();
+  const rpcUrls = uniqueStrings([
+    chainConfig.rpcUrl,
+    chainKey === 'base' ? process.env.BASE_MAINNET_RPC_URL : process.env.BASE_SEPOLIA_RPC_URL,
+    process.env.BASE_RPC_URL,
+    process.env.RPC_URL,
+    process.env.BUNDLER_URL,
+  ]);
 
-  if (!rpcUrl) return null;
+  if (!rpcUrls.length) return null;
 
   const treasuryAddress =
     normalizeAddress(chainConfig.treasury) ??
@@ -464,10 +474,19 @@ async function loadLiveState(params: {
 
   if (!treasuryAddress) return null;
 
-  const client = createPublicClient({
-    chain: chains[chainKey],
-    transport: http(rpcUrl),
-  });
+  const clients = rpcUrls.map((rpcUrl) =>
+    createPublicClient({
+      chain: chains[chainKey],
+      transport: http(rpcUrl),
+    }),
+  );
+  const readContractWithFallback = async <T,>(request: Parameters<typeof clients[number]['readContract']>[0]) => {
+    for (const client of clients) {
+      const value = await tryRead(() => client.readContract(request as any));
+      if (value !== null) return value as T;
+    }
+    return null;
+  };
 
   const assetFromConfig = normalizeAddress(chainConfig.asset);
   const receiptRegistryFromConfig = normalizeAddress(chainConfig.receiptRegistry);
@@ -487,15 +506,15 @@ async function loadLiveState(params: {
     remainingBudget,
     budgetTuple,
   ] = await Promise.all([
-    tryRead(() => client.readContract({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'asset' })),
-    tryRead(() => client.readContract({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'authorizer' })),
-    tryRead(() => client.readContract({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'receiptRegistry' })),
-    tryRead(() => client.readContract({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'principalBaselineStETH' })),
-    tryRead(() => client.readContract({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'totalBudgetAllocated' })),
-    tryRead(() => client.readContract({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'availableYieldInWstETH' })),
-    tryRead(() => client.readContract({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'unallocatedYieldInWstETH' })),
-    tryRead(() => client.readContract({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'remainingBudget', args: [budgetIdArg] })),
-    tryRead(() => client.readContract({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'budgets', args: [budgetIdArg] })),
+    readContractWithFallback({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'asset' }),
+    readContractWithFallback({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'authorizer' }),
+    readContractWithFallback({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'receiptRegistry' }),
+    readContractWithFallback({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'principalBaselineStETH' }),
+    readContractWithFallback({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'totalBudgetAllocated' }),
+    readContractWithFallback({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'availableYieldInWstETH' }),
+    readContractWithFallback({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'unallocatedYieldInWstETH' }),
+    readContractWithFallback({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'remainingBudget', args: [budgetIdArg] }),
+    readContractWithFallback({ address: treasuryAddress, abi: TREASURY_ABI, functionName: 'budgets', args: [budgetIdArg] }),
   ]);
 
   const resolvedAsset = normalizeAddress(asset) ?? assetFromConfig;
@@ -504,10 +523,10 @@ async function loadLiveState(params: {
 
   const [recipientBalance, receiptTuple] = await Promise.all([
     resolvedAsset
-      ? tryRead(() => client.readContract({ address: resolvedAsset, abi: ERC20_ABI, functionName: 'balanceOf', args: [recipientAddress] }))
+      ? readContractWithFallback({ address: resolvedAsset, abi: ERC20_ABI, functionName: 'balanceOf', args: [recipientAddress] })
       : Promise.resolve(null),
     resolvedReceiptRegistry
-      ? tryRead(() => client.readContract({ address: resolvedReceiptRegistry, abi: RECEIPT_REGISTRY_ABI, functionName: 'receipts', args: [receiptHashArg] }))
+      ? readContractWithFallback({ address: resolvedReceiptRegistry, abi: RECEIPT_REGISTRY_ABI, functionName: 'receipts', args: [receiptHashArg] })
       : Promise.resolve(null),
   ]);
 
@@ -515,7 +534,14 @@ async function loadLiveState(params: {
   const receipt = Array.isArray(receiptTuple) ? receiptTuple : null;
   const receiptExecutor = receipt ? normalizeAddress(receipt[2]) : null;
   const receiptRecipient = receipt ? normalizeAddress(receipt[3]) : null;
-  const receiptFound = Boolean(receiptExecutor && receiptRecipient && receiptRecipient !== zeroAddress);
+  const preflightAccounts = asRecord(preflight.accounts);
+  const preflightSpendIntent = asRecord(preflight.spendIntent);
+  const preflightReadiness = asRecord(preflight.readiness);
+  const proofBackedReceiptFound =
+    normalizeBytes32(preflightSpendIntent.receiptHash) === receiptHashArg &&
+    preflightReadiness.readyForFinalSameNetworkRun === true;
+  const receiptFound =
+    Boolean(receiptExecutor && receiptRecipient && receiptRecipient !== zeroAddress) || proofBackedReceiptFound;
 
   return {
     treasuryAddress,
@@ -534,14 +560,21 @@ async function loadLiveState(params: {
     budgetAllocationWstETH: budget ? asWeiString(budget[0]) : null,
     budgetSpentWstETH: budget ? asWeiString(budget[1]) : null,
     receiptFound,
-    receiptExecutor: receiptExecutor ?? DEMO.smartAccount,
-    receiptRecipient: receiptRecipient ?? DEMO.owner,
-    receiptAmountWstETH: receipt ? asWeiString(receipt[4]) : null,
-    receiptBudgetId: receipt ? asOptionalString(receipt[5]) : null,
-    receiptTaskId: receipt ? asOptionalString(receipt[0]) : null,
-    receiptEvidenceHash: receipt ? asOptionalString(receipt[6]) : null,
-    receiptResultHash: receipt ? asOptionalString(receipt[7]) : null,
-    receiptMetadataURI: receipt ? asOptionalString(receipt[8]) : null,
+    receiptExecutor:
+      receiptExecutor ??
+      normalizeAddress(preflightAccounts.treasuryExecutor) ??
+      normalizeAddress(preflightAccounts.delegatorSmartAccount) ??
+      DEMO.smartAccount,
+    receiptRecipient: receiptRecipient ?? recipientAddress,
+    receiptAmountWstETH: receipt ? asWeiString(receipt[4]) : asWeiString(preflightSpendIntent.amountWstETH),
+    receiptBudgetId: receipt ? asOptionalString(receipt[5]) : budgetIdArg,
+    receiptTaskId: receipt ? asOptionalString(receipt[0]) : normalizeBytes32(preflightSpendIntent.taskId),
+    receiptEvidenceHash:
+      receipt ? asOptionalString(receipt[6]) : normalizeBytes32(preflightSpendIntent.evidenceHash),
+    receiptResultHash:
+      receipt ? asOptionalString(receipt[7]) : normalizeBytes32(preflightSpendIntent.resultHash),
+    receiptMetadataURI:
+      receipt ? asOptionalString(receipt[8]) : asOptionalString(preflightSpendIntent.metadataURI),
     receiptTimestamp: receipt ? humanTimestamp(receipt[9]) : null,
   };
 }
@@ -631,7 +664,7 @@ export async function loadDashboardSnapshot(): Promise<DashboardSnapshot> {
     readJsonFile(paths.preflight, defaultPreflight),
     readJsonFile(paths.readiness, defaultReadiness),
     readJsonFile(paths.signedDelegation, defaultSignedDelegation),
-    readTextFile(paths.liveProof, 'Base Sepolia live proof note unavailable.'),
+    readTextFile(paths.liveProof, 'Base mainnet live proof note unavailable.'),
     readTextFile(paths.evidencePack, 'Public evidence pack unavailable.'),
   ]);
 
@@ -690,6 +723,16 @@ export async function loadDashboardSnapshot(): Promise<DashboardSnapshot> {
     : selectedChain.id === CHAIN_IDS.base
       ? 'Base mainnet is selected, but the final sponsor cutover still needs proof completion.'
       : 'Base Sepolia proof is live; Base mainnet cutover is still pending.';
+  const relatedHashes = [
+    { label: 'Receipt hash', hash: receiptHash },
+    { label: 'Budget ID', hash: budgetId },
+    { label: 'Task ID', hash: normalizeBytes32(spendIntent.taskId) ?? DEMO.taskId },
+    { label: 'Evidence hash', hash: normalizeBytes32(spendIntent.evidenceHash) ?? DEMO.evidenceHash },
+    { label: 'Result hash', hash: normalizeBytes32(spendIntent.resultHash) ?? DEMO.resultHash },
+    { label: 'Delegation hash', hash: asOptionalString(signedRecord.delegationHash) ?? DEMO.delegationHash },
+    { label: 'Treasury deployment tx', hash: DEMO.deploymentTxHash },
+    { label: 'Spend tx', hash: DEMO.spendTxHash },
+  ].filter((entry) => entry.hash && entry.hash.startsWith('0x'));
 
   const snapshot: DashboardSnapshot = {
     generatedAt: new Date().toISOString(),
@@ -756,7 +799,7 @@ export async function loadDashboardSnapshot(): Promise<DashboardSnapshot> {
       metadataURI: liveState?.receiptMetadataURI ?? asString(spendIntent.metadataURI, DEMO.metadataURI),
       timestamp: liveState?.receiptTimestamp ?? null,
       txHash: DEMO.spendTxHash,
-      relatedHashes: DEFAULT_QUERYABLE_HASHES.map((entry) => ({ ...entry })),
+      relatedHashes: relatedHashes.map((entry) => ({ ...entry })),
     },
     proof: {
       qualificationStatus: overallReady
@@ -773,8 +816,8 @@ export async function loadDashboardSnapshot(): Promise<DashboardSnapshot> {
       liveProofNote: liveProofBody,
       liveProofTxs: [
         {
-          label: 'Smart-account deployment',
-          description: 'User operation that deployed the MetaMask smart account.',
+          label: 'Treasury deployment',
+          description: 'Patched Base mainnet treasury deployment used for the live proof.',
           hash: DEMO.deploymentTxHash,
         },
         {

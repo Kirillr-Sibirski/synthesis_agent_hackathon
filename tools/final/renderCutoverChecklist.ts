@@ -42,6 +42,8 @@ function main() {
     : [];
   const blockers = Array.isArray(readiness?.blockers) ? readiness.blockers : [];
   const nextActions = Array.isArray(readiness?.nextActions) ? readiness.nextActions : [];
+  const baseMainnetLiveNote = 'Memory/Deployments/base-mainnet-metamask-live.md';
+  const baseMainnetLiveNoteRecorded = existsSync(path.resolve(process.cwd(), baseMainnetLiveNote));
 
   const trackMatrix = Object.entries(readiness?.trackQualification ?? {}).map(([track, value]) => {
     const item = value as any;
@@ -136,12 +138,21 @@ ${bulletList(blockers, '- none')}
 ${bulletList(nextActions, '- none')}
 ## Final proof collection reminder
 
-When the real Base mainnet run happens, immediately fill in:
+${baseMainnetLiveNoteRecorded
+    ? `The live Base mainnet run is already recorded in:
+- \`${baseMainnetLiveNote}\`
+
+If we rerun the flow, update:
+- final MetaMask/userOp/redemption tx hashes
+- final treasury spend tx + receipt hash
+- final role-separated frontend config inputs
+- any submission media/title/UUID fields still marked pending in \`submission/\``
+    : `When the real Base mainnet run happens, immediately fill in:
 - \`Memory/Deployments/base-mainnet-cutover-template.md\`
 - final MetaMask/userOp/redemption tx hashes
 - final treasury spend tx + receipt hash
 - final role-separated frontend config inputs
-- any submission media/title/UUID fields still marked pending in \`submission/\`
+- any submission media/title/UUID fields still marked pending in \`submission/\``}
 `;
 
   const resolvedOut = path.resolve(process.cwd(), OUT_PATH);

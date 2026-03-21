@@ -18,7 +18,7 @@ We now have a dedicated `WstETHYieldTreasury` contract that models `wstETH` corr
 - spend checks ensure the treasury cannot cross below the current principal floor in `wstETH`
 - slash/rate-drop scenarios are explicitly tested
 
-This is much closer to real Lido compliance than the older generic treasury model, but the strongest live proof still needs the final same-network deployment.
+This is now backed by a live same-network Base mainnet proof using real Base mainnet `wstETH`.
 
 ### MetaMask Delegations
 Current protocol strengths:
@@ -26,13 +26,11 @@ Current protocol strengths:
 - wildcard recipient / selector caveat-like behavior
 - explicit `ruleId` provenance on receipts
 - manager-controlled child budgets, which are a good fit for delegated sub-budget trees
-- Base Sepolia MetaMask smart-account derivation now works in-repo
-- bundler-aware smart-account deployment scaffolding now exists in-repo
-- live Base Sepolia smart-account deployment + delegation redemption + treasury spend proof now exists
+- Base mainnet MetaMask smart-account derivation works in-repo
+- bundler-aware smart-account deployment flow works in-repo
+- live Base mainnet smart-account deployment + delegation redemption + treasury spend proof now exists
 
 Still missing for full sponsor-native compliance:
-- final same-network reproduction on Base mainnet
-- real-asset same-network convergence with the Lido path
 - ideally sub-delegation / ERC-7715-aware semantics or an adapter layer
 
 ### ERC-8004 / Receipts
@@ -48,17 +46,16 @@ Still missing for full sponsor-native compliance:
 ## What still blocks highest-confidence sponsor fit
 
 ### stETH Agent Treasury
-The contract design is now much more correct for `wstETH`, but the current live demo still relies on a test asset / testnet environment. To be fully compliant with the Lido track we still need a deployment using **real wstETH on an accepted L2 or mainnet**.
+The contract design is now backed by a deployment using **real Base mainnet `wstETH`**. The remaining gap is no longer chain selection or asset realism; it is sponsor-story polish and how clearly we present the live proof.
 
 ### Best Use of Delegations
-The project now has a compelling delegation-shaped core and a live Base Sepolia MetaMask proof. The remaining upgrade is reproducing that same proof on the final same-network Base mainnet stack.
+The project now has a compelling delegation-shaped core and a live Base mainnet MetaMask proof. The remaining work is presentation polish plus any optional deeper adapter work around sub-delegation / ERC-7715 semantics.
 
 ### Agents With Receipts — ERC-8004
 The receipt model is strong, but we still need actual identity / registry integration.
 
 ## Best next steps
 
-1. Deploy `WstETHYieldTreasury` against real `wstETH` on an accepted network
-2. Replace or augment `DelegationAuthorizer` with a MetaMask-framework-compatible adapter
-3. Finalize `agent.json` / `agent_log.json` and tighten the public linkage from the recorded ERC-8004 registration to the live treasury receipts
-4. Run a fresh live spend on the sponsor-native stack and update deployment records
+1. Finalize `agent.json` / `agent_log.json` and tighten the public linkage from the recorded ERC-8004 registration to the live treasury receipts
+2. Keep the dashboard, evidence pack, and deployment note aligned with the latest live Base mainnet proof
+3. Optionally replace or augment `DelegationAuthorizer` with a more direct MetaMask-framework-compatible adapter if we want an even stronger sponsor-native framing

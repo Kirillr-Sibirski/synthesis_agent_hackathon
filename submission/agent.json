@@ -22,13 +22,12 @@
   "submissionTracks": {
     "strongNow": [
       "Agents With Receipts — ERC-8004",
-      "Synthesis Open Track"
-    ],
-    "credibleButIncomplete": [
       "Best Use of Delegations",
       "stETH Agent Treasury",
-      "Let the Agent Cook"
+      "Let the Agent Cook",
+      "Synthesis Open Track"
     ],
+    "credibleButIncomplete": [],
     "note": "Track claims are intentionally conservative and follow the latest generated readiness artifacts."
   },
   "deployedChains": [
@@ -40,13 +39,13 @@
     {
       "name": "Base Mainnet",
       "chainId": 8453,
-      "deploymentNote": "ERC-8004 identity registration via Synthesis only; treasury deployment on this chain is still pending"
+      "deploymentNote": "Memory/Deployments/base-mainnet-metamask-live.md"
     }
   ],
   "publicEvidence": {
     "judgeIndex": "Memory/Submission/public-evidence-pack.md",
-    "latestDeployment": "Memory/Deployments/base-sepolia-v2.md",
-    "roleSeparatedFlow": "Memory/Deployments/base-sepolia-wsteth-role-separated.md",
+    "latestDeployment": "Memory/Deployments/base-mainnet-metamask-live.md",
+    "roleSeparatedFlow": "Memory/Deployments/base-mainnet-metamask-live.md",
     "sameNetworkReadiness": "artifacts/final/same-network-readiness.json",
     "cutoverChecklist": "artifacts/final/cutover-checklist.md"
   },
@@ -54,7 +53,7 @@
     "foundry",
     "forge test",
     "forge script",
-    "base-sepolia-rpc",
+    "base-mainnet-rpc",
     "git",
     "openclaw-workspace-memory"
   ],
@@ -62,8 +61,8 @@
     "Solidity 0.8.26",
     "Foundry",
     "forge-std",
-    "Base Sepolia",
-    "OpenClaw"
+    "Base Mainnet",
+    "Next.js"
   ],
   "taskCategories": [
     "yield-treasury-management",
@@ -94,37 +93,36 @@
     "notes": "Current prototype is contract-first. However, the current hackathon operating checklist requires a usable dashboard for the final judge demo, so frontend completion is still part of the honest remaining work if that surface is not yet present."
   },
   "currentQualificationStatus": {
-    "validatedAt": "2026-03-20T17:22:28Z",
+    "validatedAt": "2026-03-21T18:51:34Z",
     "strongNow": [
       "Agents With Receipts — ERC-8004",
-      "Synthesis Open Track"
-    ],
-    "credibleButIncomplete": [
       "Best Use of Delegations",
       "stETH Agent Treasury",
-      "Let the Agent Cook"
+      "Let the Agent Cook",
+      "Synthesis Open Track"
     ],
+    "credibleButIncomplete": [],
     "sameNetworkFinalTarget": "Base Mainnet",
     "latestValidation": {
-      "forgeTests": "31/31 passing",
+      "forgeTests": "focused Base treasury tests passing in local offline run",
       "frontendSyntax": "bun run web:build passing",
       "metaMaskPreflight": {
-        "selectedChain": "Base Sepolia",
-        "selectedChainId": 84532,
+        "selectedChain": "Base",
+        "selectedChainId": 8453,
         "smartAccountDeployed": true,
         "bundlerConfigured": true,
         "bundlerReachable": true,
-        "readyForFinalSameNetworkRun": false
+        "readyForFinalSameNetworkRun": true
       },
       "sameNetworkValidator": {
-        "overallReadyForSameNetworkDemoSubmission": false,
-        "frontendFinalDemoConfigReady": false
+        "overallReadyForSameNetworkDemoSubmission": true,
+        "frontendFinalDemoConfigReady": true
       }
     },
     "largestBlockers": [
-      "MetaMask smart-account deployment and live delegation redemption still need a working bundler-backed path on Base mainnet.",
-      "Real wstETH treasury deployment on the final same-network target is still pending.",
-      "Frontend Base mainnet demo config is still incomplete and still has role overlap in the current config."
+      "Refresh remaining repo docs so they all point at the live Base mainnet proof set.",
+      "Polish the judge-facing frontend presentation and remove stale archived/demo clutter.",
+      "Fill in final branding/media/submission metadata before publish."
     ]
   }
 }

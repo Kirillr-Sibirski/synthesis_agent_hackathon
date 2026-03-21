@@ -57,6 +57,10 @@ function main() {
     : [];
   const blockerList = Array.isArray(readiness?.blockers) ? readiness.blockers : [];
   const nextActions = Array.isArray(readiness?.nextActions) ? readiness.nextActions : [];
+  const metaMaskReady = preflight?.readiness?.readyForFinalSameNetworkRun === true;
+  const cutoverReady = cutover?.readiness?.readyForBaseMainnetCutoverEnv === true;
+  const frontendReady = frontend?.readiness?.readyForFrontendSameNetworkDemoConfig === true;
+  const overallReady = readiness?.summary?.overallReadyForSameNetworkDemoSubmission === true;
   const strongNow = honestTracks.map((track: string) => `**${trackLabel(track)}**`);
   const incompleteTracks = Object.entries(readiness?.trackQualification ?? {})
     .filter(([, value]) => !(value as any)?.currentlyHonest)
@@ -64,6 +68,9 @@ function main() {
       const blocker = (value as any)?.blockerIfAny;
       return blocker ? `**${trackLabel(track)}** — ${blocker}` : `**${trackLabel(track)}**`;
     });
+  const baseMainnetLiveNote = 'Memory/Deployments/base-mainnet-metamask-live.md';
+  const baseMainnetTemplateNote = 'Memory/Deployments/base-mainnet-cutover-template.md';
+  const baseSepoliaArchiveNote = 'Memory/Deployments/base-sepolia-metamask-live.md';
 
   const markdown = `# Public Evidence Pack
 
@@ -92,11 +99,13 @@ Private API credentials and registration state remain local-only in \`submission
 ## 3. Live onchain treasury evidence
 
 Latest repo-head-aligned deployment notes:
-- \`Memory/Deployments/base-sepolia-v2.md\`
-- \`Memory/Deployments/base-sepolia-wsteth-role-separated.md\`
-- final same-network template: \`Memory/Deployments/base-mainnet-cutover-template.md\`
+- \`${baseMainnetLiveNote}\`
+- final same-network template: \`${baseMainnetTemplateNote}\`
+- earlier Sepolia archive proof: \`${baseSepoliaArchiveNote}\`
 
-Strongest current public proof is still the Base Sepolia live treasury path plus the role-separated \`wstETH\` deployment scaffolding.
+${existsSync(path.resolve(process.cwd(), baseMainnetLiveNote))
+    ? `Strongest current public proof is now the live Base mainnet treasury + MetaMask flow recorded in \`${baseMainnetLiveNote}\`.`
+    : 'Strongest current public proof is still the Base Sepolia live treasury path plus the role-separated `wstETH` deployment scaffolding.'}
 
 ## 4. MetaMask Delegation Framework evidence
 
@@ -121,7 +130,9 @@ Latest generated preflight artifact:
 - ready for final same-network run: \`${yesNo(preflight?.readiness?.readyForFinalSameNetworkRun)}\`
 
 Honest blocker:
-- live Base Sepolia delegation-backed execution is now proven; the remaining MetaMask upgrade is reproducing that proof on the final same-network Base mainnet target
+${metaMaskReady
+    ? '- none; live Base mainnet MetaMask smart-account proof is already recorded in `Memory/Deployments/base-mainnet-metamask-live.md`'
+    : '- live Base Sepolia delegation-backed execution is now proven; the remaining MetaMask upgrade is reproducing that proof on the final same-network Base mainnet target'}
 
 ## 5. Lido / \`wstETH\` same-network evidence
 
@@ -141,7 +152,9 @@ Latest cutover-env validation artifact:
 - frontend roles fully separated in env: \`${yesNo(cutover?.roleSeparation?.frontendFullySeparated)}\`
 
 Honest blocker:
-- a real Base mainnet \`wstETH\` treasury deployment/env cutover still needs final live addresses, final role wiring, and proof collection
+${cutoverReady
+    ? '- none; the live Base mainnet `wstETH` treasury env is configured and validated'
+    : '- a real Base mainnet `wstETH` treasury deployment/env cutover still needs final live addresses, final role wiring, and proof collection'}
 
 ## 6. Frontend / Let-the-Agent-Cook evidence
 
@@ -159,7 +172,9 @@ Latest frontend validation artifact:
 - distinct frontend actor addresses: \`${frontend?.roleSeparation?.distinctAddresses ?? 'unknown'}\`
 
 Honest blocker:
-- the dashboard is real and judge-usable, but the final Base mainnet cutover config is still incomplete and still overlaps roles in the current local validation state
+${frontendReady
+    ? '- none; the dashboard config validates against the live Base mainnet proof set'
+    : '- the dashboard is real and judge-usable, but the final Base mainnet cutover config is still incomplete and still overlaps roles in the current local validation state'}
 
 ## 7. Latest validation snapshot
 
@@ -171,11 +186,12 @@ Latest generated readiness artifacts:
 Current validation summary:
 - last recorded forge test snapshot: \`31/31 passing\`
 - web app verification: \`bun run web:build passing\`
-- overall ready for same-network demo/submission: \`${yesNo(readiness?.summary?.overallReadyForSameNetworkDemoSubmission)}\`
+- overall ready for same-network demo/submission: \`${yesNo(overallReady)}\`
 - current honest tracks: ${honestTracks.length ? honestTracks.map((track: string) => `\`${trackLabel(track)}\``).join(', ') : '\`none\`'}
 
 Current same-network validator blockers:
-${bullets(blockerList)}## 8. Best honest track posture right now
+${bullets(blockerList)}
+## 8. Best honest track posture right now
 
 ### Strong now
 ${bullets(strongNow, '- none yet')}
@@ -186,8 +202,10 @@ ${bullets(incompleteTracks, '- none')}
 ${bullets(nextActions, '- no next actions emitted by the validator')}
 ## 10. Final same-network handoff
 
-When the real Base mainnet run happens, record it in:
-- \`Memory/Deployments/base-mainnet-cutover-template.md\`
+Current handoff status:
+${overallReady
+    ? `- live run already recorded in \`${baseMainnetLiveNote}\``
+    : `- \`${baseMainnetTemplateNote}\``}
 
 The latest generated handoff/checklists are here:
 - \`${rel(CUTOVER_ENV_CHECKLIST_PATH)}\`
