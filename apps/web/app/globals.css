@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --background: 221 45% 6%;
+  --foreground: 210 40% 98%;
+  --card: 223 37% 8%;
+  --card-foreground: 210 40% 98%;
+  --popover: 223 37% 8%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 168 76% 52%;
+  --primary-foreground: 224 47% 8%;
+  --secondary: 219 31% 16%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 219 24% 18%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 43 95% 60%;
+  --accent-foreground: 224 47% 8%;
+  --danger: 0 80% 63%;
+  --success: 150 75% 48%;
+  --warning: 43 96% 57%;
+  --border: 218 26% 18%;
+  --input: 218 26% 18%;
+  --ring: 168 76% 52%;
+  --radius: 1rem;
+  --font-display: "Avenir Next", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "SFMono-Regular", "IBM Plex Mono", "Roboto Mono", ui-monospace, monospace;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: hsl(var(--foreground));
+  background:
+    radial-gradient(circle at top left, rgba(46, 212, 183, 0.16), transparent 28%),
+    radial-gradient(circle at 85% 10%, rgba(245, 190, 86, 0.12), transparent 26%),
+    linear-gradient(180deg, #06101c 0%, #07111f 42%, #08101a 100%);
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent);
+  opacity: 0.55;
+}
+
+pre,
+code,
+textarea,
+input,
+button {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

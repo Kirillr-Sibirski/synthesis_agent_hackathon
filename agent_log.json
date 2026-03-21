@@ -34,14 +34,14 @@
       "step": 5,
       "phase": "deployment",
       "action": "Deployed initial contract set to Base Sepolia and executed first live spend",
-      "result": "Initial deployment artifacts recorded in deployments/base-sepolia.md",
+      "result": "Initial deployment artifacts recorded in Memory/Deployments/base-sepolia.md",
       "status": "success"
     },
     {
       "step": 6,
       "phase": "iteration",
       "action": "Upgraded contracts to include explicit rule-linked receipt provenance and redeployed",
-      "result": "Latest deployment artifacts recorded in deployments/base-sepolia-v2.md",
+      "result": "Latest deployment artifacts recorded in Memory/Deployments/base-sepolia-v2.md",
       "status": "success"
     },
     {
@@ -79,8 +79,8 @@
       "result": {
         "derivedSmartAccount": "0x08478FfC43E134ae9390720D41409B06f38fEB7d",
         "delegationManager": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
-        "publicJudgeIndex": "submission/public-evidence-pack.md",
-        "remainingBlocker": "Bundler-backed smart-account deployment and live redemption proof still pending on the final same-network target"
+        "publicJudgeIndex": "Memory/Submission/public-evidence-pack.md",
+        "remainingBlocker": "Base Sepolia live proof is done; the remaining blocker is reproducing that proof on the final same-network Base mainnet target"
       },
       "status": "partial"
     },
@@ -92,13 +92,13 @@
         "forgeTests": "pass",
         "metamaskPreflight": {
           "treasuryDeployed": true,
-          "smartAccountDeployed": false,
-          "bundlerConfigured": false,
-          "bundlerReachable": false
+          "smartAccountDeployed": true,
+          "bundlerConfigured": true,
+          "bundlerReachable": true
         },
         "updatedFiles": [
-          "submission/public-evidence-pack.md",
-          "submission/submission-status.md",
+          "Memory/Submission/public-evidence-pack.md",
+          "Memory/Submission/submission-status.md",
           "submission/agent.json"
         ]
       },
@@ -131,7 +131,7 @@
   ],
   "publicArtifactMirror": {
     "source": "submission/agent_log.json",
-    "refreshedAt": "2026-03-21T17:25:35.524Z",
+    "refreshedAt": "2026-03-21T18:53:49.465Z",
     "note": "This root-facing artifact mirrors the canonical public-safe submission file for judge discovery."
   }
 }

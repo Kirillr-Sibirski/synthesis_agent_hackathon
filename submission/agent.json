@@ -35,7 +35,7 @@
     {
       "name": "Base Sepolia",
       "chainId": 84532,
-      "deploymentNote": "deployments/base-sepolia-v2.md"
+      "deploymentNote": "Memory/Deployments/base-sepolia-v2.md"
     },
     {
       "name": "Base Mainnet",
@@ -44,9 +44,9 @@
     }
   ],
   "publicEvidence": {
-    "judgeIndex": "submission/public-evidence-pack.md",
-    "latestDeployment": "deployments/base-sepolia-v2.md",
-    "roleSeparatedFlow": "deployments/base-sepolia-wsteth-role-separated.md",
+    "judgeIndex": "Memory/Submission/public-evidence-pack.md",
+    "latestDeployment": "Memory/Deployments/base-sepolia-v2.md",
+    "roleSeparatedFlow": "Memory/Deployments/base-sepolia-wsteth-role-separated.md",
     "sameNetworkReadiness": "artifacts/final/same-network-readiness.json",
     "cutoverChecklist": "artifacts/final/cutover-checklist.md"
   },
@@ -107,13 +107,13 @@
     "sameNetworkFinalTarget": "Base Mainnet",
     "latestValidation": {
       "forgeTests": "31/31 passing",
-      "frontendSyntax": "node --check frontend/app.js passing",
+      "frontendSyntax": "bun run web:build passing",
       "metaMaskPreflight": {
         "selectedChain": "Base Sepolia",
         "selectedChainId": 84532,
-        "smartAccountDeployed": false,
-        "bundlerConfigured": false,
-        "bundlerReachable": false,
+        "smartAccountDeployed": true,
+        "bundlerConfigured": true,
+        "bundlerReachable": true,
         "readyForFinalSameNetworkRun": false
       },
       "sameNetworkValidator": {

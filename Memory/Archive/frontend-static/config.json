@@ -1,0 +1,25 @@
+{
+  "chains": {
+    "base": {
+      "rpcUrl": "https://mainnet.base.org",
+      "treasury": "",
+      "asset": "0x7f39c581f595b53c5cb5bbd8f2c9a0e1b8d9d2b2",
+      "receiptRegistry": "",
+      "authorizer": ""
+    },
+    "baseSepolia": {
+      "rpcUrl": "https://sepolia.base.org",
+      "treasury": "0xB38F8a149F95850cB5efF5fCE5621d36b8F8BBd0",
+      "asset": "0x623f9f72342a3c2518c880d8372de90eaef200cd",
+      "receiptRegistry": "0xEa7E65954B7A057f739AdC103D3547b9D99aa7f6",
+      "authorizer": "0x4434F99f7655F94705217601706536Bd94273c2F"
+    }
+  },
+  "actors": {
+    "budgetManager": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+    "spendRecipient": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+    "demoExecutor": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+    "demoRecipient": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+    "receiptHash": "0x1675e089e66f959833b06b6c503058d4fda53f62715d36d92176427095c95b0b"
+  }
+}

@@ -1,7 +1,7 @@
 # Foundry
-cache/
-out/
-broadcast/
+contracts/cache/
+contracts/out/
+contracts/broadcast/
 
 # Env
 .env
@@ -10,6 +10,7 @@ broadcast/
 
 # Node
 node_modules/
+apps/web/.next/
 
 # Local private planning / submission data
 Memory/Ideas/24_submission_info_needed.md
@@ -19,4 +20,4 @@ submission/private-registration.json
 artifacts/
 
 # Local frontend deployment config
-frontend/config.json
+apps/web/public/config.json
