@@ -83,7 +83,7 @@ CUTOVER_ENV_VALIDATION_OUT=artifacts/final/cutover-env-validation.json \
   npm run final:validate-cutover-env
 ```
 
-Or refresh the whole bundle in one ordered command:
+Or refresh the whole bundle in one ordered command (including the public ERC-8004 / `agent.json` discovery mirrors by default):
 
 ```bash
 CUTOVER_ENV_VALIDATION_OUT=artifacts/final/cutover-env-validation.json \
@@ -93,7 +93,7 @@ FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
   npm run final:refresh-readiness-bundle
 ```
 
-This writes `frontend/config.json` locally and gives you machine-checkable same-network dashboard + final-run readiness reports, so moving from prototype addresses to the live deployment does not require editing app code.
+This writes `frontend/config.json` locally and gives you machine-checkable same-network dashboard + final-run readiness reports, so moving from prototype addresses to the live deployment does not require editing app code. If you need to skip the public manifest/log mirror refresh for any reason, set `REFRESH_PUBLIC_AGENT_ARTIFACTS=false` before running the bundle refresh.
 
 The combined final readiness report now also checks the public ERC-8004 packaging surface (`agent.json`, `agent_log.json`, `.well-known/agent.json`, `.well-known/agent_log.json`) and emits a track-by-track honest qualification summary for:
 - Agents With Receipts / ERC-8004

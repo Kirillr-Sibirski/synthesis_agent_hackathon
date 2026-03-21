@@ -36,3 +36,5 @@ npm run submission:refresh-public-agent-artifacts
 ```
 
 That command only uses the committed public-safe submission files and does **not** read or publish `submission/private-registration.json`.
+
+The larger final readiness bundle now calls that refresh automatically first, so the same-network validator always checks the latest public-safe ERC-8004 discovery surface unless you explicitly opt out with `REFRESH_PUBLIC_AGENT_ARTIFACTS=false`.

@@ -8,6 +8,8 @@ const FRONTEND_VALIDATION_OUT = process.env.FRONTEND_VALIDATION_OUT ?? 'artifact
 const CUTOVER_ENV_VALIDATION_OUT = process.env.CUTOVER_ENV_VALIDATION_OUT ?? 'artifacts/final/cutover-env-validation.json';
 const FINAL_READINESS_OUT = process.env.FINAL_READINESS_OUT ?? 'artifacts/final/same-network-readiness.json';
 const NPM_BIN = process.env.NPM_BIN ?? 'npm';
+const REFRESH_PUBLIC_AGENT_ARTIFACTS =
+  (process.env.REFRESH_PUBLIC_AGENT_ARTIFACTS ?? 'true').trim().toLowerCase() !== 'false';
 
 function runScript(name: string, extraEnv: Record<string, string>) {
   execFileSync(NPM_BIN, ['run', name], {
@@ -25,6 +27,14 @@ function main() {
   const resolvedFrontendValidation = path.resolve(process.cwd(), FRONTEND_VALIDATION_OUT);
   const resolvedCutoverEnvValidation = path.resolve(process.cwd(), CUTOVER_ENV_VALIDATION_OUT);
   const resolvedFinalReadiness = path.resolve(process.cwd(), FINAL_READINESS_OUT);
+  const resolvedAgentManifest = path.resolve(process.cwd(), 'agent.json');
+  const resolvedAgentLog = path.resolve(process.cwd(), 'agent_log.json');
+  const resolvedWellKnownAgentManifest = path.resolve(process.cwd(), '.well-known/agent.json');
+  const resolvedWellKnownAgentLog = path.resolve(process.cwd(), '.well-known/agent_log.json');
+
+  if (REFRESH_PUBLIC_AGENT_ARTIFACTS) {
+    runScript('submission:refresh-public-agent-artifacts', {});
+  }
 
   runScript('final:validate-cutover-env', {
     CUTOVER_ENV_VALIDATION_OUT,
@@ -51,12 +61,22 @@ function main() {
       {
         generatedAt: new Date().toISOString(),
         refreshed: {
+          publicAgentArtifacts: REFRESH_PUBLIC_AGENT_ARTIFACTS
+            ? {
+                agentManifest: resolvedAgentManifest,
+                agentLog: resolvedAgentLog,
+                wellKnownAgentManifest: resolvedWellKnownAgentManifest,
+                wellKnownAgentLog: resolvedWellKnownAgentLog,
+              }
+            : null,
           cutoverEnvValidation: resolvedCutoverEnvValidation,
           preflight: resolvedPreflight,
           frontendValidation: resolvedFrontendValidation,
           finalReadiness: resolvedFinalReadiness,
         },
-        note: 'Readiness bundle refreshed sequentially: cutover env validation -> MetaMask preflight -> frontend validation -> final same-network report.',
+        note: REFRESH_PUBLIC_AGENT_ARTIFACTS
+          ? 'Readiness bundle refreshed sequentially: public agent packaging -> cutover env validation -> MetaMask preflight -> frontend validation -> final same-network report.'
+          : 'Readiness bundle refreshed sequentially: cutover env validation -> MetaMask preflight -> frontend validation -> final same-network report.',
       },
       null,
       2,
