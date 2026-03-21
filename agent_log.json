@@ -1,5 +1,6 @@
 {
-  "project": "Delegated Yield Treasury (working title)",
+  "project": "Delegated Yield Treasury",
+  "projectNote": "Working title used publicly until the human chooses the final submission branding.",
   "entries": [
     {
       "step": 1,
@@ -102,11 +103,35 @@
         ]
       },
       "status": "success"
+    },
+    {
+      "step": 12,
+      "phase": "submission-packaging",
+      "action": "Finalized the public-safe manifest/log defaults around the completed ERC-8004 registration without inventing private project IDs or final branding",
+      "result": {
+        "manifestName": "Delegated Yield Treasury",
+        "addedFields": [
+          "displayNameNote",
+          "description",
+          "publicDiscovery",
+          "submissionTracks",
+          "publicEvidence.sameNetworkReadiness",
+          "publicEvidence.cutoverChecklist"
+        ],
+        "discoveryMirrors": [
+          "agent.json",
+          "agent_log.json",
+          ".well-known/agent.json",
+          ".well-known/agent_log.json"
+        ],
+        "note": "Final branding, media URLs, and any private Synthesis project UUIDs remain intentionally unset until the human provides them."
+      },
+      "status": "success"
     }
   ],
   "publicArtifactMirror": {
     "source": "submission/agent_log.json",
-    "refreshedAt": "2026-03-21T05:24:16.696Z",
+    "refreshedAt": "2026-03-21T07:23:57.555Z",
     "note": "This root-facing artifact mirrors the canonical public-safe submission file for judge discovery."
   }
 }

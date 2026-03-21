@@ -1,6 +1,8 @@
 {
-  "name": "TBD",
+  "name": "Delegated Yield Treasury",
   "workingName": "Delegated Yield Treasury Agent",
+  "displayNameNote": "Using the working title publicly until the human chooses the final submission branding.",
+  "description": "A principal-protected yield treasury for autonomous agents where only yield is spendable, sub-budgets can be delegated hierarchically, and every spend produces a verifiable receipt linked to the exact authorization rule that allowed it.",
   "operatorWallet": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
   "erc8004": {
     "status": "registered_via_synthesis",
@@ -11,6 +13,24 @@
     "note": "Registration completed through Synthesis; API credentials and private registration state remain local-only."
   },
   "repoURL": "https://github.com/Kirillr-Sibirski/synthesis_agent_hackathon",
+  "publicDiscovery": {
+    "rootManifest": "agent.json",
+    "rootExecutionLog": "agent_log.json",
+    "wellKnownManifest": ".well-known/agent.json",
+    "wellKnownExecutionLog": ".well-known/agent_log.json"
+  },
+  "submissionTracks": {
+    "strongNow": [
+      "Agents With Receipts — ERC-8004",
+      "Synthesis Open Track"
+    ],
+    "credibleButIncomplete": [
+      "Best Use of Delegations",
+      "stETH Agent Treasury",
+      "Let the Agent Cook"
+    ],
+    "note": "Track claims are intentionally conservative and follow the latest generated readiness artifacts."
+  },
   "deployedChains": [
     {
       "name": "Base Sepolia",
@@ -26,7 +46,9 @@
   "publicEvidence": {
     "judgeIndex": "submission/public-evidence-pack.md",
     "latestDeployment": "deployments/base-sepolia-v2.md",
-    "roleSeparatedFlow": "deployments/base-sepolia-wsteth-role-separated.md"
+    "roleSeparatedFlow": "deployments/base-sepolia-wsteth-role-separated.md",
+    "sameNetworkReadiness": "artifacts/final/same-network-readiness.json",
+    "cutoverChecklist": "artifacts/final/cutover-checklist.md"
   },
   "supportedTools": [
     "foundry",

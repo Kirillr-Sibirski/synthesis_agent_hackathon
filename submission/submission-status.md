@@ -20,9 +20,9 @@
 
 - [ ] Final project name
 - [ ] Final track list confirmation
-- [~] Public-facing ERC-8004 identity / manifest linkage polish (registration tx is recorded; local-only registration state is now explicitly separated from public submission artifacts; public-safe evidence index added in `submission/public-evidence-pack.md`; final agent/project UUID packaging still needs cleanup)
-- [~] `agent.json` finalization (public-safe draft exists in `submission/`, and root / `.well-known/` discovery mirrors can now be refreshed with `npm run submission:refresh-public-agent-artifacts`; final title/project UUID/media fields still pending)
-- [~] `agent_log.json` finalization (public-safe draft exists in `submission/`, and root / `.well-known/` discovery mirrors can now be refreshed with `npm run submission:refresh-public-agent-artifacts`; final title/project UUID/media fields still pending)
+- [~] Public-facing ERC-8004 identity / manifest linkage polish (registration tx is recorded; local-only registration state is now explicitly separated from public submission artifacts; public-safe evidence index added in `submission/public-evidence-pack.md`; public manifest/log now default to the working title instead of `TBD`; final agent/project UUID packaging still needs cleanup)
+- [~] `agent.json` finalization (public-safe draft exists in `submission/`, root / `.well-known/` discovery mirrors can now be refreshed with `npm run submission:refresh-public-agent-artifacts`, and the manifest now includes a working-title fallback, public discovery paths, and honest track/discovery metadata; final branding/project UUID/media fields still pending)
+- [~] `agent_log.json` finalization (public-safe draft exists in `submission/`, root / `.well-known/` discovery mirrors can now be refreshed with `npm run submission:refresh-public-agent-artifacts`, and the log now records the public-safe packaging-finalization step; final branding/project UUID/media fields still pending)
 - [ ] Moltbook post URL
 - [ ] Video URL
 - [ ] Cover image / pictures

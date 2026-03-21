@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-21T05:24:58.084Z
+Generated at: 2026-03-21T07:24:05.183Z
 
 ## 1. Public repo
 

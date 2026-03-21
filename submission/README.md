@@ -21,7 +21,7 @@ This folder collects submission-facing artifacts for The Synthesis.
 
 ## Current status
 
-These files are meant to make the project submission-ready before the final human polish step (name, logo, cover image, video, Moltbook post, and final project-ID packaging cleanup).
+These files are meant to make the project submission-ready before the final human polish step (final branding/name choice, logo, cover image, video, Moltbook post, and final project-ID packaging cleanup).
 
 The public draft package now already includes:
 - deployment proofs
@@ -29,6 +29,7 @@ The public draft package now already includes:
 - agent manifest draft
 - agent execution log draft
 - a public-safe evidence index for judges (`public-evidence-pack.md`)
+- a working-title fallback in `submission/agent.json` / `submission/agent_log.json` so public judge discovery no longer shows `TBD` while final branding is still pending
 - a scripted way to mirror the manifest/log to repo-root and `.well-known/` for judge discovery:
 
 ```bash
