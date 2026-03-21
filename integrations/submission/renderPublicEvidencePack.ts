@@ -9,6 +9,7 @@ const CUTOVER_ENV_VALIDATION_PATH = process.env.CUTOVER_ENV_VALIDATION_PATH ?? '
 const FRONTEND_VALIDATION_PATH = process.env.FRONTEND_VALIDATION_PATH ?? 'artifacts/frontend/validation.json';
 const FINAL_READINESS_PATH = process.env.FINAL_READINESS_OUT ?? 'artifacts/final/same-network-readiness.json';
 const CUTOVER_CHECKLIST_PATH = process.env.CUTOVER_CHECKLIST_OUT ?? 'artifacts/final/cutover-checklist.md';
+const CUTOVER_ENV_CHECKLIST_PATH = process.env.CUTOVER_ENV_CHECKLIST_OUT ?? 'artifacts/final/cutover-env-checklist.md';
 const OUT_PATH = process.env.PUBLIC_EVIDENCE_PACK_OUT ?? 'submission/public-evidence-pack.md';
 
 function readJsonMaybe(filePath: string) {
@@ -162,6 +163,7 @@ Honest blocker:
 
 Latest generated readiness artifacts:
 - final readiness: \`${rel(FINAL_READINESS_PATH)}\`
+- generated cutover env checklist: \`${rel(CUTOVER_ENV_CHECKLIST_PATH)}\`
 - generated cutover checklist: \`${rel(CUTOVER_CHECKLIST_PATH)}\`
 
 Current validation summary:
@@ -185,7 +187,8 @@ ${bullets(nextActions, '- no next actions emitted by the validator')}
 When the real Base mainnet run happens, record it in:
 - \`deployments/base-mainnet-cutover-template.md\`
 
-The latest generated handoff/checklist is here:
+The latest generated handoff/checklists are here:
+- \`${rel(CUTOVER_ENV_CHECKLIST_PATH)}\`
 - \`${rel(CUTOVER_CHECKLIST_PATH)}\`
 `;
 
@@ -204,6 +207,7 @@ The latest generated handoff/checklist is here:
           cutoverEnvValidation: path.resolve(process.cwd(), CUTOVER_ENV_VALIDATION_PATH),
           frontendValidation: path.resolve(process.cwd(), FRONTEND_VALIDATION_PATH),
           finalReadiness: path.resolve(process.cwd(), FINAL_READINESS_PATH),
+          cutoverEnvChecklist: path.resolve(process.cwd(), CUTOVER_ENV_CHECKLIST_PATH),
           cutoverChecklist: path.resolve(process.cwd(), CUTOVER_CHECKLIST_PATH),
         },
       },

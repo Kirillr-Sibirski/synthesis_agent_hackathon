@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-21T13:23:50.508Z
+Generated at: 2026-03-21T15:25:52.823Z
 
 ## 1. Public repo
 
@@ -98,6 +98,7 @@ Honest blocker:
 
 Latest generated readiness artifacts:
 - final readiness: `artifacts/final/same-network-readiness.json`
+- generated cutover env checklist: `artifacts/final/cutover-env-checklist.md`
 - generated cutover checklist: `artifacts/final/cutover-checklist.md`
 
 Current validation summary:
@@ -160,5 +161,6 @@ Current same-network validator blockers:
 When the real Base mainnet run happens, record it in:
 - `deployments/base-mainnet-cutover-template.md`
 
-The latest generated handoff/checklist is here:
+The latest generated handoff/checklists are here:
+- `artifacts/final/cutover-env-checklist.md`
 - `artifacts/final/cutover-checklist.md`

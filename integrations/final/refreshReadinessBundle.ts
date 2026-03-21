@@ -8,6 +8,7 @@ const FRONTEND_VALIDATION_OUT = process.env.FRONTEND_VALIDATION_OUT ?? 'artifact
 const CUTOVER_ENV_VALIDATION_OUT = process.env.CUTOVER_ENV_VALIDATION_OUT ?? 'artifacts/final/cutover-env-validation.json';
 const FINAL_READINESS_OUT = process.env.FINAL_READINESS_OUT ?? 'artifacts/final/same-network-readiness.json';
 const CUTOVER_CHECKLIST_OUT = process.env.CUTOVER_CHECKLIST_OUT ?? 'artifacts/final/cutover-checklist.md';
+const CUTOVER_ENV_CHECKLIST_OUT = process.env.CUTOVER_ENV_CHECKLIST_OUT ?? 'artifacts/final/cutover-env-checklist.md';
 const NPM_BIN = process.env.NPM_BIN ?? 'npm';
 const REFRESH_PUBLIC_AGENT_ARTIFACTS =
   (process.env.REFRESH_PUBLIC_AGENT_ARTIFACTS ?? 'true').trim().toLowerCase() !== 'false';
@@ -29,6 +30,7 @@ function main() {
   const resolvedCutoverEnvValidation = path.resolve(process.cwd(), CUTOVER_ENV_VALIDATION_OUT);
   const resolvedFinalReadiness = path.resolve(process.cwd(), FINAL_READINESS_OUT);
   const resolvedCutoverChecklist = path.resolve(process.cwd(), CUTOVER_CHECKLIST_OUT);
+  const resolvedCutoverEnvChecklist = path.resolve(process.cwd(), CUTOVER_ENV_CHECKLIST_OUT);
   const resolvedAgentManifest = path.resolve(process.cwd(), 'agent.json');
   const resolvedAgentLog = path.resolve(process.cwd(), 'agent_log.json');
   const resolvedWellKnownAgentManifest = path.resolve(process.cwd(), '.well-known/agent.json');
@@ -40,6 +42,11 @@ function main() {
 
   runScript('final:validate-cutover-env', {
     CUTOVER_ENV_VALIDATION_OUT,
+  });
+
+  runScript('final:render-cutover-env-checklist', {
+    CUTOVER_ENV_VALIDATION_PATH: CUTOVER_ENV_VALIDATION_OUT,
+    CUTOVER_ENV_CHECKLIST_OUT,
   });
 
   runScript('metamask:preflight', {
@@ -71,6 +78,7 @@ function main() {
     METAMASK_PREFLIGHT_PATH: PREFLIGHT_OUT,
     FRONTEND_VALIDATION_PATH: FRONTEND_VALIDATION_OUT,
     CUTOVER_ENV_VALIDATION_PATH: CUTOVER_ENV_VALIDATION_OUT,
+    CUTOVER_ENV_CHECKLIST_OUT,
     CUTOVER_CHECKLIST_OUT,
   });
 
@@ -88,14 +96,15 @@ function main() {
               }
             : null,
           cutoverEnvValidation: resolvedCutoverEnvValidation,
+          cutoverEnvChecklist: resolvedCutoverEnvChecklist,
           preflight: resolvedPreflight,
           frontendValidation: resolvedFrontendValidation,
           finalReadiness: resolvedFinalReadiness,
           cutoverChecklist: resolvedCutoverChecklist,
         },
         note: REFRESH_PUBLIC_AGENT_ARTIFACTS
-          ? 'Readiness bundle refreshed sequentially: public agent packaging -> cutover env validation -> MetaMask preflight -> frontend validation -> final same-network report -> generated markdown cutover checklist -> generated public evidence pack.'
-          : 'Readiness bundle refreshed sequentially: cutover env validation -> MetaMask preflight -> frontend validation -> final same-network report -> generated markdown cutover checklist -> generated public evidence pack.',
+          ? 'Readiness bundle refreshed sequentially: public agent packaging -> cutover env validation -> generated markdown cutover-env checklist -> MetaMask preflight -> frontend validation -> final same-network report -> generated markdown cutover checklist -> generated public evidence pack.'
+          : 'Readiness bundle refreshed sequentially: cutover env validation -> generated markdown cutover-env checklist -> MetaMask preflight -> frontend validation -> final same-network report -> generated markdown cutover checklist -> generated public evidence pack.',
       },
       null,
       2,
