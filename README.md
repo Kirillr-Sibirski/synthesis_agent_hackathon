@@ -270,9 +270,12 @@ See:
 bun run contracts:test
 bun run web:build
 bun run verify:demo
+bun run final:refresh-readiness-bundle
 bun run submission:refresh-public-agent-artifacts
 bun run submission:render-public-evidence-pack
 ```
+
+`bun run final:refresh-readiness-bundle` now regenerates the local dashboard config at `apps/web/public/config.json` before frontend validation, so the one-command readiness pass works from the current env instead of assuming that file was already hand-written.
 
 ## One-sentence summary
 
