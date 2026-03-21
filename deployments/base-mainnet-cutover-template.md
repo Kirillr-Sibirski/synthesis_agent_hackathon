@@ -188,6 +188,8 @@ FINAL_READINESS_OUT=artifacts/final/same-network-readiness.json \
   npm run final:refresh-readiness-bundle
 ```
 
+That bundle now also writes `artifacts/final/cutover-checklist.md`, a human-readable handoff/checklist summarizing honest track posture, current blockers, and the exact remaining proof gaps before the final Base mainnet demo/submission.
+
 Expected env inputs:
 - recommended starting point: copy `env/base-mainnet-cutover.example.env` into local `.env` and fill it for the final run
 - preferred for mainnet cutover:

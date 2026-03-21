@@ -104,7 +104,8 @@ Re-verified in-repo on 2026-03-20:
 - `npm run metamask:preflight` → **selected chain = Base Sepolia, smart account undeployed, bundler not configured/reachable, readyForFinalSameNetworkRun=false**
 - `npm run final:validate-cutover-env` → **readyForBaseMainnetCutoverEnv=false**
 - `npm run final:validate-same-network` → **overallReadyForSameNetworkDemoSubmission=false**
-- `npm run final:refresh-readiness-bundle` → refreshes the full artifact set sequentially (**public agent packaging → cutover env validation → MetaMask preflight → frontend validation → combined same-network report**)
+- `npm run final:refresh-readiness-bundle` → refreshes the full artifact set sequentially (**public agent packaging → cutover env validation → MetaMask preflight → frontend validation → combined same-network report → generated markdown cutover checklist**)
+- `npm run final:render-cutover-checklist` → turns the latest JSON readiness artifacts into `artifacts/final/cutover-checklist.md`, a human-readable final-run handoff/checklist that calls out honest track posture and exact blockers
 
 Current same-network validator blockers:
 - current env is still pointed at **Base Sepolia**, not Base mainnet
