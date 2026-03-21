@@ -61,6 +61,7 @@ function main() {
   const cutoverReady = cutover?.readiness?.readyForBaseMainnetCutoverEnv === true;
   const frontendReady = frontend?.readiness?.readyForFrontendSameNetworkDemoConfig === true;
   const overallReady = readiness?.summary?.overallReadyForSameNetworkDemoSubmission === true;
+  const letTheAgentCookHonest = readiness?.trackQualification?.letTheAgentCook?.currentlyHonest === true;
   const strongNow = honestTracks.map((track: string) => `**${trackLabel(track)}**`);
   const incompleteTracks = Object.entries(readiness?.trackQualification ?? {})
     .filter(([, value]) => !(value as any)?.currentlyHonest)

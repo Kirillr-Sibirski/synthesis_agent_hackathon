@@ -3,7 +3,9 @@ import 'dotenv/config';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-const PREFLIGHT_PATH = process.env.METAMASK_PREFLIGHT_PATH ?? 'artifacts/metamask/preflight-8453.json';
+import { resolvePreflightArtifactPath } from '../metamask/preflightArtifactPath.js';
+
+const PREFLIGHT_PATH = resolvePreflightArtifactPath(process.env.METAMASK_PREFLIGHT_PATH);
 const FRONTEND_VALIDATION_PATH = process.env.FRONTEND_VALIDATION_PATH ?? 'artifacts/frontend/validation.json';
 const CUTOVER_ENV_VALIDATION_PATH = process.env.CUTOVER_ENV_VALIDATION_PATH ?? 'artifacts/final/cutover-env-validation.json';
 const AGENT_MANIFEST_PATH = process.env.AGENT_MANIFEST_PATH ?? 'agent.json';
@@ -223,17 +225,6 @@ function main() {
   };
 
   const output = JSON.stringify(report, null, 2);
-  if (OUT_PATH) {
-    const resolvedOut = path.resolve(process.cwd(), OUT_PATH);
-    mkdirSync(path.dirname(resolvedOut), { recursive: true });
-    writeFileSync(resolvedOut, `${output}\n`);
-  }
-
-  console.log(output);
-}
-
-main();
-fy(report, null, 2);
   if (OUT_PATH) {
     const resolvedOut = path.resolve(process.cwd(), OUT_PATH);
     mkdirSync(path.dirname(resolvedOut), { recursive: true });

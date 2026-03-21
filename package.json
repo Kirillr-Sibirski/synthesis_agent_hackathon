@@ -14,8 +14,8 @@
   ],
   "scripts": {
     "test": "bun run contracts:test && bun run web:typecheck",
-    "contracts:test": "cd contracts && forge test",
-    "contracts:build": "cd contracts && forge build",
+    "contracts:test": "bash -lc 'FOUNDRY_BIN=\"${FOUNDRY_BIN:-$HOME/.foundry/bin/forge}\"; cd contracts && \"$FOUNDRY_BIN\" test'",
+    "contracts:build": "bash -lc 'FOUNDRY_BIN=\"${FOUNDRY_BIN:-$HOME/.foundry/bin/forge}\"; cd contracts && \"$FOUNDRY_BIN\" build'",
     "web:dev": "bun run --cwd apps/web dev",
     "web:build": "bun run --cwd apps/web build",
     "web:start": "bun run --cwd apps/web start",
