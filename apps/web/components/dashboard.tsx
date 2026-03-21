@@ -45,7 +45,7 @@ function ProgressBar({ value }: { value: number }): React.JSX.Element {
   return (
     <div className="h-2 overflow-hidden rounded-full bg-white/10">
       <div
-        className="h-full rounded-full bg-gradient-to-r from-primary via-emerald-300 to-warning shadow-[0_0_24px_rgba(46,212,183,0.35)]"
+        className="h-full rounded-full bg-gradient-to-r from-primary via-[#e08268] to-[#fffbfc] shadow-[0_0_24px_rgba(205,83,52,0.35)]"
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
       />
     </div>
@@ -129,7 +129,7 @@ export function Dashboard({ initialSnapshot }: DashboardProps): React.JSX.Elemen
     <main className="app-shell mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <section className="grid gap-4 lg:grid-cols-[1.35fr_0.95fr]">
         <Card className="panel-surface panel-grid relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(46,212,183,0.14),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(245,190,86,0.12),transparent_26%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(205,83,52,0.18),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(255,251,252,0.08),transparent_24%)]" />
           <CardHeader className="relative">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="default">{APP_NAME}</Badge>

@@ -85,7 +85,7 @@ export function ProofWorkspace({ snapshot }: ProofWorkspaceProps): React.JSX.Ele
               variant={tab === item.key ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setTab(item.key)}
-              className={tab === item.key ? '' : 'soft-pill border-white/10 bg-white/5 hover:bg-white/10'}
+              className={tab === item.key ? '' : 'soft-pill border-primary/20 bg-white/5 hover:bg-primary/10'}
             >
               {item.label}
             </Button>
