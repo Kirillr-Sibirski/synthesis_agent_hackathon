@@ -24,6 +24,10 @@ A human funds a treasury with principal. The agent can only spend yield, and onl
    - evidence/result hashes are attached to the receipt
    - delegated rule shape (exact or wildcard) explains why the spend was allowed
 
+## Final same-network note
+
+The Base Sepolia path is the public proof-of-life flow. The final judge-facing Lido story should switch the same sequence to real `wstETH` on Base mainnet once the cutover env, MetaMask redemption path, and role-separated deployment data are ready.
+
 ## Judge-facing one-liner
 
 "The agent can spend yield, not principal. Different budgets can be delegated separately. Every spend leaves a verifiable receipt."

@@ -47,3 +47,5 @@ npm run submission:render-public-evidence-pack
 ```
 
 That command reads the latest committed/public-safe readiness artifacts (`agent.json`, MetaMask preflight, cutover-env validation, frontend validation, final same-network readiness, and the generated cutover checklist) and rewrites `submission/public-evidence-pack.md` so the judge-facing status summary stays synchronized with the real validator output.
+
+If you are trying to understand the current judge story quickly, start with `submission/public-evidence-pack.md`, then `submission/submission-status.md`, then `submission/project-draft.md`.

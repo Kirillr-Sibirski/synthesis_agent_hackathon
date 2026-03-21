@@ -1,0 +1,207 @@
+{
+  "main": {
+    "id": "3a5c5c42da56d342",
+    "type": "split",
+    "children": [
+      {
+        "id": "c31392297f539b00",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b69e2e06d6fa63fa",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "9d920baf6ec22d10",
+    "type": "split",
+    "children": [
+      {
+        "id": "df72f000134eccae",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d649d68095bf4df9",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "f44da4fdccb4cb28",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "0b44866e98501fcd",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 309.5
+  },
+  "right": {
+    "id": "cb9c8bfbdda6a6c2",
+    "type": "split",
+    "children": [
+      {
+        "id": "2ba5f1586e00e8b4",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0e262a48064aeff9",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Ideas/00_prize_surface_scan.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 00_prize_surface_scan"
+            }
+          },
+          {
+            "id": "25b5670c16ebd663",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Ideas/00_prize_surface_scan.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 00_prize_surface_scan"
+            }
+          },
+          {
+            "id": "33e60c134b7bfe62",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "76753aca514a550a",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "58bbdbf932f4170d",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Ideas/00_prize_surface_scan.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 00_prize_surface_scan"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "b69e2e06d6fa63fa",
+  "lastOpenFiles": [
+    "Ideas/00_prize_surface_scan.md",
+    "Ideas/23_final_direction.md",
+    "Ideas/22_candidate_comparison.md",
+    "00_memory_map.md",
+    "Ideas/21_three_sponsor_focus.md",
+    "Ideas/20_ranked_recommendations.md",
+    "Ideas/19_openserv_treasury_operator_swarm.md",
+    "Ideas/18_locus_paid_yield_router.md",
+    "Ideas/17_gasless_treasury_simulator_status.md",
+    "Ideas/16_ens_named_treasury_agents.md",
+    "Ideas/15_receipt_gated_treasury_actions.md",
+    "Ideas/14_vault_sentinel_escalating_authority.md",
+    "Ideas/13_treasury_guard_mcp.md",
+    "Ideas/12_private_treasury_policy_compiler.md",
+    "Ideas/11_delegated_subagent_budget_tree.md",
+    "Ideas/10_yield_sliced_delegated_treasury.md",
+    "Ideas/01_main_brainstorm.md",
+    "Ideas",
+    "Synthesis/04_synthesis_prizes_page_1.md",
+    "Synthesis/10_current_competition.md",
+    "Synthesis/02_synthesis_submission_skill.md",
+    "Synthesis/01_synthesis_registration_skill.md"
+  ]
+}

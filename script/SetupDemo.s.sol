@@ -14,11 +14,12 @@ contract SetupDemoScript is Script {
         address authorizerAddr = vm.envAddress("AUTHORIZER_ADDRESS");
         address assetAddr = vm.envAddress("WSTETH_ADDRESS");
         address executor = vm.envAddress("DEMO_EXECUTOR");
+        address treasuryExecutor = vm.envOr("TREASURY_EXECUTOR_ADDRESS", executor);
         address recipient = vm.envAddress("DEMO_RECIPIENT");
 
         bytes32 opsBudget = keccak256("OPS_BUDGET");
         bytes4 selector = YieldTreasury.spendFromBudget.selector;
-        bytes32 ruleId = keccak256(abi.encode(executor, opsBudget, recipient, selector));
+        bytes32 ruleId = keccak256(abi.encode(treasuryExecutor, opsBudget, recipient, selector));
 
         vm.startBroadcast(deployerKey);
 
@@ -35,7 +36,7 @@ contract SetupDemoScript is Script {
 
         DelegationAuthorizer.Rule memory rule = DelegationAuthorizer.Rule({
             active: true,
-            executor: executor,
+            executor: treasuryExecutor,
             budgetId: opsBudget,
             recipient: recipient,
             selector: selector,

@@ -47,6 +47,18 @@ export const walletClient = createWalletClient({
 });
 export const smartAccountsEnvironment = getSmartAccountsEnvironment(chain.id);
 
+function parseFundingTarget() {
+  const raw = process.env.SMART_ACCOUNT_FUNDING_WEI?.trim();
+  if (!raw) return 0n;
+  try {
+    return BigInt(raw);
+  } catch {
+    throw new Error('Invalid SMART_ACCOUNT_FUNDING_WEI in .env; expected an integer wei value.');
+  }
+}
+
+export const smartAccountFundingTargetWei = parseFundingTarget();
+
 const unsafeToMetaMaskSmartAccount = toMetaMaskSmartAccount as any;
 
 export async function getSmartAccount() {
@@ -62,4 +74,34 @@ export async function getSmartAccount() {
     signer: { account: ownerAccount },
     environment: smartAccountsEnvironment,
   });
+}
+
+export async function ensureSmartAccountFunding(smartAccountAddress: `0x${string}`) {
+  const balanceBefore = await publicClient.getBalance({ address: smartAccountAddress });
+
+  if (smartAccountFundingTargetWei === 0n || balanceBefore >= smartAccountFundingTargetWei) {
+    return {
+      funded: false,
+      topUpWei: 0n,
+      balanceBefore,
+      balanceAfter: balanceBefore,
+      transactionHash: null as `0x${string}` | null,
+    };
+  }
+
+  const topUpWei = smartAccountFundingTargetWei - balanceBefore;
+  const transactionHash = await walletClient.sendTransaction({
+    to: smartAccountAddress,
+    value: topUpWei,
+  });
+  await publicClient.waitForTransactionReceipt({ hash: transactionHash });
+  const balanceAfter = await publicClient.getBalance({ address: smartAccountAddress });
+
+  return {
+    funded: true,
+    topUpWei,
+    balanceBefore,
+    balanceAfter,
+    transactionHash,
+  };
 }

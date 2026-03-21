@@ -2,7 +2,15 @@ import 'dotenv/config';
 
 import { http } from 'viem';
 import { createBundlerClient } from 'viem/account-abstraction';
-import { chain, ownerAccount, publicClient, smartAccountsEnvironment, getSmartAccount } from './utils.js';
+import {
+  chain,
+  ensureSmartAccountFunding,
+  getSmartAccount,
+  ownerAccount,
+  publicClient,
+  smartAccountFundingTargetWei,
+  smartAccountsEnvironment,
+} from './utils.js';
 
 const BUNDLER_URL = process.env.BUNDLER_URL;
 
@@ -13,6 +21,7 @@ if (!BUNDLER_URL) {
 async function main() {
   const smartAccount = await getSmartAccount();
   const beforeCode = await publicClient.getCode({ address: smartAccount.address });
+  const funding = await ensureSmartAccountFunding(smartAccount.address);
 
   const bundlerClient = createBundlerClient({
     account: smartAccount,
@@ -38,6 +47,8 @@ async function main() {
     owner: ownerAccount.address,
     smartAccountAddress: smartAccount.address,
     delegationManager: smartAccountsEnvironment.DelegationManager,
+    fundingTargetWei: smartAccountFundingTargetWei.toString(),
+    funding,
     beforeDeployed: Boolean(beforeCode && beforeCode !== '0x'),
     userOperationHash,
     transactionHash: receipt.receipt.transactionHash,

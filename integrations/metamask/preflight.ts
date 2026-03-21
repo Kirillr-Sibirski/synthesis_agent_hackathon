@@ -5,12 +5,19 @@ import path from 'node:path';
 
 import { encodeFunctionData, getAddress, keccak256, toBytes } from 'viem';
 
-import { chain, getSmartAccount, publicClient, smartAccountsEnvironment } from './utils.js';
+import {
+  chain,
+  getSmartAccount,
+  publicClient,
+  smartAccountFundingTargetWei,
+  smartAccountsEnvironment,
+} from './utils.js';
 import { treasuryAbi } from './treasuryAbi.js';
 
 const TREASURY_ADDRESS = process.env.TREASURY_ADDRESS as `0x${string}` | undefined;
 const DEMO_RECIPIENT = process.env.DEMO_RECIPIENT as `0x${string}` | undefined;
 const DEMO_EXECUTOR = process.env.DEMO_EXECUTOR as `0x${string}` | undefined;
+const TREASURY_EXECUTOR_ADDRESS = process.env.TREASURY_EXECUTOR_ADDRESS as `0x${string}` | undefined;
 const BUNDLER_URL = process.env.BUNDLER_URL;
 const WSTETH_ADDRESS = process.env.WSTETH_ADDRESS as `0x${string}` | undefined;
 const PREFLIGHT_OUT = process.env.PREFLIGHT_OUT;
@@ -78,6 +85,16 @@ async function main() {
   const smartAccount = await getSmartAccount();
   const smartAccountCode = await publicClient.getCode({ address: smartAccount.address });
   const smartAccountDeployed = Boolean(smartAccountCode && smartAccountCode !== '0x');
+  const smartAccountNativeBalance = await publicClient.getBalance({ address: smartAccount.address });
+  const treasuryExecutor = TREASURY_EXECUTOR_ADDRESS ? getAddress(TREASURY_EXECUTOR_ADDRESS) : null;
+  const treasuryExecutorMatchesSmartAccount =
+    treasuryExecutor !== null ? treasuryExecutor === getAddress(smartAccount.address) : false;
+  const smartAccountFundingConfigured = smartAccountFundingTargetWei > 0n;
+  const smartAccountFundingTargetMet =
+    smartAccountFundingTargetWei === 0n
+      ? smartAccountNativeBalance > 0n
+      : smartAccountNativeBalance >= smartAccountFundingTargetWei;
+  const smartAccountFundingReady = smartAccountNativeBalance > 0n || smartAccountFundingConfigured;
 
   const treasuryAddress = TREASURY_ADDRESS ? getAddress(TREASURY_ADDRESS) : null;
   const treasuryCode = treasuryAddress ? await publicClient.getCode({ address: treasuryAddress }) : null;
@@ -124,10 +141,13 @@ async function main() {
     : false;
   const usingExpectedMainnetWstETH =
     chain.id === BASE_MAINNET_CHAIN_ID ? configuredWstETHMatchesBaseMainnet : null;
+  const treasuryAuthorizerReadyForMetaMask = treasuryExecutorMatchesSmartAccount;
   const readyForLiveRedemption =
     missingRequired.length === 0 &&
     treasuryDeployed &&
-    bundlerReady;
+    bundlerReady &&
+    treasuryAuthorizerReadyForMetaMask &&
+    (smartAccountDeployed || smartAccountFundingReady);
   const readyForFinalSameNetworkRun =
     selectedFinalChain &&
     readyForLiveRedemption &&
@@ -156,14 +176,21 @@ async function main() {
       missingRequired,
       bundlerConfigured: Boolean(BUNDLER_URL),
       wstETHConfigured: Boolean(WSTETH_ADDRESS),
+      treasuryExecutorConfigured: Boolean(TREASURY_EXECUTOR_ADDRESS),
+      smartAccountFundingTargetWei: smartAccountFundingTargetWei.toString(),
     },
     accounts: {
       delegatorSmartAccount: smartAccount.address,
+      treasuryExecutor,
       executor: DEMO_EXECUTOR ?? null,
       recipient: DEMO_RECIPIENT ?? null,
     },
     onchain: {
       smartAccountDeployed,
+      smartAccountNativeBalanceWei: smartAccountNativeBalance.toString(),
+      smartAccountFundingConfigured,
+      smartAccountFundingTargetMet,
+      smartAccountFundingReady,
       treasuryAddress,
       treasuryDeployed,
     },
@@ -198,6 +225,15 @@ async function main() {
         ...(bundler.reachable && bundler.chainMatchesSelectedNetwork !== true
           ? [`Bundler chain does not match the selected MetaMask chain (expected ${chain.id}, got ${bundler.chainId ?? 'unknown'}).`]
           : []),
+        ...(!TREASURY_EXECUTOR_ADDRESS
+          ? ['TREASURY_EXECUTOR_ADDRESS is not set; for the MetaMask path the treasury authorizer must allow the smart-account address as executor.']
+          : []),
+        ...(TREASURY_EXECUTOR_ADDRESS && !treasuryExecutorMatchesSmartAccount
+          ? [`TREASURY_EXECUTOR_ADDRESS does not match the derived MetaMask smart-account address (${smartAccount.address}).`]
+          : []),
+        ...(!smartAccountDeployed && !smartAccountFundingReady
+          ? ['MetaMask smart account has no visible ETH funding for an unsponsored deployment. Pre-fund the counterfactual address or set SMART_ACCOUNT_FUNDING_WEI before the live flow.']
+          : []),
         ...(smartAccountDeployed ? [] : ['MetaMask smart account still needs onchain deployment via user operation.']),
         ...(chain.id === BASE_MAINNET_CHAIN_ID && usingExpectedMainnetWstETH === false
           ? [`Configured WSTETH_ADDRESS does not match Base mainnet wstETH (${BASE_MAINNET_WSTETH}).`]
@@ -210,9 +246,13 @@ async function main() {
         selectedFinalChain
           ? `Ensure the treasury address points at the intended live ${chain.name} treasury deployment.`
           : 'After switching chains, point TREASURY_ADDRESS at the intended live Base mainnet treasury deployment.',
+        `Set TREASURY_EXECUTOR_ADDRESS=${smartAccount.address} so the treasury authorizer matches the MetaMask smart-account caller rather than the redeemer EOA.`,
         ...(chain.id === BASE_MAINNET_CHAIN_ID
           ? ['Ensure WSTETH_ADDRESS is set to the real Base mainnet token address and the treasury story uses that same network.']
           : []),
+        ...(smartAccountDeployed || smartAccountFundingReady
+          ? []
+          : ['Pre-fund the counterfactual smart account or set SMART_ACCOUNT_FUNDING_WEI before attempting the first unsponsored bundler deployment.']),
         selectedFinalChain
           ? `Deploy/fund the MetaMask smart account through a working ${chain.name} bundler.`
           : 'After switching chains, deploy/fund the MetaMask smart account through a working Base mainnet bundler.',

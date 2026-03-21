@@ -7,6 +7,7 @@
 - principal inaccessible to agent
 - spendable yield balance
 - configurable permissions via sub-budgets and authorization rules
+- strongest when shown on the final real `wstETH` same-network path
 
 ### Best Use of Delegations
 - constrained execution rules per executor and budget
@@ -15,6 +16,7 @@
 - delegated budget managers for child-budget creation
 - intended evolution toward fuller MetaMask delegation caveats / sub-delegations
 - delegated authority is core, not decorative
+- strongest when backed by the live MetaMask delegation redemption proof
 
 ### Agents With Receipts — ERC-8004
 - receipt-first execution model

@@ -6,7 +6,7 @@
 - [x] README exists and is being maintained
 - [x] Foundry project is set up
 - [x] Contracts implemented
-- [x] Tests implemented and passing (`31/31`)
+- [x] Tests implemented and last recorded passing snapshot captured (`31/31`)
 - [x] Base Sepolia deployment completed
 - [x] Live onchain spend completed
 - [x] Deployment records written down
@@ -20,9 +20,9 @@
 
 - [ ] Final project name
 - [ ] Final track list confirmation
-- [~] Public-facing ERC-8004 identity / manifest linkage polish (registration tx is recorded; local-only registration state is now explicitly separated from public submission artifacts; public-safe evidence index added in `submission/public-evidence-pack.md`; public manifest/log now default to the working title instead of `TBD`; final agent/project UUID packaging still needs cleanup)
-- [~] `agent.json` finalization (public-safe draft exists in `submission/`, root / `.well-known/` discovery mirrors can now be refreshed with `npm run submission:refresh-public-agent-artifacts`, and the manifest now includes a working-title fallback, public discovery paths, and honest track/discovery metadata; final branding/project UUID/media fields still pending)
-- [~] `agent_log.json` finalization (public-safe draft exists in `submission/`, root / `.well-known/` discovery mirrors can now be refreshed with `npm run submission:refresh-public-agent-artifacts`, and the log now records the public-safe packaging-finalization step; final branding/project UUID/media fields still pending)
+- [~] Public-facing ERC-8004 identity / manifest linkage polish (registration tx is recorded; local-only registration state is separated from public submission artifacts; `submission/public-evidence-pack.md` exists; final agent/project UUID packaging still needs cleanup)
+- [~] `agent.json` finalization (public-safe draft exists in `submission/`, root / `.well-known/` discovery mirrors can be refreshed with `npm run submission:refresh-public-agent-artifacts`, and the manifest now includes the working title plus public discovery paths; final branding/project UUID/media fields still pending)
+- [~] `agent_log.json` finalization (public-safe draft exists in `submission/`, root / `.well-known/` discovery mirrors can be refreshed with `npm run submission:refresh-public-agent-artifacts`, and the log now records the public-safe packaging-finalization step; final branding/project UUID/media fields still pending)
 - [ ] Moltbook post URL
 - [ ] Video URL
 - [ ] Cover image / pictures
@@ -32,9 +32,9 @@
 
 ## Biggest quality upgrades still worth doing
 
-- [~] Separate owner / manager / executor / recipient roles in a live deployment (tooling/scripts exist; the Base mainnet cutover env + frontend validator now explicitly require distinct frontend role wiring too, and the generated deployment note at `deployments/base-sepolia-wsteth-role-separated.md` clearly distinguishes what is already proven versus what still needs final tx curation)
-- [ ] Real MetaMask Delegation Framework integration (smart-account derivation + treasury calldata prep are done; a real signed constrained delegation artifact is now generated in-repo; live redemption helpers now exist for both the signed-artifact path and a one-command live-flow path; `npm run metamask:preflight` was re-verified on 2026-03-20, now explicitly reports `readyForFinalSameNetworkRun=false`, and can be saved as a JSON readiness artifact for the dashboard; live delegation-backed execution still pending bundler-backed deployment/redemption proof on the final same-network target)
-- [~] Final ERC-8004 manifest linkage / public packaging cleanup around the completed identity registration (public-safe evidence pack now includes the latest validation snapshot, manifest draft and execution log draft are updated, root + `.well-known/` discovery mirrors exist, the same-network validator now checks that packaging directly, and `npm run final:refresh-readiness-bundle` now refreshes those public mirrors first by default; the remaining work is final agent/project UUID packaging plus final title/media fields)
-- [ ] Live-network real `wstETH` deployment path on the final same-network target (final proof collection is now scaffolded in `deployments/base-mainnet-cutover-template.md`, and final env wiring now has a dedicated `env/base-mainnet-cutover.example.env` template)
-- [~] Frontend/dashboard requirement (a first usable static wallet-connected dashboard now exists under `frontend/`; it now supports local `config.json` cutover for final deployment addresses, has an env-driven `npm run frontend:write-config` helper that avoids cross-chain address leakage, has a `npm run frontend:validate-config` readiness check, adds `npm run final:validate-cutover-env` for raw Base mainnet env checking, feeds into a combined `npm run final:validate-same-network` go/no-go report and a one-shot `npm run final:refresh-readiness-bundle` refresh path, now includes cutover-env validation in that final bundle, emits a human-readable `artifacts/final/cutover-checklist.md` handoff via `npm run final:render-cutover-checklist`, can inspect saved MetaMask artifact/live-flow/preflight/cutover-env/final-readiness JSON, hydrates the relevant form fields directly from those artifacts for the judge flow, and can build a role-separated demo summary, but it still needs final same-network deployment data and sponsor-complete polish)
+- [~] Separate owner / manager / executor / recipient roles in a live deployment (tooling/scripts exist; the Base mainnet cutover env + frontend validator explicitly require distinct frontend role wiring too; the remaining work is to finish a clean final proof set)
+- [ ] Real MetaMask Delegation Framework integration (smart-account derivation + treasury calldata prep are done; a real signed constrained delegation artifact is generated in-repo; live redemption helpers exist for both the signed-artifact path and the one-command live-flow path; live delegation-backed execution still needs bundler-backed deployment/redemption proof on the final same-network target)
+- [~] Final ERC-8004 manifest linkage / public packaging cleanup (public-safe evidence pack exists, discovery mirrors exist, and the validator checks the same public-safe artifacts; final agent/project UUID packaging plus final title/media fields still need cleanup)
+- [ ] Live-network real `wstETH` deployment path on the final same-network target (final proof collection is scaffolded in `deployments/base-mainnet-cutover-template.md`, and the final env wiring has a dedicated `env/base-mainnet-cutover.example.env` template)
+- [~] Frontend/dashboard requirement (the static dashboard exists under `frontend/`; it supports local `config.json` cutover, env-driven config generation, validation, and artifact hydration, but it still needs the final same-network deployment data and sponsor-complete polish)
 - [ ] Optional MCP layer if we decide to widen into the Lido MCP track

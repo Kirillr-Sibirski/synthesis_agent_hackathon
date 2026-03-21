@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-21T15:25:52.823Z
+Generated at: 2026-03-21T16:03:33.538Z
 
 ## 1. Public repo
 
@@ -39,7 +39,7 @@ Public MetaMask workspace docs:
 - `docs/metamask-integration-plan.md`
 
 Latest generated preflight artifact:
-- path: `artifacts/metamask/preflight-8453.json`
+- path: `artifacts/metamask/preflight-84532.json`
 - selected chain: `Base Sepolia` (`84532`)
 - final target chain: `Base` (`8453`)
 - final target chain currently selected: `no`
@@ -69,7 +69,7 @@ Latest cutover-env validation artifact:
 - real Base mainnet `wstETH` configured: `no`
 - treasury configured: `yes`
 - authorizer configured: `yes`
-- receipt registry configured: `no`
+- receipt registry configured: `yes`
 - backend roles fully separated: `no`
 - frontend roles fully separated in env: `no`
 
@@ -88,7 +88,7 @@ Latest frontend validation artifact:
 - Base treasury present: `no`
 - Base receipt registry present: `no`
 - Base authorizer present: `no`
-- receipt hash present: `no`
+- receipt hash present: `yes`
 - distinct frontend actor addresses: `1`
 
 Honest blocker:
@@ -102,7 +102,7 @@ Latest generated readiness artifacts:
 - generated cutover checklist: `artifacts/final/cutover-checklist.md`
 
 Current validation summary:
-- forge tests: `31/31 passing`
+- last recorded forge test snapshot: `31/31 passing`
 - frontend syntax: `node --check frontend/app.js passing`
 - overall ready for same-network demo/submission: `no`
 - current honest tracks: `Agents With Receipts — ERC-8004`, `Synthesis Open Track`
@@ -115,30 +115,19 @@ Current same-network validator blockers:
 - Frontend missing: base.treasuryPresent
 - Frontend missing: base.receiptRegistryPresent
 - Frontend missing: base.authorizerPresent
-- Frontend missing: actors.spendRecipientPresent
-- Frontend missing: actors.receiptHashPresent
-- Role overlap still present in frontend config: [{"address":"0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948","roles":["budgetManager","demoExecutor","demoRecipient"]}]
+- Role overlap still present in frontend config: [{"address":"0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948","roles":["budgetManager","spendRecipient","demoExecutor","demoRecipient"]}]
 - Loaded MetaMask preflight artifact is not yet ready for the final same-network run.
 - Cutover env missing: metaMaskChainIsBase
 - Cutover env missing: frontendChainIsBase
-- Cutover env missing: rpcConfigured
 - Cutover env missing: bundlerConfigured
-- Cutover env missing: executorKeyConfigured
 - Cutover env missing: wstETHIsBaseMainnet
-- Cutover env missing: receiptRegistryConfigured
-- Cutover env missing: managerConfigured
-- Cutover env missing: executorConfigured
-- Cutover env missing: recipientConfigured
 - Cutover env missing: frontendTreasuryConfigured
 - Cutover env missing: frontendAuthorizerConfigured
 - Cutover env missing: frontendReceiptRegistryConfigured
 - Cutover env missing: frontendAssetConfigured
 - Cutover env missing: frontendAssetIsBaseMainnet
-- Cutover env missing: frontendBudgetManagerConfigured
-- Cutover env missing: frontendSpendRecipientConfigured
-- Cutover env missing: frontendDemoExecutorConfigured
-- Cutover env missing: frontendDemoRecipientConfigured
-- Cutover env missing: frontendReceiptHashConfigured
+- Backend role addresses are not fully separated yet.
+- Frontend role addresses are not fully separated yet.
 ## 8. Best honest track posture right now
 
 ### Strong now

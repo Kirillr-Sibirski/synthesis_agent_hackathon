@@ -18,6 +18,7 @@ export type SignedDelegationArtifact = {
   accounts: {
     owner: `0x${string}`;
     delegatorSmartAccount: `0x${string}`;
+    treasuryExecutor: `0x${string}`;
     delegate: `0x${string}`;
     redeemer: `0x${string}`;
     recipient: `0x${string}`;
@@ -145,6 +146,7 @@ export async function buildSignedDelegationArtifact(): Promise<SignedDelegationA
     accounts: {
       owner: ownerAccount.address,
       delegatorSmartAccount: smartAccount.address,
+      treasuryExecutor: smartAccount.address,
       delegate: demoExecutor,
       redeemer: demoExecutor,
       recipient: demoRecipient,
@@ -174,6 +176,7 @@ export async function buildSignedDelegationArtifact(): Promise<SignedDelegationA
       validBefore: beforeThreshold,
     },
     nextLiveSteps: [
+      `Configure the treasury authorizer rule so executor=${smartAccount.address} for the MetaMask path.`,
       `Fund and deploy the MetaMask smart account via a ${chain.name} bundler.`,
       'Redeem this delegation through DelegationManager from the authorized executor.',
       'Execute the treasury spend and record tx hashes in deployments/ and submission/.',

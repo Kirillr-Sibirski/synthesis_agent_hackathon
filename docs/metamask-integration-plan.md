@@ -43,6 +43,7 @@ Implication:
   - create/sign delegation from that account
   - redeem delegation through `DelegationManager`
   - have the DeleGator execute the treasury spend
+  - align the treasury authorizer rule so it allows the DeleGator smart-account address as executor, because the treasury sees the smart account as `msg.sender`
 
 Current progress:
 - the repo now derives a real Base Sepolia MetaMask smart-account address successfully via `npm run metamask:derive-smart-account`
@@ -52,6 +53,7 @@ Current progress:
 - the repo now also emits a **real signed constrained delegation artifact** via `npm run metamask:create-signed-delegation-artifact`
 - that signed artifact uses the installed Smart Accounts Kit caveat builders for AllowedTargets / AllowedMethods / ExactCalldata / Redeemer / LimitedCalls / ValueLte / Timestamp
 - the repo now also includes `npm run metamask:preflight`, which checks env completeness, smart-account deployment status, treasury code presence, exact spend selector shape, and whether a configured bundler endpoint is both reachable and on the selected chain
+- the preflight now also surfaces whether `TREASURY_EXECUTOR_ADDRESS` is aligned with the derived smart-account address and whether the smart account has funding for an unsponsored first deployment
 - next step is deploying/using that DeleGator in the live treasury flow on the final same-network target once a working bundler endpoint is available
 
 ## Practical implementation path

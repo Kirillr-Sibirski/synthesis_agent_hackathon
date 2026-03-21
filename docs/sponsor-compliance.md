@@ -8,7 +8,7 @@ The project should be understood as three layers:
 2. **MetaMask-style delegated authority primitive**
 3. **ERC-8004 / receipt / manifest trust layer**
 
-## What is now materially stronger
+## What is proven vs pending
 
 ### Lido
 We now have a dedicated `WstETHYieldTreasury` contract that models `wstETH` correctly:
@@ -18,7 +18,7 @@ We now have a dedicated `WstETHYieldTreasury` contract that models `wstETH` corr
 - spend checks ensure the treasury cannot cross below the current principal floor in `wstETH`
 - slash/rate-drop scenarios are explicitly tested
 
-This is much closer to real Lido compliance than the older generic treasury model.
+This is much closer to real Lido compliance than the older generic treasury model, but the strongest live proof still needs the final same-network deployment.
 
 ### MetaMask Delegations
 Current protocol strengths:
@@ -51,7 +51,7 @@ Still missing for full sponsor-native compliance:
 The contract design is now much more correct for `wstETH`, but the current live demo still relies on a test asset / testnet environment. To be fully compliant with the Lido track we still need a deployment using **real wstETH on an accepted L2 or mainnet**.
 
 ### Best Use of Delegations
-The project now has a compelling delegation-shaped core, but still needs true MetaMask framework integration to be maximally credible.
+The project now has a compelling delegation-shaped core, but still needs the live MetaMask framework redemption proof to be maximally credible.
 
 ### Agents With Receipts — ERC-8004
 The receipt model is strong, but we still need actual identity / registry integration.

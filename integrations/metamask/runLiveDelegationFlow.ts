@@ -9,7 +9,14 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { ExecutionMode, createExecution, redeemDelegations } from '@metamask/smart-accounts-kit';
 
 import { buildSignedDelegationArtifact, json } from './buildSignedDelegationArtifact.js';
-import { chain, getSmartAccount, publicClient, transport } from './utils.js';
+import {
+  chain,
+  ensureSmartAccountFunding,
+  getSmartAccount,
+  publicClient,
+  smartAccountFundingTargetWei,
+  transport,
+} from './utils.js';
 
 const BUNDLER_URL = process.env.BUNDLER_URL;
 const DRY_RUN = ['1', 'true', 'yes'].includes((process.env.DRY_RUN ?? '').toLowerCase());
@@ -47,11 +54,29 @@ async function main() {
         transactionHash: `0x${string}`;
       }
     | undefined;
+  let fundingReceipt:
+    | {
+        funded: boolean;
+        topUpWei: string;
+        balanceBeforeWei: string;
+        balanceAfterWei: string;
+        transactionHash: `0x${string}` | null;
+      }
+    | undefined;
 
   if (!beforeDeployed && !DRY_RUN) {
     if (!BUNDLER_URL) {
       throw new Error('Missing BUNDLER_URL in .env; cannot deploy smart account for live flow.');
     }
+
+    const funding = await ensureSmartAccountFunding(smartAccount.address);
+    fundingReceipt = {
+      funded: funding.funded,
+      topUpWei: funding.topUpWei.toString(),
+      balanceBeforeWei: funding.balanceBefore.toString(),
+      balanceAfterWei: funding.balanceAfter.toString(),
+      transactionHash: funding.transactionHash,
+    };
 
     const bundlerClient = createBundlerClient({
       account: smartAccount,
@@ -93,6 +118,8 @@ async function main() {
     smartAccountAddress: smartAccount.address,
     beforeDeployed,
     smartAccountDeployed,
+    smartAccountFundingTargetWei: smartAccountFundingTargetWei.toString(),
+    fundingReceipt,
     deployReceipt,
     redemptionReady: smartAccountDeployed,
     dryRun: DRY_RUN,

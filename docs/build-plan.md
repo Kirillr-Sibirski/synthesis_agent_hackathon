@@ -62,8 +62,9 @@
 
 ## Demo path
 - run local Foundry tests
-- deploy treasury + authorizer + receipt registry to Base Sepolia
-- connect to a test asset / mocked yield-bearing asset setup
+- deploy treasury + authorizer + receipt registry to Base Sepolia for the public prototype path
+- connect to a test asset / mocked yield-bearing asset setup for the Base Sepolia proof
+- use the dedicated `WstETHYieldTreasury` path on the final same-network target when the sponsor demo is ready
 - deposit principal
 - simulate or accrue yield
 - configure budget

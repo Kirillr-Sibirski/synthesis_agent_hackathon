@@ -15,6 +15,7 @@ contract SetupLiveWstETHDemoScript is Script {
         address assetAddr = vm.envAddress("WSTETH_ADDRESS");
         address manager = vm.envAddress("MANAGER_ADDRESS");
         address executor = vm.envAddress("EXECUTOR_ADDRESS");
+        address treasuryExecutor = vm.envOr("TREASURY_EXECUTOR_ADDRESS", executor);
         address recipient = vm.envAddress("RECIPIENT_ADDRESS");
 
         uint256 principalDepositWstETH = vm.envOr("PRINCIPAL_DEPOSIT_WSTETH", uint256(100 ether));
@@ -24,7 +25,7 @@ contract SetupLiveWstETHDemoScript is Script {
 
         bytes32 opsBudget = keccak256("OPS_BUDGET");
         bytes4 selector = WstETHYieldTreasury.spendFromBudget.selector;
-        bytes32 ruleId = keccak256(abi.encode(executor, opsBudget, recipient, selector));
+        bytes32 ruleId = keccak256(abi.encode(treasuryExecutor, opsBudget, recipient, selector));
 
         vm.startBroadcast(deployerKey);
 
@@ -51,7 +52,7 @@ contract SetupLiveWstETHDemoScript is Script {
 
         DelegationAuthorizer.Rule memory rule = DelegationAuthorizer.Rule({
             active: true,
-            executor: executor,
+            executor: treasuryExecutor,
             budgetId: opsBudget,
             recipient: recipient,
             selector: selector,

@@ -94,7 +94,9 @@ npm run metamask:preflight
 - `METAMASK_CHAIN` — `base` or `base-sepolia` (default: `base-sepolia`)
 - `RPC_URL` — RPC for the selected chain (preferred)
 - `BUNDLER_URL` — ERC-4337 bundler endpoint for the selected chain
+- `SMART_ACCOUNT_FUNDING_WEI` — optional wei amount to pre-fund the derived smart account before the first unsponsored deployment attempt
 - `TREASURY_ADDRESS`
+- `TREASURY_EXECUTOR_ADDRESS` — for the MetaMask path this should equal the derived smart-account address, not the redeemer EOA
 - `DEMO_EXECUTOR`
 - `DEMO_RECIPIENT`
 - `PRIVATE_KEY`
@@ -115,16 +117,40 @@ Without a bundler endpoint we can still:
 
 But we **cannot** yet broadcast the smart-account deployment / user operation that is needed for the strongest MetaMask track proof on the selected same-network target.
 
+## Important treasury-authorizer alignment
+
+The MetaMask redeemer and the treasury executor are not the same address.
+
+- `DEMO_EXECUTOR` is the redeemer EOA that submits the redemption transaction.
+- the treasury itself sees the MetaMask smart account / DeleGator as `msg.sender`.
+
+That means the treasury authorization rule for the MetaMask path must allow the derived smart-account address as executor. The repo now supports this explicitly via:
+
+- `TREASURY_EXECUTOR_ADDRESS=<derived-smart-account-address>`
+
+If you leave `TREASURY_EXECUTOR_ADDRESS` unset, the setup scripts fall back to the direct executor env and the sponsor-native MetaMask path will not be aligned correctly.
+
+## Important smart-account funding note
+
+The current live MetaMask helpers do not use a paymaster. For the first smart-account deployment, the counterfactual smart-account address therefore needs ETH available for an unsponsored user operation.
+
+You can handle that in either of two ways:
+
+- pre-fund the derived smart-account address manually
+- set `SMART_ACCOUNT_FUNDING_WEI` so the helper tops up the counterfactual smart-account address from the owner EOA before attempting deployment
+
 ## Remaining execution steps for full MetaMask qualification
 
 1. provide a working bundler endpoint for the selected final chain (and verify the endpoint itself reports that same chain ID)
-2. deploy/use the MetaMask smart account onchain
-3. create and sign a constrained delegation
-4. redeem that delegation through the live `DelegationManager` using either:
+2. align the treasury authorizer with `TREASURY_EXECUTOR_ADDRESS=<derived-smart-account-address>`
+3. pre-fund the smart account (or set `SMART_ACCOUNT_FUNDING_WEI`) for the first unsponsored deployment if no paymaster is used
+4. deploy/use the MetaMask smart account onchain
+5. create and sign a constrained delegation
+6. redeem that delegation through the live `DelegationManager` using either:
    - `npm run metamask:redeem-signed-delegation -- path/to/signed-delegation.json`
    - `npm run metamask:run-live-flow`
-5. execute a treasury spend through that path
-6. record tx hashes and update deployment/submission docs
+7. execute a treasury spend through that path
+8. record tx hashes and update deployment/submission docs
 
 ## Why this matters
 

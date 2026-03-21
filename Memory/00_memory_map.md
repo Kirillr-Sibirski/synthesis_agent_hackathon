@@ -10,7 +10,6 @@ This top-level `Memory/` directory is now reserved for:
 - planning
 - architecture notes
 - task breakdowns
-- decision logs
 
 ## Reference archive
 

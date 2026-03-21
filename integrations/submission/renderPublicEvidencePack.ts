@@ -167,7 +167,7 @@ Latest generated readiness artifacts:
 - generated cutover checklist: \`${rel(CUTOVER_CHECKLIST_PATH)}\`
 
 Current validation summary:
-- forge tests: \`31/31 passing\`
+- last recorded forge test snapshot: \`31/31 passing\`
 - frontend syntax: \`node --check frontend/app.js passing\`
 - overall ready for same-network demo/submission: \`${yesNo(readiness?.summary?.overallReadyForSameNetworkDemoSubmission)}\`
 - current honest tracks: ${honestTracks.length ? honestTracks.map((track: string) => `\`${trackLabel(track)}\``).join(', ') : '\`none\`'}

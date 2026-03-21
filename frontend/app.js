@@ -264,6 +264,11 @@ for (const id of [
   'receiptRegistryAddress',
   'authorizerAddress',
   'walletStatus',
+  'heroChainStatus',
+  'heroWalletStatus',
+  'heroConfigStatus',
+  'heroConfigDetail',
+  'heroProofStatus',
   'expectedChainStatus',
   'sameNetworkStatus',
   'treasurySummary',
@@ -297,6 +302,7 @@ let state = {
   account: null,
   walletClient: null,
   loadedArtifact: null,
+  configLoaded: false,
 };
 
 function selectedChain() {
@@ -338,6 +344,16 @@ function log(message, detail) {
   els.activityLog.textContent = `${line}${tail}\n\n${els.activityLog.textContent}`.trim();
 }
 
+function shortAddress(value) {
+  if (!value) return 'Not connected';
+  try {
+    const address = getAddress(value);
+    return `${address.slice(0, 6)}…${address.slice(-4)}`;
+  } catch {
+    return value;
+  }
+}
+
 function chainPreset(chainKey) {
   return dashboardConfig.chains[chainKey] ?? BUILTIN_CONFIG.chains[chainKey];
 }
@@ -351,6 +367,38 @@ function applyActorDefaults() {
   els.receiptHash.value = actors.receiptHash ?? '';
 }
 
+function updateHeroSummary() {
+  const chain = selectedChain();
+  const artifact = state.loadedArtifact ? summarizeArtifact(state.loadedArtifact) : null;
+  const networkMode = chain.id === base.id
+    ? 'Same-network target selected'
+    : 'Prototype / not final same-network thesis';
+  const proofLabel = artifact
+    ? artifact.sameNetworkReady === true
+      ? 'Ready for same-network'
+      : artifact.artifactKind
+    : 'Prototype only';
+  const proofDetail = artifact
+    ? artifact.remainingBlockers.length
+      ? `${artifact.remainingBlockers.length} blocker(s) still open`
+      : 'Loaded artifact reports no blockers'
+    : 'Load a signed delegation or readiness JSON';
+
+  els.heroChainStatus.textContent = chain.name;
+  els.heroWalletStatus.textContent = state.account ? 'Wallet connected' : 'Wallet disconnected';
+  els.heroConfigStatus.textContent = state.configLoaded ? 'Loaded config' : 'Built-in defaults';
+  els.heroConfigDetail.textContent = state.configLoaded
+    ? 'frontend/config.json merged into the dashboard.'
+    : 'Using fallback prototype values from the repo.';
+  els.heroProofStatus.textContent = proofLabel;
+  els.walletStatus.textContent = state.account
+    ? `Connected as ${shortAddress(state.account)}.`
+    : 'Connect MetaMask to sign live actions.';
+  els.sameNetworkStatus.textContent = artifact
+    ? `${networkMode}. ${proofDetail}`
+    : `${networkMode}. Base mainnet still needs the final same-network proof.`;
+}
+
 async function loadDashboardConfig() {
   try {
     const response = await fetch('./config.json', { cache: 'no-store' });
@@ -358,6 +406,7 @@ async function loadDashboardConfig() {
       if (response.status !== 404) {
         throw new Error(`config.json returned HTTP ${response.status}`);
       }
+      state.configLoaded = false;
       return false;
     }
 
@@ -378,9 +427,11 @@ async function loadDashboardConfig() {
         ...(loaded.actors ?? {}),
       },
     };
+    state.configLoaded = true;
     log('Loaded frontend config from config.json.');
     return true;
   } catch (error) {
+    state.configLoaded = false;
     log('Failed to load frontend config; using built-in defaults.', error?.message ?? String(error));
     return false;
   }
@@ -553,6 +604,7 @@ function buildQualificationSummary() {
   };
 
   setPanel(els.qualificationSummary, summary);
+  updateHeroSummary();
   log('Built qualification summary.', summary);
 }
 
@@ -624,6 +676,8 @@ function updateExpectedChainStatus() {
     els.sameNetworkStatus.classList.remove('ok', 'warn');
     els.sameNetworkStatus.classList.add(els.chainSelect.value === 'base' ? 'ok' : 'warn');
   }
+
+  updateHeroSummary();
 }
 
 function prefillDefaults() {
@@ -648,6 +702,7 @@ async function connectWallet() {
   state.account = getAddress(account);
   els.walletStatus.textContent = state.account;
   log('Wallet connected.', { account: state.account, chain: selectedChain().name });
+  updateHeroSummary();
 }
 
 async function switchChain() {
@@ -960,6 +1015,7 @@ async function loadArtifactObject(rawArtifact) {
   applyArtifactToForm(rawArtifact);
   setPanel(els.artifactInspection, summary);
   buildQualificationSummary();
+  updateHeroSummary();
   log('Loaded MetaMask artifact into dashboard.', summary);
 }
 
@@ -1089,6 +1145,7 @@ async function initDashboard() {
   prefillDefaults();
   applyActorDefaults();
   updateExpectedChainStatus();
+  updateHeroSummary();
   buildQualificationSummary();
   log('Dashboard ready. Serve frontend/ over HTTP for browser wallet access.');
 }

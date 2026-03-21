@@ -56,6 +56,7 @@ async function main() {
       : 'Preparation complete; live MetaMask smart-account deployment/redemption still blocked on missing BUNDLER_URL.',
     treasurySpendIntent: {
       treasury: treasuryAddress,
+      treasuryExecutor: smartAccount.address,
       executor: demoExecutor,
       recipient: demoRecipient,
       budgetId,
@@ -69,11 +70,12 @@ async function main() {
     },
     delegationShape: {
       delegator: smartAccount.address,
+      treasuryExecutor: smartAccount.address,
       delegate: demoExecutor,
       target: treasuryAddress,
       selector: spendSelector,
       description:
-        'Delegate may redeem a MetaMask delegation that executes exactly one treasury spendFromBudget(...) call for the prepared OPS_BUDGET spend intent.',
+        'Delegate may redeem a MetaMask delegation that executes exactly one treasury spendFromBudget(...) call for the prepared OPS_BUDGET spend intent. The treasury authorizer must allow the smart-account address as executor because the treasury sees the DeleGator as msg.sender.',
       recommendedCaveats: [
         'Exact target = treasury address',
         'Exact calldata = prepared spendCallData or strictly-scoped equivalent',
@@ -90,6 +92,7 @@ async function main() {
     },
     nextLiveSteps: [
       'Fund/deploy the MetaMask smart account via bundler-backed user operation.',
+      'Configure the treasury authorizer so TREASURY_EXECUTOR_ADDRESS equals the derived smart-account address.',
       'Sign the constrained delegation from the MetaMask smart account owner.',
       'Redeem the delegation through DelegationManager.',
       'Execute the treasury spend and record tx hashes in deployments/ and submission/.',

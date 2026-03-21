@@ -40,8 +40,7 @@ A principal-protected yield treasury where:
 
 ## Current status
 
-- Foundry installed and working in this environment
-- local Foundry test suite passing (`31/31`)
+- Last recorded Foundry test snapshot: `31/31` passing
 - upgraded Base Sepolia deployment completed (`deployments/base-sepolia-v2.md`)
 - live Base Sepolia spend + receipt recorded on latest repo-head-aligned deployment
 - budget-tree allocation semantics implemented
@@ -83,7 +82,7 @@ And it is materially closer for:
 - **Let the Agent Cook** — needs final manifest/log framing polish plus the required frontend demo surface
 - **stETH Agent Treasury** — needs a live deployment using real `wstETH` on the same final network as the rest of the sponsor story
 
-Latest verification snapshot (2026-03-20):
+Last recorded verification snapshot (2026-03-20):
 - `forge test` → **31/31 passing**
 - `node --check frontend/app.js` → **passing**
 - `npm run metamask:preflight` → Base Sepolia selected, treasury deployed, smart account undeployed, bundler not configured/reachable, `readyForFinalSameNetworkRun=false`
@@ -97,5 +96,4 @@ See `submission/public-evidence-pack.md` for the public-safe judge index.
 - Sensitive submission / personal info is kept in local-only notes and excluded from git.
 - Secrets are env-based only; do not commit private keys.
 - The repo vendors `forge-std` so the test/deploy environment is reproducible.
-t private keys.
-- The repo vendors `forge-std` so the test/deploy environment is reproducible.
+- If you are bootstrapping a fresh clone, initialize submodules and install Node dependencies before running the Foundry or MetaMask helpers.

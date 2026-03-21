@@ -4,7 +4,8 @@
 
 A principal-protected yield treasury for autonomous agents:
 
-- users deposit `wstETH` (represented here as a generic ERC20 yield-bearing asset)
+- the generic treasury path uses a yield-bearing ERC20 for local testing and early prototyping
+- the Lido-specific treasury path uses real `wstETH` exchange-rate semantics
 - principal is tracked via `principalBaseline`
 - only balance above principal is treated as spendable yield
 - yield is allocated into named sub-budgets
@@ -99,12 +100,6 @@ executor requests spend(budgetId, recipient, amount, taskId, receiptHash)
 check budget is active
 check amount <= remaining budget
 check delegation policy authorizes executor + recipient + selector + amount + time
-check treasury balance after spend would still be >= principalBaseline
-transfer asset
-record receipt
-emit spend event
-```
-tor + recipient + selector + amount + time
 check treasury balance after spend would still be >= principalBaseline
 transfer asset
 record receipt
