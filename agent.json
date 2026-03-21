@@ -1,16 +1,26 @@
 {
-  "name": "Delegated Yield Treasury",
-  "workingName": "Delegated Yield Treasury Agent",
-  "displayNameNote": "Using the working title publicly until the human chooses the final submission branding.",
-  "description": "A principal-protected yield treasury for autonomous agents where only yield is spendable, sub-budgets can be delegated hierarchically, and every spend produces a verifiable receipt linked to the exact authorization rule that allowed it.",
+  "name": "Agent Allowance Protocol",
+  "shortName": "AAP",
+  "workingName": "Delegated Yield Treasury",
+  "displayNameNote": "Final public-facing project name selected; historical working title retained only for context.",
+  "description": "A principal-protected wstETH treasury for AI agents where only yield or surplus headroom is spendable, allowances can be split into budgets and sub-budgets, constrained authority is enforced by protocol rules and the MetaMask smart-account delegation path, and every spend produces a verifiable receipt tied to the exact rule that authorized it.",
   "operatorWallet": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+  "developmentModel": {
+    "mode": "agent-led-with-human-guidance",
+    "agentBrainstormedTrackStrategy": true,
+    "agentImplementedLargePortions": true,
+    "heartbeatAutomationLoopUsed": true,
+    "humanInterventionRequiredForFinalSteps": true,
+    "canHonestlyBePresentedAsNoHumanRequired": false,
+    "note": "The repo was substantially agent-assisted and agent-led in research and implementation, but human intervention was required to unblock final steps, polish the repo, and ship the final version."
+  },
   "erc8004": {
     "status": "registered_via_synthesis",
     "agentId": null,
     "ownerAddress": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
     "registry": "Base Mainnet via Synthesis registration flow",
     "registrationTx": "0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b",
-    "note": "Registration completed through Synthesis; API credentials and private registration state remain local-only."
+    "note": "Registration completed through Synthesis; private API credentials and local registration state remain excluded from git."
   },
   "repoURL": "https://github.com/Kirillr-Sibirski/synthesis_agent_hackathon",
   "publicDiscovery": {
@@ -24,59 +34,62 @@
       "Agents With Receipts — ERC-8004",
       "Best Use of Delegations",
       "stETH Agent Treasury",
-      "Let the Agent Cook",
       "Synthesis Open Track"
     ],
-    "credibleButIncomplete": [],
-    "note": "Track claims are intentionally conservative and follow the latest generated readiness artifacts."
+    "secondaryCareful": [
+      "Let the Agent Cook"
+    ],
+    "note": "Let the Agent Cook is intentionally kept secondary because the repo is honestly documented as agent-led collaboration with human intervention in final shipping, not as a strict no-human-required build."
   },
   "deployedChains": [
-    {
-      "name": "Base Sepolia",
-      "chainId": 84532,
-      "deploymentNote": "Memory/Deployments/base-sepolia-v2.md"
-    },
     {
       "name": "Base Mainnet",
       "chainId": 8453,
       "deploymentNote": "Memory/Deployments/base-mainnet-metamask-live.md"
+    },
+    {
+      "name": "Base Sepolia",
+      "chainId": 84532,
+      "deploymentNote": "Memory/Deployments/base-sepolia-metamask-live.md"
     }
   ],
   "publicEvidence": {
     "judgeIndex": "Memory/Submission/public-evidence-pack.md",
     "latestDeployment": "Memory/Deployments/base-mainnet-metamask-live.md",
-    "roleSeparatedFlow": "Memory/Deployments/base-mainnet-metamask-live.md",
+    "dashboard": "apps/web/README.md",
     "sameNetworkReadiness": "artifacts/final/same-network-readiness.json",
     "cutoverChecklist": "artifacts/final/cutover-checklist.md"
   },
   "supportedTools": [
-    "foundry",
-    "forge test",
-    "forge script",
-    "base-mainnet-rpc",
-    "git",
-    "openclaw-workspace-memory"
+    "Foundry",
+    "Bun",
+    "OpenClaw",
+    "MetaMask Delegation Framework tooling",
+    "GitHub"
   ],
   "techStack": [
     "Solidity 0.8.26",
     "Foundry",
-    "forge-std",
+    "Next.js",
     "Base Mainnet",
-    "Next.js"
+    "wstETH treasury modeling",
+    "MetaMask smart accounts / delegation tooling",
+    "OpenClaw"
   ],
   "taskCategories": [
-    "yield-treasury-management",
+    "principal-protected-agent-treasury",
+    "yield-only-spending",
     "delegated-budget-management",
     "receipt-first-agent-payments",
     "onchain-authorization-provenance"
   ],
   "capabilities": [
     "protect principal baseline",
-    "compute yield-only spendable balance",
+    "compute yield-only or surplus-only spendable balance",
     "configure root budgets",
     "configure child budgets under managers",
-    "enforce wildcard and exact-match delegation rules",
-    "record receipts with evidence/result hashes",
+    "enforce constrained delegation-style authorization rules",
+    "record receipts with evidence and result hashes",
     "record matched authorization rule IDs"
   ],
   "safety": {
@@ -90,22 +103,23 @@
   "computeConstraints": {
     "primaryEnvironment": "VPS-hosted OpenClaw session",
     "contractBuildTool": "Foundry",
-    "notes": "Current prototype is contract-first. However, the current hackathon operating checklist requires a usable dashboard for the final judge demo, so frontend completion is still part of the honest remaining work if that surface is not yet present."
+    "notes": "The repo includes both the protocol and a judge-facing dashboard. The strongest current public proof is the live Base mainnet treasury plus MetaMask redemption path."
   },
   "currentQualificationStatus": {
-    "validatedAt": "2026-03-21T18:51:34Z",
+    "validatedAt": "2026-03-21T21:00:00Z",
     "strongNow": [
       "Agents With Receipts — ERC-8004",
       "Best Use of Delegations",
       "stETH Agent Treasury",
-      "Let the Agent Cook",
       "Synthesis Open Track"
     ],
-    "credibleButIncomplete": [],
+    "secondaryCareful": [
+      "Let the Agent Cook"
+    ],
     "sameNetworkFinalTarget": "Base Mainnet",
     "latestValidation": {
-      "forgeTests": "focused Base treasury tests passing in local offline run",
-      "frontendSyntax": "bun run web:build passing",
+      "forgeTests": "31/31 passing",
+      "webBuild": "bun run web:build passing",
       "metaMaskPreflight": {
         "selectedChain": "Base",
         "selectedChainId": 8453,
@@ -116,18 +130,20 @@
       },
       "sameNetworkValidator": {
         "overallReadyForSameNetworkDemoSubmission": true,
-        "frontendFinalDemoConfigReady": true
+        "frontendFinalDemoConfigReady": true,
+        "cutoverEnvReady": true
       }
     },
     "largestBlockers": [
-      "Refresh remaining repo docs so they all point at the live Base mainnet proof set.",
-      "Polish the judge-facing frontend presentation and remove stale archived/demo clutter.",
-      "Fill in final branding/media/submission metadata before publish."
+      "Final video URL",
+      "Cover image / screenshots / logo",
+      "Moltbook URL if required",
+      "Final submission metadata polish in the UI"
     ]
   },
   "publicArtifactMirror": {
     "source": "submission/agent.json",
-    "refreshedAt": "2026-03-21T18:53:49.464Z",
+    "refreshedAt": "2026-03-21T21:24:06.632Z",
     "note": "This root-facing artifact mirrors the canonical public-safe submission file for judge discovery."
   }
 }
