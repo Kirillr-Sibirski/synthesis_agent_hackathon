@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-21T19:17:41.823Z
+Generated at: 2026-03-21T21:24:29.132Z
 
 ## 1. Public repo
 
@@ -39,22 +39,22 @@ Public MetaMask workspace docs:
 - `Memory/ProjectDocs/metamask-integration-plan.md`
 
 Latest generated preflight artifact:
-- path: `artifacts/metamask/preflight-8453.json`
-- selected chain: `Base` (`8453`)
+- path: `artifacts/metamask/preflight-84532.json`
+- selected chain: `Base Sepolia` (`84532`)
 - final target chain: `Base` (`8453`)
-- final target chain currently selected: `yes`
-- configured `WSTETH_ADDRESS` in current MetaMask env: `0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452`
-- configured address matches Base mainnet `wstETH`: `yes`
+- final target chain currently selected: `no`
+- configured `WSTETH_ADDRESS` in current MetaMask env: `0x623f9f72342a3c2518c880d8372de90eaef200cd`
+- configured address matches Base mainnet `wstETH`: `no`
 - smart account: `0x08478FfC43E134ae9390720D41409B06f38fEB7d`
 - treasury deployed: `yes`
 - smart account deployed: `yes`
-- bundler reachable: `yes`
-- bundler chain matches selected network: `yes`
-- bundler ready for selected-network user operations: `yes`
-- ready for final same-network run: `yes`
+- bundler reachable: `no`
+- bundler chain matches selected network: `no`
+- bundler ready for selected-network user operations: `no`
+- ready for final same-network run: `no`
 
 Honest blocker:
-- none; live Base mainnet MetaMask smart-account proof is already recorded in `Memory/Deployments/base-mainnet-metamask-live.md`
+- live Base Sepolia delegation-backed execution is now proven; the remaining MetaMask upgrade is reproducing that proof on the final same-network Base mainnet target
 
 ## 5. Lido / `wstETH` same-network evidence
 
@@ -65,16 +65,16 @@ Public docs:
 
 Latest cutover-env validation artifact:
 - path: `artifacts/final/cutover-env-validation.json`
-- Base mainnet env ready: `yes`
-- real Base mainnet `wstETH` configured: `yes`
+- Base mainnet env ready: `no`
+- real Base mainnet `wstETH` configured: `no`
 - treasury configured: `yes`
 - authorizer configured: `yes`
-- receipt registry configured: `yes`
-- backend roles fully separated: `yes`
-- frontend roles fully separated in env: `yes`
+- receipt registry configured: `no`
+- backend roles fully separated: `no`
+- frontend roles fully separated in env: `no`
 
 Honest blocker:
-- none; the live Base mainnet `wstETH` treasury env is configured and validated
+- a real Base mainnet `wstETH` treasury deployment/env cutover still needs final live addresses, final role wiring, and proof collection
 
 ## 6. Frontend / Let-the-Agent-Cook evidence
 
@@ -84,15 +84,15 @@ Public frontend docs:
 
 Latest frontend validation artifact:
 - path: `artifacts/frontend/validation.json`
-- frontend same-network demo config ready: `yes`
-- Base treasury present: `yes`
-- Base receipt registry present: `yes`
-- Base authorizer present: `yes`
-- receipt hash present: `yes`
-- distinct frontend actor addresses: `3`
+- frontend same-network demo config ready: `no`
+- Base treasury present: `no`
+- Base receipt registry present: `no`
+- Base authorizer present: `no`
+- receipt hash present: `no`
+- distinct frontend actor addresses: `1`
 
 Honest blocker:
-- none; the dashboard config validates against the live Base mainnet proof set
+- the dashboard is real and judge-usable, but the final Base mainnet cutover config is still incomplete and still overlaps roles in the current local validation state
 
 ## 7. Latest validation snapshot
 
@@ -104,32 +104,64 @@ Latest generated readiness artifacts:
 Current validation summary:
 - last recorded forge test snapshot: `31/31 passing`
 - web app verification: `bun run web:build passing`
-- overall ready for same-network demo/submission: `yes`
-- current honest tracks: `Agents With Receipts — ERC-8004`, `Best Use of Delegations`, `stETH Agent Treasury`, `Let the Agent Cook`, `Synthesis Open Track`
+- overall ready for same-network demo/submission: `no`
+- current honest tracks: `Agents With Receipts — ERC-8004`, `Synthesis Open Track`
 
 Current same-network validator blockers:
-- none
+- Selected chain is not Base mainnet yet; final same-network thesis is still unmet.
+- Configured WSTETH_ADDRESS does not match the Base mainnet canonical wstETH address (0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452).
+- Bundler is not reachable/usable yet.
+- TREASURY_EXECUTOR_ADDRESS is not set; for the MetaMask path the treasury authorizer must allow the smart-account address as executor.
+- Frontend missing: base.treasuryPresent
+- Frontend missing: base.receiptRegistryPresent
+- Frontend missing: base.authorizerPresent
+- Frontend missing: actors.spendRecipientPresent
+- Frontend missing: actors.receiptHashPresent
+- Role overlap still present in frontend config: [{"address":"0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948","roles":["budgetManager","demoExecutor","demoRecipient"]}]
+- Loaded MetaMask preflight artifact is not yet ready for the final same-network run.
+- Frontend demoExecutor does not match the loaded MetaMask preflight treasury executor / smart-account caller.
+- Cutover env missing: metaMaskChainIsBase
+- Cutover env missing: frontendChainIsBase
+- Cutover env missing: rpcConfigured
+- Cutover env missing: bundlerConfigured
+- Cutover env missing: executorKeyConfigured
+- Cutover env missing: wstETHIsBaseMainnet
+- Cutover env missing: receiptRegistryConfigured
+- Cutover env missing: managerConfigured
+- Cutover env missing: executorConfigured
+- Cutover env missing: recipientConfigured
+- Cutover env missing: frontendTreasuryConfigured
+- Cutover env missing: frontendAuthorizerConfigured
+- Cutover env missing: frontendReceiptRegistryConfigured
+- Cutover env missing: frontendAssetConfigured
+- Cutover env missing: frontendAssetIsBaseMainnet
+- Cutover env missing: frontendBudgetManagerConfigured
+- Cutover env missing: frontendSpendRecipientConfigured
+- Cutover env missing: frontendDemoExecutorConfigured
+- Cutover env missing: frontendDemoRecipientConfigured
+- Cutover env missing: frontendReceiptHashConfigured
 
 ## 8. Best honest track posture right now
 
 ### Strong now
 - **Agents With Receipts — ERC-8004**
-- **Best Use of Delegations**
-- **stETH Agent Treasury**
-- **Let the Agent Cook**
 - **Synthesis Open Track**
 
 ### Credible but still incomplete
-- none
+- **Best Use of Delegations** — MetaMask smart-account deployment/redemption proof is still missing on the final same-network target.
+- **stETH Agent Treasury** — Real Base mainnet wstETH deployment/env path is not fully wired yet.
+- **Let the Agent Cook** — Judge-ready frontend demo surface and/or public agent packaging still need final completion.
 
 ## 9. Fastest remaining path to honest 3+ track qualification
 
-- no next actions emitted by the validator
+- Finish the Base mainnet cutover env: chain selection, bundler, mainnet addresses, and distinct role wiring.
+- Finish the MetaMask Base mainnet path: mainnet chain selection, bundler, smart-account deployment, delegation redemption, and spend proof.
+- Finish the frontend Base mainnet demo config: treasury/authorizer/receipt registry/receipt hash plus distinct demo actors.
 
 ## 10. Final same-network handoff
 
 Current handoff status:
-- live run already recorded in `Memory/Deployments/base-mainnet-metamask-live.md`
+- `Memory/Deployments/base-mainnet-cutover-template.md`
 
 The latest generated handoff/checklists are here:
 - `artifacts/final/cutover-env-checklist.md`
