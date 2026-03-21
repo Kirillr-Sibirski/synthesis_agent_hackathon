@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-21T11:23:47.067Z
+Generated at: 2026-03-21T13:23:50.508Z
 
 ## 1. Public repo
 
@@ -49,6 +49,8 @@ Latest generated preflight artifact:
 - treasury deployed: `yes`
 - smart account deployed: `no`
 - bundler reachable: `no`
+- bundler chain matches selected network: `no`
+- bundler ready for selected-network user operations: `no`
 - ready for final same-network run: `no`
 
 Honest blocker:

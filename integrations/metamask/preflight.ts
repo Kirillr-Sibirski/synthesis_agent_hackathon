@@ -18,7 +18,7 @@ const PREFLIGHT_OUT = process.env.PREFLIGHT_OUT;
 const BASE_MAINNET_CHAIN_ID = 8453;
 const BASE_MAINNET_WSTETH = '0x7f39c581f595b53c5cb5bbd8f2c9a0e1b8d9d2b2';
 
-async function probeBundler(url: string) {
+async function probeBundler(url: string, expectedChainId: number) {
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -39,20 +39,30 @@ async function probeBundler(url: string) {
     } catch {
       return {
         reachable: false,
+        chainMatchesSelectedNetwork: false,
         httpStatus: response.status,
         note: 'Bundler endpoint responded with non-JSON output.',
       };
     }
 
+    const chainIdHex = typeof parsed?.result === 'string' ? parsed.result : null;
+    const chainId = chainIdHex ? Number.parseInt(chainIdHex, 16) : null;
+    const chainMatchesSelectedNetwork = chainId === expectedChainId;
+
     return {
       reachable: response.ok && typeof parsed?.result === 'string',
+      chainMatchesSelectedNetwork,
       httpStatus: response.status,
-      chainIdHex: parsed?.result,
+      chainIdHex,
+      chainId,
+      expectedChainId,
       note: parsed?.error ? JSON.stringify(parsed.error) : undefined,
     };
   } catch (error) {
     return {
       reachable: false,
+      chainMatchesSelectedNetwork: false,
+      expectedChainId,
       note: error instanceof Error ? error.message : String(error),
     };
   }
@@ -99,7 +109,15 @@ async function main() {
         })
       : null;
 
-  const bundler = BUNDLER_URL ? await probeBundler(BUNDLER_URL) : { reachable: false, note: 'BUNDLER_URL not configured.' };
+  const bundler = BUNDLER_URL
+    ? await probeBundler(BUNDLER_URL, chain.id)
+    : {
+        reachable: false,
+        chainMatchesSelectedNetwork: false,
+        expectedChainId: chain.id,
+        note: 'BUNDLER_URL not configured.',
+      };
+  const bundlerReady = bundler.reachable && bundler.chainMatchesSelectedNetwork === true;
   const selectedFinalChain = chain.id === BASE_MAINNET_CHAIN_ID;
   const configuredWstETHMatchesBaseMainnet = WSTETH_ADDRESS
     ? getAddress(WSTETH_ADDRESS) === getAddress(BASE_MAINNET_WSTETH)
@@ -109,7 +127,7 @@ async function main() {
   const readyForLiveRedemption =
     missingRequired.length === 0 &&
     treasuryDeployed &&
-    bundler.reachable;
+    bundlerReady;
   const readyForFinalSameNetworkRun =
     selectedFinalChain &&
     readyForLiveRedemption &&
@@ -149,7 +167,10 @@ async function main() {
       treasuryAddress,
       treasuryDeployed,
     },
-    bundler,
+    bundler: {
+      ...bundler,
+      readyForSelectedNetworkUserOps: bundlerReady,
+    },
     spendIntent: spendCallData
       ? {
           selector: spendCallData.slice(0, 10),
@@ -174,6 +195,9 @@ async function main() {
           : []),
         ...(!treasuryDeployed ? [`TREASURY_ADDRESS has no code on ${chain.name}.`] : []),
         ...(!bundler.reachable ? ['Bundler is not reachable/usable yet.'] : []),
+        ...(bundler.reachable && bundler.chainMatchesSelectedNetwork !== true
+          ? [`Bundler chain does not match the selected MetaMask chain (expected ${chain.id}, got ${bundler.chainId ?? 'unknown'}).`]
+          : []),
         ...(smartAccountDeployed ? [] : ['MetaMask smart account still needs onchain deployment via user operation.']),
         ...(chain.id === BASE_MAINNET_CHAIN_ID && usingExpectedMainnetWstETH === false
           ? [`Configured WSTETH_ADDRESS does not match Base mainnet wstETH (${BASE_MAINNET_WSTETH}).`]

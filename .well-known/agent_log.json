@@ -131,7 +131,7 @@
   ],
   "publicArtifactMirror": {
     "source": "submission/agent_log.json",
-    "refreshedAt": "2026-03-21T11:23:38.524Z",
+    "refreshedAt": "2026-03-21T13:23:41.959Z",
     "note": "This root-facing artifact mirrors the canonical public-safe submission file for judge discovery."
   }
 }

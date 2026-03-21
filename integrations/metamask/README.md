@@ -67,7 +67,7 @@ npm run metamask:preflight
   - checks env completeness
   - checks treasury code presence
   - checks whether the derived MetaMask smart account is already deployed
-  - checks bundler reachability
+  - checks bundler reachability and whether the bundler is actually on the selected chain
   - shows the exact encoded `spendFromBudget(...)` selector/intent shape
   - explicitly reports whether the setup is ready for the final **same-network Base mainnet** story
   - can also save the report locally via `PREFLIGHT_OUT=... npm run metamask:preflight`
@@ -117,7 +117,7 @@ But we **cannot** yet broadcast the smart-account deployment / user operation th
 
 ## Remaining execution steps for full MetaMask qualification
 
-1. provide a working bundler endpoint for the selected final chain
+1. provide a working bundler endpoint for the selected final chain (and verify the endpoint itself reports that same chain ID)
 2. deploy/use the MetaMask smart account onchain
 3. create and sign a constrained delegation
 4. redeem that delegation through the live `DelegationManager` using either:

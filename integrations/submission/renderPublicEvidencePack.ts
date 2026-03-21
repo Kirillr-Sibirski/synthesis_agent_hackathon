@@ -113,6 +113,8 @@ Latest generated preflight artifact:
 - treasury deployed: \`${yesNo(preflight?.onchain?.treasuryDeployed)}\`
 - smart account deployed: \`${yesNo(preflight?.onchain?.smartAccountDeployed)}\`
 - bundler reachable: \`${yesNo(preflight?.bundler?.reachable)}\`
+- bundler chain matches selected network: \`${yesNo(preflight?.bundler?.chainMatchesSelectedNetwork)}\`
+- bundler ready for selected-network user operations: \`${yesNo(preflight?.bundler?.readyForSelectedNetworkUserOps)}\`
 - ready for final same-network run: \`${yesNo(preflight?.readiness?.readyForFinalSameNetworkRun)}\`
 
 Honest blocker:

@@ -91,6 +91,8 @@ ${bulletList(trackMatrix, '- track qualification data unavailable')}
 - treasury deployed: ${yesNo(preflight?.onchain?.treasuryDeployed)}
 - smart account deployed: ${yesNo(preflight?.onchain?.smartAccountDeployed)}
 - bundler reachable: ${yesNo(preflight?.bundler?.reachable)}
+- bundler chain matches selected network: ${yesNo(preflight?.bundler?.chainMatchesSelectedNetwork)}
+- bundler ready for selected-network user operations: ${yesNo(preflight?.bundler?.readyForSelectedNetworkUserOps)}
 - ready for final same-network run: ${yesNo(preflight?.readiness?.readyForFinalSameNetworkRun)}
 - note: ${preflight?.network?.finalSameNetworkTarget?.chainSelected === true ? 'selected chain is already Base mainnet, so the mainnet compatibility booleans should be read literally' : 'selected chain is not Base mainnet yet, so treat any configured addresses as provisional until the chain is switched and the report is regenerated'}
 
