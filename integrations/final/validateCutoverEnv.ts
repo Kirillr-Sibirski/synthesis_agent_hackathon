@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { getAddress } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 
 const OUT_PATH = process.env.CUTOVER_ENV_VALIDATION_OUT ?? '';
 const BASE_MAINNET_WSTETH = '0x7f39c581f595b53c5cb5bbd8f2c9a0e1b8d9d2b2';
@@ -34,7 +35,28 @@ function distinctAddresses(values: string[]) {
   return [...new Set(normalized)].length;
 }
 
+function deriveAddressFromPrivateKey(value: string) {
+  try {
+    return getAddress(privateKeyToAccount(value as `0x${string}`).address);
+  } catch {
+    return null;
+  }
+}
+
 function main() {
+  const derivedOwnerAddress = has('PRIVATE_KEY') ? deriveAddressFromPrivateKey(env('PRIVATE_KEY')) : null;
+  const derivedExecutorAddress = has('EXECUTOR_PRIVATE_KEY') ? deriveAddressFromPrivateKey(env('EXECUTOR_PRIVATE_KEY')) : null;
+  const ownerDeclared = env('TREASURY_OWNER');
+  const managerDeclared = env('MANAGER_ADDRESS');
+  const executorDeclared = env('EXECUTOR_ADDRESS');
+  const recipientDeclared = env('RECIPIENT_ADDRESS');
+  const demoExecutorDeclared = env('DEMO_EXECUTOR');
+  const demoRecipientDeclared = env('DEMO_RECIPIENT');
+  const frontendBudgetManagerDeclared = env('FRONTEND_BUDGET_MANAGER');
+  const frontendSpendRecipientDeclared = env('FRONTEND_SPEND_RECIPIENT');
+  const frontendDemoExecutorDeclared = env('FRONTEND_DEMO_EXECUTOR');
+  const frontendDemoRecipientDeclared = env('FRONTEND_DEMO_RECIPIENT');
+
   const checks = {
     metaMaskChainIsBase: env('METAMASK_CHAIN').toLowerCase() === 'base',
     frontendChainIsBase: env('FRONTEND_CHAIN').toLowerCase() === 'base',
@@ -62,12 +84,12 @@ function main() {
     frontendReceiptHashConfigured: has('FRONTEND_RECEIPT_HASH'),
   };
 
-  const roleAddresses = [env('TREASURY_OWNER'), env('MANAGER_ADDRESS'), env('EXECUTOR_ADDRESS'), env('RECIPIENT_ADDRESS')].filter(Boolean);
+  const roleAddresses = [ownerDeclared, managerDeclared, executorDeclared, recipientDeclared].filter(Boolean);
   const frontendRoleAddresses = [
-    env('FRONTEND_BUDGET_MANAGER'),
-    env('FRONTEND_SPEND_RECIPIENT'),
-    env('FRONTEND_DEMO_EXECUTOR'),
-    env('FRONTEND_DEMO_RECIPIENT'),
+    frontendBudgetManagerDeclared,
+    frontendSpendRecipientDeclared,
+    frontendDemoExecutorDeclared,
+    frontendDemoRecipientDeclared,
   ].filter(Boolean);
 
   const report = {
@@ -83,6 +105,26 @@ function main() {
       backendFullySeparated: roleAddresses.length >= 4 && distinctAddresses(roleAddresses) === roleAddresses.length,
       frontendDistinctAddresses: distinctAddresses(frontendRoleAddresses),
       frontendFullySeparated: frontendRoleAddresses.length >= 4 && distinctAddresses(frontendRoleAddresses) === frontendRoleAddresses.length,
+    },
+    derivedAddresses: {
+      fromPrivateKey: derivedOwnerAddress,
+      fromExecutorPrivateKey: derivedExecutorAddress,
+    },
+    addressConsistency: {
+      ownerMatchesPrivateKey: derivedOwnerAddress ? sameAddress(ownerDeclared, derivedOwnerAddress) : null,
+      executorMatchesExecutorKey: derivedExecutorAddress ? sameAddress(executorDeclared, derivedExecutorAddress) : null,
+      demoExecutorMatchesExecutorAddress:
+        demoExecutorDeclared && executorDeclared ? sameAddress(demoExecutorDeclared, executorDeclared) : null,
+      demoRecipientMatchesRecipientAddress:
+        demoRecipientDeclared && recipientDeclared ? sameAddress(demoRecipientDeclared, recipientDeclared) : null,
+      frontendBudgetManagerMatchesManagerAddress:
+        frontendBudgetManagerDeclared && managerDeclared ? sameAddress(frontendBudgetManagerDeclared, managerDeclared) : null,
+      frontendSpendRecipientMatchesRecipientAddress:
+        frontendSpendRecipientDeclared && recipientDeclared ? sameAddress(frontendSpendRecipientDeclared, recipientDeclared) : null,
+      frontendDemoExecutorMatchesExecutorAddress:
+        frontendDemoExecutorDeclared && executorDeclared ? sameAddress(frontendDemoExecutorDeclared, executorDeclared) : null,
+      frontendDemoRecipientMatchesRecipientAddress:
+        frontendDemoRecipientDeclared && recipientDeclared ? sameAddress(frontendDemoRecipientDeclared, recipientDeclared) : null,
     },
     readiness: {
       readyForBaseMainnetCutoverEnv:
@@ -103,6 +145,30 @@ function main() {
           : []),
         ...(frontendRoleAddresses.length > 0 && frontendRoleAddresses.length < 4
           ? ['Frontend role env is incomplete; expected budget manager, spend recipient, demo executor, and demo recipient.']
+          : []),
+        ...(derivedOwnerAddress && ownerDeclared && !sameAddress(ownerDeclared, derivedOwnerAddress)
+          ? [`TREASURY_OWNER does not match the loaded PRIVATE_KEY address (${derivedOwnerAddress}).`]
+          : []),
+        ...(derivedExecutorAddress && executorDeclared && !sameAddress(executorDeclared, derivedExecutorAddress)
+          ? [`EXECUTOR_ADDRESS does not match the loaded EXECUTOR_PRIVATE_KEY address (${derivedExecutorAddress}).`]
+          : []),
+        ...(demoExecutorDeclared && executorDeclared && !sameAddress(demoExecutorDeclared, executorDeclared)
+          ? ['DEMO_EXECUTOR does not match EXECUTOR_ADDRESS.']
+          : []),
+        ...(demoRecipientDeclared && recipientDeclared && !sameAddress(demoRecipientDeclared, recipientDeclared)
+          ? ['DEMO_RECIPIENT does not match RECIPIENT_ADDRESS.']
+          : []),
+        ...(frontendBudgetManagerDeclared && managerDeclared && !sameAddress(frontendBudgetManagerDeclared, managerDeclared)
+          ? ['FRONTEND_BUDGET_MANAGER does not match MANAGER_ADDRESS.']
+          : []),
+        ...(frontendSpendRecipientDeclared && recipientDeclared && !sameAddress(frontendSpendRecipientDeclared, recipientDeclared)
+          ? ['FRONTEND_SPEND_RECIPIENT does not match RECIPIENT_ADDRESS.']
+          : []),
+        ...(frontendDemoExecutorDeclared && executorDeclared && !sameAddress(frontendDemoExecutorDeclared, executorDeclared)
+          ? ['FRONTEND_DEMO_EXECUTOR does not match EXECUTOR_ADDRESS.']
+          : []),
+        ...(frontendDemoRecipientDeclared && recipientDeclared && !sameAddress(frontendDemoRecipientDeclared, recipientDeclared)
+          ? ['FRONTEND_DEMO_RECIPIENT does not match RECIPIENT_ADDRESS.']
           : []),
       ],
     },

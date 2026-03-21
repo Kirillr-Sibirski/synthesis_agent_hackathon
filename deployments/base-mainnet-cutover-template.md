@@ -192,6 +192,7 @@ That bundle now also writes `artifacts/final/cutover-checklist.md`, a human-read
 
 Expected env inputs:
 - recommended starting point: copy `env/base-mainnet-cutover.example.env` into local `.env` and fill it for the final run
+- `npm run final:validate-cutover-env` now also reports whether declared owner/executor/demo/frontend addresses are internally consistent with the loaded private keys and role wiring, so use it before any live mainnet attempt
 - preferred for mainnet cutover:
   - `FRONTEND_TREASURY_ADDRESS`
   - `FRONTEND_AUTHORIZER_ADDRESS`
