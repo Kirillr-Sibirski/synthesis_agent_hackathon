@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-21T21:24:29.132Z
+Generated at: 2026-03-21T23:25:19.622Z
 
 ## 1. Public repo
 
@@ -105,7 +105,7 @@ Current validation summary:
 - last recorded forge test snapshot: `31/31 passing`
 - web app verification: `bun run web:build passing`
 - overall ready for same-network demo/submission: `no`
-- current honest tracks: `Agents With Receipts — ERC-8004`, `Synthesis Open Track`
+- current honest tracks: `Agents With Receipts — ERC-8004`, `Best Use of Delegations`, `stETH Agent Treasury`, `Synthesis Open Track`
 
 Current same-network validator blockers:
 - Selected chain is not Base mainnet yet; final same-network thesis is still unmet.
@@ -145,12 +145,12 @@ Current same-network validator blockers:
 
 ### Strong now
 - **Agents With Receipts — ERC-8004**
+- **Best Use of Delegations**
+- **stETH Agent Treasury**
 - **Synthesis Open Track**
 
 ### Credible but still incomplete
-- **Best Use of Delegations** — MetaMask smart-account deployment/redemption proof is still missing on the final same-network target.
-- **stETH Agent Treasury** — Real Base mainnet wstETH deployment/env path is not fully wired yet.
-- **Let the Agent Cook** — Judge-ready frontend demo surface and/or public agent packaging still need final completion.
+- **Let the Agent Cook** — Historical live proof is recorded, but the current local frontend cutover config is still incomplete for a fresh same-network rerun.
 
 ## 9. Fastest remaining path to honest 3+ track qualification
 

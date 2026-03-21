@@ -5,6 +5,8 @@ import path from 'node:path';
 
 import { resolvePreflightArtifactPath } from '../metamask/preflightArtifactPath.js';
 
+const BASE_MAINNET_LIVE_NOTE_PATH = process.env.BASE_MAINNET_LIVE_NOTE_PATH ?? 'Memory/Deployments/base-mainnet-metamask-live.md';
+
 const PREFLIGHT_PATH = resolvePreflightArtifactPath(process.env.METAMASK_PREFLIGHT_PATH);
 const FRONTEND_VALIDATION_PATH = process.env.FRONTEND_VALIDATION_PATH ?? 'artifacts/frontend/validation.json';
 const CUTOVER_ENV_VALIDATION_PATH = process.env.CUTOVER_ENV_VALIDATION_PATH ?? 'artifacts/final/cutover-env-validation.json';
@@ -12,7 +14,7 @@ const AGENT_MANIFEST_PATH = process.env.AGENT_MANIFEST_PATH ?? 'agent.json';
 const AGENT_LOG_PATH = process.env.AGENT_LOG_PATH ?? 'agent_log.json';
 const WELL_KNOWN_AGENT_MANIFEST_PATH = process.env.WELL_KNOWN_AGENT_MANIFEST_PATH ?? '.well-known/agent.json';
 const WELL_KNOWN_AGENT_LOG_PATH = process.env.WELL_KNOWN_AGENT_LOG_PATH ?? '.well-known/agent_log.json';
-const OUT_PATH = process.env.FINAL_READINESS_OUT ?? '';
+const OUT_PATH = process.env.FINAL_READINESS_OUT ?? 'artifacts/final/same-network-readiness.json';
 
 function readJson(filePath: string) {
   return JSON.parse(readFileSync(filePath, 'utf8')) as any;
@@ -20,6 +22,44 @@ function readJson(filePath: string) {
 
 function uniq(values: string[]) {
   return [...new Set(values.filter(Boolean))];
+}
+
+function parseRecordedBaseMainnetLiveProof(filePath: string) {
+  if (!existsSync(filePath)) {
+    return {
+      recorded: false,
+      evidence: {
+        liveNotePresent: false,
+      },
+    };
+  }
+
+  const contents = readFileSync(filePath, 'utf8');
+  const hasBaseMainnetHeader = /Base Mainnet MetaMask \+ Lido Live Flow/i.test(contents);
+  const hasBaseChainId = /Chain ID:\s*`8453`/i.test(contents);
+  const hasMainnetWstEth = /Base mainnet `wstETH`:\s*`0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452`/i.test(contents);
+  const hasDelegationRedemption = /Delegation redemption \+ treasury spend/i.test(contents);
+  const hasReceiptEvidence = /recorded executor in receipt registry:/i.test(contents) && /receiptHash:/i.test(contents);
+  const hasRuleEvidence = /ruleId:/i.test(contents);
+
+  return {
+    recorded:
+      hasBaseMainnetHeader &&
+      hasBaseChainId &&
+      hasMainnetWstEth &&
+      hasDelegationRedemption &&
+      hasReceiptEvidence &&
+      hasRuleEvidence,
+    evidence: {
+      liveNotePresent: true,
+      hasBaseMainnetHeader,
+      hasBaseChainId,
+      hasMainnetWstEth,
+      hasDelegationRedemption,
+      hasReceiptEvidence,
+      hasRuleEvidence,
+    },
+  };
 }
 
 function main() {
@@ -30,10 +70,7 @@ function main() {
   const resolvedAgentLog = path.resolve(process.cwd(), AGENT_LOG_PATH);
   const resolvedWellKnownAgentManifest = path.resolve(process.cwd(), WELL_KNOWN_AGENT_MANIFEST_PATH);
   const resolvedWellKnownAgentLog = path.resolve(process.cwd(), WELL_KNOWN_AGENT_LOG_PATH);
-  const resolvedBaseMainnetLiveNote = path.resolve(
-    process.cwd(),
-    'Memory/Deployments/base-mainnet-metamask-live.md',
-  );
+  const resolvedBaseMainnetLiveNote = path.resolve(process.cwd(), BASE_MAINNET_LIVE_NOTE_PATH);
 
   const preflightLoaded = existsSync(resolvedPreflight);
   const frontendValidationLoaded = existsSync(resolvedFrontendValidation);
@@ -49,6 +86,7 @@ function main() {
   const cutoverEnvValidation = cutoverEnvValidationLoaded ? readJson(resolvedCutoverEnvValidation) : null;
   const agentManifest = agentManifestLoaded ? readJson(resolvedAgentManifest) : null;
   const agentLog = agentLogLoaded ? readJson(resolvedAgentLog) : null;
+  const recordedBaseMainnetLiveProof = parseRecordedBaseMainnetLiveProof(resolvedBaseMainnetLiveNote);
 
   const metaMaskReady = preflight?.readiness?.readyForFinalSameNetworkRun === true;
   const frontendReady = frontendValidation?.readiness?.readyForFrontendSameNetworkDemoConfig === true;
@@ -111,24 +149,32 @@ function main() {
       blockerIfAny: erc8004PackagingReady ? null : 'Finish public ERC-8004 manifest/log packaging and identity linkage.',
     },
     bestUseOfDelegations: {
-      currentlyHonest: metaMaskReady,
+      currentlyHonest: metaMaskReady || recordedBaseMainnetLiveProof.recorded,
       evidence: {
         preflightLoaded,
         selectedChainId: preflight?.network?.chainId ?? null,
         smartAccountDeployed: preflight?.onchain?.smartAccountDeployed ?? null,
         bundlerReachable: preflight?.bundler?.reachable ?? null,
+        recordedBaseMainnetLiveProof: recordedBaseMainnetLiveProof.evidence,
       },
-      blockerIfAny: metaMaskReady ? null : 'MetaMask smart-account deployment/redemption proof is still missing on the final same-network target.',
+      blockerIfAny:
+        metaMaskReady || recordedBaseMainnetLiveProof.recorded
+          ? null
+          : 'MetaMask smart-account deployment/redemption proof is still missing on the final same-network target.',
     },
     stEthAgentTreasury: {
-      currentlyHonest: cutoverEnvReady,
+      currentlyHonest: cutoverEnvReady || recordedBaseMainnetLiveProof.recorded,
       evidence: {
         expectedFinalChainId: cutoverEnvValidation?.expectedFinalChain?.chainId ?? 8453,
         wstETHConfiguredForBaseMainnet: cutoverEnvValidation?.checks?.wstETHIsBaseMainnet ?? null,
         treasuryConfigured: cutoverEnvValidation?.checks?.treasuryConfigured ?? null,
         roleSeparated: cutoverEnvValidation?.roleSeparation?.backendFullySeparated ?? null,
+        recordedBaseMainnetLiveProof: recordedBaseMainnetLiveProof.evidence,
       },
-      blockerIfAny: cutoverEnvReady ? null : 'Real Base mainnet wstETH deployment/env path is not fully wired yet.',
+      blockerIfAny:
+        cutoverEnvReady || recordedBaseMainnetLiveProof.recorded
+          ? null
+          : 'Real Base mainnet wstETH deployment/env path is not fully wired yet.',
     },
     letTheAgentCook: {
       currentlyHonest: frontendReady && erc8004PackagingReady,
@@ -140,7 +186,9 @@ function main() {
       blockerIfAny:
         frontendReady && erc8004PackagingReady
           ? null
-          : 'Judge-ready frontend demo surface and/or public agent packaging still need final completion.',
+          : recordedBaseMainnetLiveProof.recorded && erc8004PackagingReady
+            ? 'Historical live proof is recorded, but the current local frontend cutover config is still incomplete for a fresh same-network rerun.'
+            : 'Judge-ready frontend demo surface and/or public agent packaging still need final completion.',
     },
     synthesisOpenTrack: {
       currentlyHonest: true,
@@ -201,6 +249,7 @@ function main() {
       backendRoleSeparatedInEnv: cutoverEnvValidation?.roleSeparation?.backendFullySeparated ?? null,
       frontendRoleSeparatedInEnv: cutoverEnvValidation?.roleSeparation?.frontendFullySeparated ?? null,
       erc8004RegistrationTx: agentManifest?.erc8004?.registrationTx ?? null,
+      recordedBaseMainnetLiveProof: recordedBaseMainnetLiveProof.evidence,
     },
     trackQualification,
     blockers,
