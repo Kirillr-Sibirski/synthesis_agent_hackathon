@@ -24,7 +24,8 @@
     "final:validate-same-network": "tsx integrations/final/validateSameNetworkReadiness.ts",
     "final:render-cutover-checklist": "tsx integrations/final/renderCutoverChecklist.ts",
     "final:refresh-readiness-bundle": "tsx integrations/final/refreshReadinessBundle.ts",
-    "submission:refresh-public-agent-artifacts": "tsx integrations/submission/refreshPublicAgentArtifacts.ts"
+    "submission:refresh-public-agent-artifacts": "tsx integrations/submission/refreshPublicAgentArtifacts.ts",
+    "submission:render-public-evidence-pack": "tsx integrations/submission/renderPublicEvidencePack.ts"
   },
   "repository": {
     "type": "git",

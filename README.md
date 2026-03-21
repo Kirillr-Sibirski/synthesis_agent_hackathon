@@ -62,6 +62,7 @@ A principal-protected yield treasury where:
 - MetaMask live-redemption readiness can now be checked in one step (`npm run metamask:preflight`) for env completeness, treasury code presence, smart-account deployment status, bundler reachability, exact spend selector details, and final same-network Base mainnet readiness
 - final same-network readiness can now be refreshed as an artifact bundle in one pass (`npm run final:refresh-readiness-bundle`)
 - that same bundle now also emits a human-readable cutover handoff/checklist (`artifacts/final/cutover-checklist.md`) summarizing honest track posture, blockers, and final-proof gaps from the latest readiness artifacts
+- the judge-facing public evidence index can now be regenerated from the same public-safe artifact set (`npm run submission:render-public-evidence-pack`), and the full readiness bundle runs that refresh automatically so repo docs do not drift from validator reality
 - final Base mainnet cutover env validation now explicitly requires four distinct frontend demo actors as well as four distinct backend roles, so the role-separated judge flow cannot be overstated by config defaults
 
 ## Deployment target

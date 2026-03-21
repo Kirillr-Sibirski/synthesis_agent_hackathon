@@ -1,8 +1,10 @@
 # Public Evidence Pack
 
-This file is the public-safe, judge-facing index of what is already proven versus what is still honestly missing.
+This file is generated from the latest public-safe repo artifacts so the judge-facing evidence index stays current without hand-edit drift.
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
+
+Generated at: 2026-03-21T05:24:58.084Z
 
 ## 1. Public repo
 
@@ -16,141 +18,141 @@ The project has already completed Synthesis registration and recorded the result
 - registration tx: `0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b`
 - public manifest draft: `submission/agent.json`
 - public execution log draft: `submission/agent_log.json`
-- judge-discovery mirrors can now be refreshed to repo root and `.well-known/` with `npm run submission:refresh-public-agent-artifacts`
+- judge-discovery mirrors can be refreshed to repo root and `.well-known/` with `npm run submission:refresh-public-agent-artifacts`
 
 Private API credentials and registration state remain local-only in `submission/private-registration.json` and are intentionally excluded from git.
 
 ## 3. Live onchain treasury evidence
 
-Latest repo-head-aligned deployment note:
+Latest repo-head-aligned deployment notes:
 - `deployments/base-sepolia-v2.md`
-
-Key public artifacts from that deployment:
-- YieldTreasury: `0xdA832F7646e0527c16aDda3Bc4b2E265E4892450`
-- DelegationAuthorizer: `0x12c2a7523bC841edB663F01989E972ef480Fa78c`
-- ReceiptRegistry: `0x6Bda3c9B50DE0111395A1b168D72Ed79EC45eeCb`
-- live spend tx: `0x91746c08a18f8946758ce24f903116256eec4e7a976eb826057c989a8a2abb71`
-- receipt hash: `0x1675e089e66f959833b06b6c503058d4fda53f62715d36d92176427095c95b0b`
-- matched authorization rule id: `0xb56d4562b1973e16677a44ced06d00a94e45f8981edbd0e25c00fa49c2e6c8e8`
-
-This is the strongest current proof for:
-- receipt-first spending
-- authorization provenance
-- live execution on Base Sepolia
-- principal-protected treasury behavior in the generic treasury path
-
-## 4. Role-separated live-flow evidence
-
-Judge-facing role-separation note:
 - `deployments/base-sepolia-wsteth-role-separated.md`
+- final same-network template: `deployments/base-mainnet-cutover-template.md`
 
-What is already true:
-- the repo contains separate owner / manager / executor / recipient flow tooling
-- a dedicated `WstETHYieldTreasury` path exists
-- live deployment transactions for the role-separated `wstETH` stack are recorded
-- the deployment note now explicitly documents the intended setup/spend content and the exact remaining curation gap
+Strongest current public proof is still the Base Sepolia live treasury path plus the role-separated `wstETH` deployment scaffolding.
 
-What is still missing:
-- the strongest curated final setup tx set with distinct actor addresses called out explicitly
-- the strongest curated executor-originated spend tx hash for the role-separated story
-- final post-spend state snapshot for the judge-facing role-separated narrative
-
-## 5. MetaMask Delegation Framework evidence
+## 4. MetaMask Delegation Framework evidence
 
 Public MetaMask workspace docs:
 - `integrations/metamask/README.md`
 - `integrations/metamask/STATUS.md`
 - `docs/metamask-integration-plan.md`
 
-Implemented evidence already in the repo:
-- Base Sepolia MetaMask smart-account derivation
-- exact treasury `spendFromBudget(...)` calldata encoding
-- real signed constrained delegation artifact generation
-- bundler-aware smart-account deployment scaffolding
-- live-readiness preflight report generation
-
-Concrete current public values:
-- derived MetaMask smart account: `0x08478FfC43E134ae9390720D41409B06f38fEB7d`
-- DelegationManager: `0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3`
-- intended live treasury target: `0xB38F8a149F95850cB5efF5fCE5621d36b8F8BBd0`
-- latest verified preflight status: env configured = yes, treasury deployed = yes, smart account deployed = no, bundler configured/reachable = no
+Latest generated preflight artifact:
+- path: `artifacts/metamask/preflight-8453.json`
+- selected chain: `Base Sepolia` (`84532`)
+- final target chain: `Base` (`8453`)
+- smart account: `0x08478FfC43E134ae9390720D41409B06f38fEB7d`
+- treasury deployed: `yes`
+- smart account deployed: `no`
+- bundler reachable: `no`
+- ready for final same-network run: `no`
 
 Honest blocker:
-- live delegation-backed execution is still blocked by the missing bundler-backed smart-account deployment and redemption proof
+- live delegation-backed execution still needs bundler-backed smart-account deployment plus redemption proof on the final same-network target
 
-That means the MetaMask story is now materially real, but not yet fully sponsor-complete.
-
-## 6. Lido / `wstETH` evidence
+## 5. Lido / `wstETH` same-network evidence
 
 Public docs:
 - `docs/sponsor-compliance.md`
 - `docs/architecture.md`
 - `docs/role-separated-live-flow.md`
 
-Implemented evidence already in the repo:
-- `WstETHYieldTreasury.sol`
-- rate-based `wstETH` accounting
-- slash / rate-drop safety coverage in tests
-- role-separated `wstETH` deployment tooling
+Latest cutover-env validation artifact:
+- path: `artifacts/final/cutover-env-validation.json`
+- Base mainnet env ready: `no`
+- real Base mainnet `wstETH` configured: `no`
+- treasury configured: `yes`
+- authorizer configured: `yes`
+- receipt registry configured: `no`
+- backend roles fully separated: `no`
+- frontend roles fully separated in env: `no`
 
 Honest blocker:
-- we still need a deployment using real `wstETH` on an accepted L2/mainnet for strongest Lido-track qualification
+- a real Base mainnet `wstETH` treasury deployment/env cutover still needs final live addresses, final role wiring, and proof collection
 
-## 7. Latest validation snapshot (2026-03-20)
+## 6. Frontend / Let-the-Agent-Cook evidence
 
-Re-verified in-repo on 2026-03-20:
-- `~/.foundry/bin/forge test` → **31/31 passing**
-- `node --check frontend/app.js` → **passing**
-- `npm run metamask:preflight` → **selected chain = Base Sepolia, smart account undeployed, bundler not configured/reachable, readyForFinalSameNetworkRun=false**
-- `npm run final:validate-cutover-env` → **readyForBaseMainnetCutoverEnv=false**
-- `npm run final:validate-same-network` → **overallReadyForSameNetworkDemoSubmission=false**
-- `npm run final:refresh-readiness-bundle` → refreshes the full artifact set sequentially (**public agent packaging → cutover env validation → MetaMask preflight → frontend validation → combined same-network report → generated markdown cutover checklist**)
-- `npm run final:render-cutover-checklist` → turns the latest JSON readiness artifacts into `artifacts/final/cutover-checklist.md`, a human-readable final-run handoff/checklist that calls out honest track posture and exact blockers
+Public frontend docs:
+- `frontend/README.md`
+- `docs/demo-flow.md`
+
+Latest frontend validation artifact:
+- path: `artifacts/frontend/validation.json`
+- frontend same-network demo config ready: `no`
+- Base treasury present: `no`
+- Base receipt registry present: `no`
+- Base authorizer present: `no`
+- receipt hash present: `no`
+- distinct frontend actor addresses: `1`
+
+Honest blocker:
+- the dashboard is real and judge-usable, but the final Base mainnet cutover config is still incomplete and still overlaps roles in the current local validation state
+
+## 7. Latest validation snapshot
+
+Latest generated readiness artifacts:
+- final readiness: `artifacts/final/same-network-readiness.json`
+- generated cutover checklist: `artifacts/final/cutover-checklist.md`
+
+Current validation summary:
+- forge tests: `31/31 passing`
+- frontend syntax: `node --check frontend/app.js passing`
+- overall ready for same-network demo/submission: `no`
+- current honest tracks: `Agents With Receipts — ERC-8004`, `Synthesis Open Track`
 
 Current same-network validator blockers:
-- current env is still pointed at **Base Sepolia**, not Base mainnet
-- bundler is not configured/reachable
-- MetaMask smart account is not deployed yet
-- frontend Base mainnet addresses are not configured yet
-- receipt hash is not configured in frontend cutover data yet
-- current frontend actor config still overlaps roles on one address
-- raw Base mainnet cutover env is also missing required final-run values
-
-The validator now also checks the public ERC-8004 discovery/package surface directly:
-- `agent.json`
-- `agent_log.json`
-- `.well-known/agent.json`
-- `.well-known/agent_log.json`
-
-That keeps the repo honest about whether the project is actually discoverable and submission-shaped for ERC-8004, instead of only claiming it in prose.
-
+- Selected chain is not Base mainnet yet; final same-network thesis is still unmet.
+- Bundler is not reachable/usable yet.
+- MetaMask smart account still needs onchain deployment via user operation.
+- Frontend missing: base.treasuryPresent
+- Frontend missing: base.receiptRegistryPresent
+- Frontend missing: base.authorizerPresent
+- Frontend missing: actors.spendRecipientPresent
+- Frontend missing: actors.receiptHashPresent
+- Role overlap still present in frontend config: [{"address":"0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948","roles":["budgetManager","demoExecutor","demoRecipient"]}]
+- Loaded MetaMask preflight artifact is not yet ready for the final same-network run.
+- Cutover env missing: metaMaskChainIsBase
+- Cutover env missing: frontendChainIsBase
+- Cutover env missing: rpcConfigured
+- Cutover env missing: bundlerConfigured
+- Cutover env missing: executorKeyConfigured
+- Cutover env missing: wstETHIsBaseMainnet
+- Cutover env missing: receiptRegistryConfigured
+- Cutover env missing: managerConfigured
+- Cutover env missing: executorConfigured
+- Cutover env missing: recipientConfigured
+- Cutover env missing: frontendTreasuryConfigured
+- Cutover env missing: frontendAuthorizerConfigured
+- Cutover env missing: frontendReceiptRegistryConfigured
+- Cutover env missing: frontendAssetConfigured
+- Cutover env missing: frontendAssetIsBaseMainnet
+- Cutover env missing: frontendBudgetManagerConfigured
+- Cutover env missing: frontendSpendRecipientConfigured
+- Cutover env missing: frontendDemoExecutorConfigured
+- Cutover env missing: frontendDemoRecipientConfigured
+- Cutover env missing: frontendReceiptHashConfigured
 ## 8. Best honest track posture right now
 
 ### Strong now
 - **Agents With Receipts — ERC-8004**
 - **Synthesis Open Track**
 
-### Credible but still missing one sponsor-native proof step
-- **Best Use of Delegations** — missing live MetaMask smart-account deployment/redemption proof on the final same-network target
-- **Let the Agent Cook** — needs final manifest/log framing plus a fully judge-ready same-network demo surface
-- **stETH Agent Treasury** — needs real `wstETH` deployment path on the final same-network target
+### Credible but still incomplete
+- **Best Use of Delegations** — MetaMask smart-account deployment/redemption proof is still missing on the final same-network target.
+- **stETH Agent Treasury** — Real Base mainnet wstETH deployment/env path is not fully wired yet.
+- **Let the Agent Cook** — Judge-ready frontend demo surface and/or public agent packaging still need final completion.
 
 ## 9. Fastest remaining path to honest 3+ track qualification
 
-1. finish the live MetaMask bundler-backed deployment/redemption proof
-2. finalize `agent.json` and `agent_log.json` around the already-recorded ERC-8004 registration and live txs
-3. tighten the judge-facing autonomous loop / role-separated evidence
-4. optionally upgrade into real `wstETH` deployment for a stronger Lido claim
+- Finish the Base mainnet cutover env: chain selection, bundler, mainnet addresses, and distinct role wiring.
+- Finish the MetaMask Base mainnet path: mainnet chain selection, bundler, smart-account deployment, delegation redemption, and spend proof.
+- Finish the frontend Base mainnet demo config: treasury/authorizer/receipt registry/receipt hash plus distinct demo actors.
 
-## 10. Final same-network handoff template
+## 10. Final same-network handoff
 
-When the final Base mainnet run happens, record it in:
+When the real Base mainnet run happens, record it in:
 - `deployments/base-mainnet-cutover-template.md`
 
-That template is meant to unify the remaining proof collection into one judge-facing source for:
-- Base mainnet treasury addresses
-- role-separated actor mapping
-- real `wstETH` funding / spendable-headroom proof
-- MetaMask smart-account deployment + redemption proof
-- final spend + receipt proof
-- frontend `config.json` cutover values
+The latest generated handoff/checklist is here:
+- `artifacts/final/cutover-checklist.md`

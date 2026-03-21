@@ -38,3 +38,11 @@ npm run submission:refresh-public-agent-artifacts
 That command only uses the committed public-safe submission files and does **not** read or publish `submission/private-registration.json`.
 
 The larger final readiness bundle now calls that refresh automatically first, so the same-network validator always checks the latest public-safe ERC-8004 discovery surface unless you explicitly opt out with `REFRESH_PUBLIC_AGENT_ARTIFACTS=false`.
+
+The repo also now has a public-safe evidence-pack renderer:
+
+```bash
+npm run submission:render-public-evidence-pack
+```
+
+That command reads the latest committed/public-safe readiness artifacts (`agent.json`, MetaMask preflight, cutover-env validation, frontend validation, final same-network readiness, and the generated cutover checklist) and rewrites `submission/public-evidence-pack.md` so the judge-facing status summary stays synchronized with the real validator output.

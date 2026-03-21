@@ -66,6 +66,14 @@ function main() {
     CUTOVER_ENV_VALIDATION_PATH: CUTOVER_ENV_VALIDATION_OUT,
   });
 
+  runScript('submission:render-public-evidence-pack', {
+    FINAL_READINESS_OUT,
+    METAMASK_PREFLIGHT_PATH: PREFLIGHT_OUT,
+    FRONTEND_VALIDATION_PATH: FRONTEND_VALIDATION_OUT,
+    CUTOVER_ENV_VALIDATION_PATH: CUTOVER_ENV_VALIDATION_OUT,
+    CUTOVER_CHECKLIST_OUT,
+  });
+
   console.log(
     JSON.stringify(
       {
@@ -86,8 +94,8 @@ function main() {
           cutoverChecklist: resolvedCutoverChecklist,
         },
         note: REFRESH_PUBLIC_AGENT_ARTIFACTS
-          ? 'Readiness bundle refreshed sequentially: public agent packaging -> cutover env validation -> MetaMask preflight -> frontend validation -> final same-network report -> generated markdown cutover checklist.'
-          : 'Readiness bundle refreshed sequentially: cutover env validation -> MetaMask preflight -> frontend validation -> final same-network report -> generated markdown cutover checklist.',
+          ? 'Readiness bundle refreshed sequentially: public agent packaging -> cutover env validation -> MetaMask preflight -> frontend validation -> final same-network report -> generated markdown cutover checklist -> generated public evidence pack.'
+          : 'Readiness bundle refreshed sequentially: cutover env validation -> MetaMask preflight -> frontend validation -> final same-network report -> generated markdown cutover checklist -> generated public evidence pack.',
       },
       null,
       2,
