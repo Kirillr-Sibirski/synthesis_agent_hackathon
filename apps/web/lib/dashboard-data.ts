@@ -721,8 +721,8 @@ export async function loadDashboardSnapshot(): Promise<DashboardSnapshot> {
   const currentPosture = overallReady
     ? 'Same-network stack looks ready for the final judge flow.'
     : selectedChain.id === CHAIN_IDS.base
-      ? 'Base mainnet is selected, but the final sponsor cutover still needs proof completion.'
-      : 'Base Sepolia proof is live; Base mainnet cutover is still pending.';
+      ? 'Base mainnet proof is live, but a few final submission or validation tasks still remain.'
+      : 'A non-final network is selected right now, so the dashboard is showing a prototype-proof posture instead of the final Base mainnet story.';
   const relatedHashes = [
     { label: 'Receipt hash', hash: receiptHash },
     { label: 'Budget ID', hash: budgetId },

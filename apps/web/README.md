@@ -1,5 +1,9 @@
 # Web dashboard
 
+<p align="center">
+  <img src="../../logo.png" alt="Agent Allowance Protocol logo" width="220" />
+</p>
+
 This is the Next.js App Router judge dashboard for **Agent Allowance Protocol**.
 
 It reads the current repo artifacts from the repository root and exposes:

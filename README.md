@@ -1,5 +1,9 @@
 # Agent Allowance Protocol
 
+<p align="center">
+  <img src="./logo.png" alt="Agent Allowance Protocol logo" width="240" />
+</p>
+
 **Agent Allowance Protocol (AAP)** is a principal-protected `wstETH` treasury for AI agents.
 
 Historical working title: **Delegated Yield Treasury**.

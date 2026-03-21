@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from 'react';
+import Image from 'next/image';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -131,32 +132,46 @@ export function Dashboard({ initialSnapshot }: DashboardProps): React.JSX.Elemen
         <Card className="panel-surface panel-grid relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(205,83,52,0.18),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(255,251,252,0.08),transparent_24%)]" />
           <CardHeader className="relative">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="default">{APP_NAME}</Badge>
-              <Badge variant={snapshot.network.finalChainSelected ? 'success' : 'warning'}>
-                {snapshot.network.finalChainSelected ? 'Base mainnet selected' : 'Base Sepolia prototype'}
-              </Badge>
-              <Badge variant={snapshot.network.readyForSelectedNetworkUserOps ? 'success' : 'warning'}>
-                Bundler {yesNo(snapshot.network.bundlerReachable).toLowerCase()}
-              </Badge>
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div className="flex items-start gap-4">
+                <div className="rounded-[1.5rem] border border-primary/30 bg-[rgba(255,251,252,0.98)] p-3 shadow-[0_18px_44px_rgba(1,4,0,0.24)]">
+                  <Image
+                    src="/logo.png"
+                    alt={`${APP_NAME} logo`}
+                    width={120}
+                    height={120}
+                    priority
+                    className="h-16 w-auto sm:h-20"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="default">{APP_NAME}</Badge>
+                    <Badge variant={snapshot.network.finalChainSelected ? 'success' : 'warning'}>
+                      {snapshot.network.finalChainSelected ? 'Base mainnet live' : 'Prototype network selected'}
+                    </Badge>
+                    <Badge variant={snapshot.network.readyForSelectedNetworkUserOps ? 'success' : 'warning'}>
+                      Bundler {yesNo(snapshot.network.bundlerReachable).toLowerCase()}
+                    </Badge>
+                  </div>
+                  <div className="soft-pill inline-flex px-3 py-2 text-sm text-slate-300">
+                    Official AAP mark wired into the live judge dashboard
+                  </div>
+                </div>
+              </div>
             </div>
             <CardTitle className="mt-3 text-3xl tracking-tight sm:text-5xl">
               Treasury, receipts, and MetaMask proof in one judge dashboard.
             </CardTitle>
             <CardDescription className="max-w-2xl text-base text-slate-300">
               {APP_TAGLINE} The app reads the latest local artifacts, exposes the proof path through a real Next.js backend,
-              and keeps the story honest about what is live versus what still needs the final Base mainnet cutover.
+              and keeps the story honest about what is live onchain, what is loaded from the current repo artifacts, and what still
+              needs human-only submission polish.
             </CardDescription>
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-300">
-              <div className="soft-pill px-3 py-2">
-                Live backend snapshot
-              </div>
-              <div className="soft-pill px-3 py-2">
-                Receipt registry lookup
-              </div>
-              <div className="soft-pill px-3 py-2">
-                MetaMask execution proof
-              </div>
+              <div className="soft-pill px-3 py-2">Live backend snapshot</div>
+              <div className="soft-pill px-3 py-2">Receipt registry lookup</div>
+              <div className="soft-pill px-3 py-2">MetaMask execution proof</div>
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button onClick={refresh} disabled={refreshing}>
@@ -205,7 +220,7 @@ export function Dashboard({ initialSnapshot }: DashboardProps): React.JSX.Elemen
             <p className="section-kicker">Control room</p>
             <CardTitle>Current posture</CardTitle>
             <CardDescription>
-              Live on Base Sepolia today, honest about the Base mainnet cutover still needed for final sponsor acceptance.
+              Live network, bundler, wallet bridge, and submission-readiness state for the current judge flow.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -373,8 +388,19 @@ export function Dashboard({ initialSnapshot }: DashboardProps): React.JSX.Elemen
         </Card>
       </section>
 
-      <footer className="mt-6 pb-6 text-sm text-slate-400">
-        Snapshot generated at <span className="font-mono text-slate-200">{snapshot.generatedAt}</span>. Backend sources are local file reads plus API routes.
+      <footer className="mt-6 flex flex-col gap-3 pb-6 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="rounded-xl border border-primary/25 bg-[rgba(255,251,252,0.96)] p-2">
+            <Image src="/logo.png" alt={`${APP_NAME} logo`} width={72} height={72} className="h-8 w-auto" />
+          </div>
+          <div>
+            <p className="font-medium text-slate-200">{APP_NAME}</p>
+            <p className="text-slate-400">Principal-protected agent treasury with receipt-backed accountability.</p>
+          </div>
+        </div>
+        <div>
+          Snapshot generated at <span className="font-mono text-slate-200">{snapshot.generatedAt}</span>. Backend sources are local file reads plus API routes.
+        </div>
       </footer>
     </main>
   );
