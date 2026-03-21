@@ -2,7 +2,7 @@
   "name": "synthesis_agent_hackathon",
   "version": "1.0.0",
   "private": true,
-  "description": "Foundry-first build for a Synthesis hackathon project centered on a delegated yield treasury primitive for autonomous agents.",
+  "description": "Agent Allowance Protocol: a principal-protected wstETH treasury for AI agents with delegated allowances, MetaMask-backed constrained authority, and receipt-backed accountability.",
   "main": "index.js",
   "directories": {
     "doc": "Memory/ProjectDocs",

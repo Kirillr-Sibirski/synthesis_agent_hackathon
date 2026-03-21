@@ -1,100 +1,104 @@
 # Submission Draft
 
 ## Project name
-TBD
+**Agent Allowance Protocol**
 
-Working title:
+Short form:
+**AAP**
+
+Historical working title:
 **Delegated Yield Treasury**
 
 ## One-line description
-A principal-protected yield treasury for autonomous agents where only yield is spendable, sub-budgets can be delegated hierarchically, and every spend produces a verifiable receipt linked to the exact authorization rule that allowed it.
+A principal-protected `wstETH` treasury for AI agents where only yield / surplus headroom is spendable, allowances can be split into budgets and sub-budgets, constrained authority is enforced by protocol rules and MetaMask smart-account delegation, and every spend produces a verifiable onchain receipt tied to the exact rule that authorized it.
 
 ## Description
-Delegated Yield Treasury is a contract primitive for giving autonomous agents a real operating budget without ever giving them access to treasury principal. A human deposits a yield-bearing asset, the treasury tracks principal separately from accrued yield, and only the yield layer can become spendable. That spendable yield can be split into root budgets and manager-controlled child budgets, so a parent operator or agent can allocate narrower sub-budgets to specialized executors without double-counting treasury allocation.
+Agent Allowance Protocol is a treasury primitive for giving autonomous agents a real operating budget without giving them direct access to treasury principal. A human funds the treasury, the protocol tracks a protected principal floor separately from accrued headroom, and only the yield / surplus layer can become spendable. That spendable layer can be partitioned into root budgets and manager-controlled child budgets, so a parent operator or higher-level agent can allocate narrower sub-budgets to specialized executors without double-counting treasury allocation.
 
-Every spend is permissioned through delegation-style rules with recipient constraints, selector constraints, amount caps, and expiry windows. When a spend occurs, the treasury records a structured receipt containing the task ID, budget ID, evidence hash, result hash, metadata URI, and — critically — the exact delegation `ruleId` that authorized the action. This makes the system auditable, accountable, and much closer to a trust primitive than a normal agent wallet.
+Agents do not get treasury ownership. Instead, they receive constrained authority through explicit spending rules and the MetaMask smart-account delegation path. Those rules can narrow execution by executor, recipient, selector, amount, and validity window. When a spend occurs, the treasury records a structured receipt containing the task ID, budget ID, evidence hash, result hash, metadata URI, and — critically — the exact matched authorization `ruleId`. That makes the system auditable, accountable, and much closer to a financial trust primitive than a normal agent wallet.
 
-The current prototype is written in Solidity, tested with Foundry, and now has a recorded live Base mainnet proof. It demonstrates principal protection, budget-tree semantics, constrained delegated execution, receipt-producing treasury spends, and a real MetaMask smart-account redemption flow against live Base mainnet `wstETH`. The repo also contains a dedicated `WstETHYieldTreasury` path that models real `wstETH` semantics by tracking principal in stETH-equivalent units and deriving spendable yield from the changing `stEthPerToken()` exchange rate.
+The repo already demonstrates:
+- principal protection
+- yield-only spendable budgeting
+- sub-budget / allowance-tree semantics
+- constrained delegated execution
+- receipt-producing treasury spends
+- a dedicated `WstETHYieldTreasury` path for real `wstETH`
+- a real MetaMask Delegation Framework integration workspace
+- a live Base mainnet treasury + MetaMask proof
+- a judge dashboard and public-safe ERC-8004 manifest/log packaging
 
 ## Problem statement
-Autonomous agents are starting to coordinate, transact, and pay for services onchain, but the current financial primitives for doing so are weak. In most agent systems, the operator still faces a bad choice: either give the agent direct wallet control and accept principal risk, or keep the human fully in the loop and give up meaningful autonomy.
+Autonomous agents are starting to transact with real economic consequences, but the capital primitives are still crude. In many systems the operator faces a bad choice: either hand the agent a wallet and accept principal risk, or keep the human in the loop for every spend and lose meaningful autonomy.
 
-That tradeoff blocks real adoption. Teams need a way to fund agents with real operating budgets while preserving hard boundaries around capital, permissions, and accountability. The missing primitive is not "another agent wallet" — it is a treasury architecture where principal is structurally inaccessible, spendable budget is derived from yield, authority can be delegated and narrowed over time, and every action leaves a verifiable execution trail.
+That tradeoff blocks serious deployment. Teams need a way to fund agents with real operating budgets while preserving hard boundaries around capital, permissions, and accountability. The missing primitive is not just another agent wallet. It is a treasury architecture where principal is structurally protected, spendable capacity is derived from yield / headroom, authority can be delegated and narrowed over time, and every action leaves a verifiable execution trail.
 
-Delegated Yield Treasury addresses that problem by separating principal from spendable yield, introducing hierarchical sub-budgets, and attaching machine-readable receipts — including authorization provenance — to every spend.
+Agent Allowance Protocol addresses that problem by separating principal from spendable headroom, introducing hierarchical budget allowances, and attaching machine-readable receipts — including authorization provenance — to every spend.
 
 ## Repo URL
 `https://github.com/Kirillr-Sibirski/synthesis_agent_hackathon`
 
-## Current deployment proof
+## Current live proof
 See:
 - `Memory/Deployments/base-mainnet-metamask-live.md`
+- `Memory/Submission/public-evidence-pack.md`
+- `apps/web/README.md`
 
 ## ERC-8004 / identity proof
 
-The project's Synthesis registration has already been completed and the onchain identity registration transaction has been recorded.
+The project’s Synthesis registration has already been completed and the onchain identity registration transaction has been recorded.
 
 - registration tx: `0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b`
-- public-facing agent manifest draft: `submission/agent.json`
-- public-facing execution log draft: `submission/agent_log.json`
-- public-safe judge evidence index: `submission/public-evidence-pack.md`
+- public manifest draft: `submission/agent.json`
+- public execution log draft: `submission/agent_log.json`
+- public-safe judge index: `Memory/Submission/public-evidence-pack.md`
 
-## Primary target tracks
+## Strongest target tracks
 
-### 1. stETH Agent Treasury
-- UUID: `5e445a077b5248e0974904915f76e1a0`
-- Why fit: principal-protected yield treasury is the core primitive.
+### 1. Agents With Receipts — ERC-8004
+- Why fit: receipts are load-bearing, structured, and tied to exact authorization provenance.
 
 ### 2. Best Use of Delegations
-- UUID: `0d69d56a8a084ac5b7dbe0dc1da73e1d`
-- Why fit: the project uses constrained, rule-based delegated execution and hierarchical sub-budget control.
+- Why fit: the project gives agents constrained authority through allowance-style budgets, rule-based execution restrictions, and a real MetaMask delegation integration with live Base mainnet proof.
 
-### 3. Agents With Receipts — ERC-8004
-- UUID: `3bf41be958da497bbb69f1a150c76af9`
-- Why fit: receipts are load-bearing, structured, and tied to authorization provenance.
+### 3. stETH Agent Treasury
+- Why fit: a principal-protected `wstETH` treasury is the core capital primitive.
 
 ### 4. Synthesis Open Track
-- UUID: `fdb76d08812b43f6a5f454744b66f590`
-- Why fit: broad umbrella track for the overall primitive.
+- Why fit: the repo is a complete protocol + proof + dashboard package.
 
-## Strong secondary targets
+## Secondary / careful track
 
-### Let the Agent Cook — No Humans Required
-- UUID: `10bd47fac07e4f85bda33ba482695b24`
-- Why fit: if we finish the agent manifest + execution log packaging and present the build/deploy flow as a more complete autonomous loop.
+### Let the Agent Cook
+- Why it still has merit: the build was materially agent-assisted and agent-led in many phases.
+- Why it is secondary: the final shipping loop required human intervention, so this should be framed as honest collaboration rather than fake total autonomy.
 
-## Optional later targets
+## How the agent was used
 
-### Lido MCP
-- UUID: `ee885a40e4bc4d3991546cec7a4433e2`
-- Would require: an MCP layer and more Lido-specific tooling.
-
-### Private Agents, Trusted Actions
-- UUID: `ea3b366947c54689bd82ae80bf9f3310`
-- Would require: real private reasoning / Venice integration.
-
-### Agentic Finance (Best Uniswap API Integration)
-- UUID: `020214c160fc43339dd9833733791e6b`
-- Would require: real Uniswap API integration and live swap flow.
+The repo should describe this honestly:
+- the agent helped brainstorm the direction by analyzing the competition and identifying strong reward-to-competition opportunities across tracks
+- the agent then helped implement the project end-to-end with human guidance
+- there was a heartbeat / ongoing automation loop that kept OpenClaw integrating the repo
+- that process got stuck / circled on some issues
+- human intervention was needed to unblock the final steps, polish the repo, and ship the final version
 
 ## Submission status
 
 Ready now:
 - public repo
-- onchain Base mainnet deployment
-- live MetaMask delegation redemption + spend tx
-- receipt-producing flow
+- final public project name
+- live Base mainnet proof
 - tested contracts
 - architecture docs
-- deployment docs
-- conversation log draft
-- submission metadata draft
+- track-fit docs
+- public agent manifest draft
+- public agent execution log draft
+- public-safe evidence pack
+- judge dashboard
 
 Still needed before final publish:
-- final project name
-- Moltbook post URL
-- video URL
-- cover image / pictures
-- self-custody transfer step in Synthesis
-- final project/team UUIDs from Devfolio API
-- final branding and packaging polish around the already-live Base mainnet proof set
+- final video URL
+- cover image / screenshots / logo
+- Moltbook post URL if required
+- any final submission metadata polish
+- project UUID / final UI details inside the submission form

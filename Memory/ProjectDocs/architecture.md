@@ -2,7 +2,7 @@
 
 ## Core idea
 
-A principal-protected yield treasury for autonomous agents:
+Agent Allowance Protocol is a principal-protected yield treasury for autonomous agents:
 
 - the generic treasury path uses a yield-bearing ERC20 for local testing and early prototyping
 - the Lido-specific treasury path uses real `wstETH` exchange-rate semantics

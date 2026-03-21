@@ -173,7 +173,9 @@ Latest frontend validation artifact:
 
 Honest blocker:
 ${frontendReady
-    ? '- none; the dashboard config validates against the live Base mainnet proof set'
+    ? letTheAgentCookHonest
+      ? '- none; the dashboard config validates against the live Base mainnet proof set and the track framing is internally consistent'
+      : '- the dashboard config validates against the live Base mainnet proof set, but the repo is honestly documented as agent-led with human intervention in final shipping, so Let the Agent Cook should be framed cautiously rather than as a strict no-human-required claim'
     : '- the dashboard is real and judge-usable, but the final Base mainnet cutover config is still incomplete and still overlaps roles in the current local validation state'}
 
 ## 7. Latest validation snapshot

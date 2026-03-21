@@ -1,167 +1,105 @@
-# Track Qualification Plan
+# Track Qualification Review
 
 This file is intentionally strict.
 
-The goal is not to vaguely fit many tracks. The goal is to **fully qualify for at least 3 tracks**, with sponsor-native evidence.
+The goal is not to vaguely fit many tracks. The goal is to describe the strongest honest submission posture for the repo as it exists now.
 
-## Best realistic target set
+## Strongest realistic target set
 
-### 1. Best Use of Delegations — MetaMask
-**Status:** partially aligned, not fully qualified yet.
+### 1. Agents With Receipts — ERC-8004
+**Status:** strong now.
 
-#### Already strong
-- constrained delegated spend rules
-- wildcard caveat-like behavior
-- rule revocation
-- hierarchical sub-budgets / child budgets
-- explicit `ruleId` provenance in receipts
-- in-repo MetaMask smart-account derivation + exact treasury spend calldata + delegation-preparation artifact generation
-- live-readiness preflight for bundler/env/treasury/smart-account status
+#### Why
+- receipt-first architecture is central
+- receipts include `taskId`, `budgetId`, `evidenceHash`, `resultHash`, `metadataURI`, and exact `ruleId`
+- ERC-8004 registration tx is already recorded
+- public-safe manifest / execution-log packaging exists
 
-#### Missing for full qualification
-- actual **MetaMask Smart Accounts Kit / Delegation Framework** integration
-- root delegation creation
-- redelegation / subdelegation demonstration if possible
-- redemption flow through the actual framework
-- real tx proofs showing the MetaMask delegation layer is load-bearing
-
-#### Minimum bar we should hit
-- one treasury spend path that is authorized by a **real MetaMask delegation**, not only our local analogue
-- MetaMask smart account / DeleGator present in the execution path
-- README section explicitly documenting the delegation flow
-- tx hashes proving smart-account deployment/use, delegation creation, and redemption
+#### Evidence
+- `contracts/src/ReceiptRegistry.sol`
+- `submission/agent.json`
+- `submission/agent_log.json`
+- `Memory/Submission/public-evidence-pack.md`
+- `Memory/Deployments/base-mainnet-metamask-live.md`
 
 ---
 
-### 2. Agents With Receipts — ERC-8004
-**Status:** structurally strong, not fully qualified yet.
+### 2. Best Use of Delegations — MetaMask
+**Status:** strong now.
 
-#### Already strong
-- receipt-first architecture
-- structured receipts with:
-  - `taskId`
-  - `budgetId`
-  - `evidenceHash`
-  - `resultHash`
-  - `ruleId`
-  - `metadataURI`
-- public repo
-- onchain Base Sepolia spend proofs
-- `agent.json` and `agent_log.json` drafts exist
+#### Why
+- constrained delegated spend rules are core to the protocol
+- hierarchical budgets / child budgets are a natural allowance-tree structure
+- the repo contains a real MetaMask Delegation Framework integration workspace
+- live Base mainnet smart-account redemption proof exists
 
-#### Missing for full qualification
-- final manifest compatibility / registration artifact cleanup around the already-recorded identity registration
-- final `agent.json`
-- final `agent_log.json`
-- explicit linkage from identity → manifest → onchain actions
-
-#### Minimum bar we should hit
-- include identity tx hash / registry data in submission
-- finalize `agent.json`
-- finalize `agent_log.json`
-- point receipts / tx proofs back to the agent identity story
+#### Evidence
+- `contracts/src/DelegationAuthorizer.sol`
+- `tools/metamask/README.md`
+- `tools/metamask/STATUS.md`
+- `Memory/Deployments/base-mainnet-metamask-live.md`
 
 ---
 
-### 3. Let the Agent Cook — No Humans Required
-**Status:** plausible, not fully qualified yet.
+### 3. stETH Agent Treasury — Lido
+**Status:** strong now.
 
-#### Already strong
-- real multi-step build history exists
-- tool use is real
-- smart contracts were designed, tested, deployed, and executed
-- onchain actions exist
-- `agent.json` and `agent_log.json` drafts exist
+#### Why
+- principal-protected treasury is the core capital primitive
+- only yield / surplus becomes spendable
+- dedicated `WstETHYieldTreasury` path exists
+- live Base mainnet proof uses real `wstETH`
 
-#### Missing for full qualification
-- polished autonomous execution log
-- stronger framing of the full loop:
-  - discover
-  - plan
-  - execute
-  - verify
-  - submit
-- compute/safety framing in the manifest/logs
-
-#### Minimum bar we should hit
-- final `agent.json`
-- final `agent_log.json`
-- explicit section in README showing the end-to-end autonomous loop
-- ERC-8004 registration proof
+#### Evidence
+- `contracts/src/WstETHYieldTreasury.sol`
+- `contracts/test/WstETHYieldTreasury.t.sol`
+- `Memory/ProjectDocs/sponsor-compliance.md`
+- `Memory/Deployments/base-mainnet-metamask-live.md`
 
 ---
 
 ### 4. Synthesis Open Track
-**Status:** basically qualifies if submitted properly.
+**Status:** strong now.
 
-This is our umbrella track.
-It should not be our main strategic bet, but we should absolutely enter it.
-
----
-
-## High-upside extra track
-
-### 5. stETH Agent Treasury — Lido
-**Status:** conceptually strong, not fully qualified yet.
-
-#### Already strong
-- treasury is the core primitive
-- `WstETHYieldTreasury` now models real `wstETH` exchange-rate semantics correctly
-- slash/rate-drop safety is tested
-- hierarchical delegated budgets are a novel treasury control model
-
-#### Missing for full qualification
-- deployment against **real wstETH** (not mock)
-- on an accepted L2/mainnet environment for the Lido track
-- live tx proofs using that real asset path
-
-#### Minimum bar we should hit
-- deploy `WstETHYieldTreasury` against real `wstETH`
-- configure and execute at least one real treasury action under that path
-- document why principal remains protected under real `wstETH` rate mechanics
+#### Why
+The repo is a complete protocol + proof + dashboard package and clearly belongs in the umbrella track.
 
 ---
 
-## The actual plan
+### 5. Let the Agent Cook
+**Status:** secondary / careful.
 
-## Phase A — lock 3 full tracks first
+#### Why it is still relevant
+- the agent materially contributed to strategy, implementation, and integration
+- OpenClaw heartbeat automation was real
+- public agent packaging exists
+- the repo contains a clear build story and usable demo surface
 
-### Must finish first
-1. **MetaMask Delegation Framework integration**
-2. **ERC-8004 public linkage cleanup around the recorded registration**
-3. **final `agent.json` + `agent_log.json`**
-4. **README / submission flow for Let the Agent Cook**
+#### Why it is not a core claim
+The final build was **not** honestly “no humans required.” Human intervention was needed to unblock issues, polish the repo, and ship the final submission state.
 
-If we complete those, we can be genuinely strong for:
-- Best Use of Delegations
-- Agents With Receipts — ERC-8004
-- Let the Agent Cook
-- plus Open Track automatically
+#### Best framing
+Present it as:
+- agent-led in research and large parts of implementation
+- human-guided in prioritization, unblocking, and final shipping
 
-## Phase B — upgrade into Lido compliance
-
-5. deploy `WstETHYieldTreasury` against real `wstETH`
-6. add live tx proofs for the real Lido path
-
-That turns the project from “3-track fully qualified” into “4+ track seriously competitive.”
-
-## What not to do right now
-
-- do **not** branch into Uniswap unless the first three tracks are locked
-- do **not** branch into Venice unless the first three tracks are locked
-- do **not** spend time on frontend polish before the sponsor-critical compliance work is done
+Do **not** present it as total autonomy.
 
 ## Final practical target
 
-### Minimum winning package
+### Strongest submission set
 - Best Use of Delegations
 - Agents With Receipts — ERC-8004
-- Let the Agent Cook
-- Open Track
-
-### Best upgraded package
-- Best Use of Delegations
-- Agents With Receipts — ERC-8004
-- Let the Agent Cook
 - stETH Agent Treasury
-- Open Track
+- Synthesis Open Track
+
+### Optional extra if framed carefully
+- Let the Agent Cook
+
+## What still matters most before submit
+
+1. final video
+2. cover/media
+3. final metadata polish
+4. final submission UI track selection
+5. keep the public docs and manifest/log aligned with the live Base mainnet proof

@@ -1,9 +1,8 @@
 # Web dashboard
 
-This is the Next.js App Router judge dashboard for the synthesis hackathon demo.
+This is the Next.js App Router judge dashboard for **Agent Allowance Protocol**.
 
 It reads the current repo artifacts from the repository root and exposes:
-
 - treasury status
 - budget state
 - receipt lookup
@@ -25,3 +24,4 @@ Then open `http://localhost:3000`.
 
 - The app expects the repo-root artifacts to remain in place so it can read the current proof snapshot.
 - The backend demo surfaces live JSON through `/api/snapshot` and `/api/receipt?hash=...`.
+- The dashboard is intended to support the judge story for the live Base mainnet treasury + MetaMask redemption proof.

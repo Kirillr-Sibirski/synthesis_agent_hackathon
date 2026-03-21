@@ -64,6 +64,8 @@ function main() {
     agentManifest.erc8004.registrationTx.trim().length > 0 &&
     Array.isArray(agentLog?.entries) &&
     agentLog.entries.some((entry: any) => entry?.phase === 'identity' && entry?.status === 'success');
+  const noHumanRequiredClaimHonest =
+    agentManifest?.developmentModel?.canHonestlyBePresentedAsNoHumanRequired === true;
 
   const blockers = uniq([
     ...(Array.isArray(preflight?.readiness?.remainingBlockers) ? preflight.readiness.remainingBlockers : []),
@@ -221,6 +223,17 @@ function main() {
   };
 
   const output = JSON.stringify(report, null, 2);
+  if (OUT_PATH) {
+    const resolvedOut = path.resolve(process.cwd(), OUT_PATH);
+    mkdirSync(path.dirname(resolvedOut), { recursive: true });
+    writeFileSync(resolvedOut, `${output}\n`);
+  }
+
+  console.log(output);
+}
+
+main();
+fy(report, null, 2);
   if (OUT_PATH) {
     const resolvedOut = path.resolve(process.cwd(), OUT_PATH);
     mkdirSync(path.dirname(resolvedOut), { recursive: true });

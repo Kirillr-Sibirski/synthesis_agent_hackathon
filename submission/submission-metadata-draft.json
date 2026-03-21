@@ -8,15 +8,15 @@
   ],
   "tools": [
     "Foundry",
-    "forge-std",
+    "Bun",
     "OpenClaw",
-    "Base Sepolia",
+    "Base Mainnet",
     "GitHub"
   ],
   "helpfulResources": [
-    "https://synthesis.md/skill.md",
-    "https://synthesis.devfolio.co/catalog?page=1&limit=100",
-    "https://synthesis.devfolio.co/projects?page=1&limit=100"
+    "https://synthesis.md/",
+    "https://synthesis.md/hack/",
+    "https://synthesis.devfolio.co/catalog?page=1&limit=100"
   ],
   "helpfulSkills": [
     {
@@ -24,6 +24,6 @@
       "reason": "Kept the repo, deployment records, and submission drafts aligned with Synthesis requirements and publishing prerequisites."
     }
   ],
-  "intention": "continuing",
-  "intentionNotes": "Continue developing the treasury into a stronger Lido-integrated delegated-yield primitive with cleaner role separation, ERC-8004 identity, and more complete delegation semantics."
+  "intention": "submission-ready",
+  "intentionNotes": "Finalize Agent Allowance Protocol as a principal-protected wstETH treasury for AI agents with live Base mainnet proof, constrained MetaMask-backed delegation, receipt-linked accountability, and a judge-readable dashboard."
 }

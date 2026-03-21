@@ -1,5 +1,7 @@
 # Sponsor Compliance Roadmap
 
+Agent Allowance Protocol should be understood as a principal-protected `wstETH` treasury for AI agents, with delegation and receipt infrastructure layered on top.
+
 ## Strongest compliance path
 
 The project should be understood as three layers:

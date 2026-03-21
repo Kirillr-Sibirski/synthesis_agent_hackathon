@@ -1,48 +1,279 @@
-# synthesis_agent_hackathon
+# Agent Allowance Protocol
 
-Hackathon repo for a delegated, yield-only treasury with receipt-backed spends, MetaMask smart-account execution, and a judge-facing Next.js dashboard.
+**Agent Allowance Protocol (AAP)** is a principal-protected `wstETH` treasury for AI agents.
 
-## Layout
+Historical working title: **Delegated Yield Treasury**.
 
-- `contracts/` — Foundry project for the treasury, authorizer, receipt registry, mocks, and deployment/demo scripts
-- `apps/web/` — Next.js App Router dashboard for judges and operators
-- `tools/` — Bun/TS helpers for MetaMask, frontend config, readiness validation, and public submission artifacts
-- `Memory/ProjectDocs/` — project docs and implementation notes
-- `Memory/Deployments/` — deployment records and the final Base mainnet cutover template
-- `Memory/Submission/` — public markdown submission and judge-evidence material
-- `submission/` — machine-readable submission artifacts (`agent.json`, `agent_log.json`, metadata drafts)
-- `env/` — local cutover env templates
-- `artifacts/` — generated readiness and proof artifacts
+The core idea is simple:
+- a **human** funds the treasury
+- the **principal stays protected**
+- only **yield / spendable surplus** becomes usable
+- that spend power can be split into **budgets and sub-budgets**
+- agents do **not** receive raw treasury ownership
+- agents act through **constrained authority** enforced by protocol rules and the MetaMask smart-account delegation path
+- every spend creates a **verifiable onchain receipt** tied to the exact rule that authorized it
 
-## Current status
+A useful mental model is:
+- human = parent
+- treasury = vault
+- agent = child / operator
+- sub-budget = allowance
+- delegation rules = spending guardrails
+- receipt = audit trail
 
-- Live Base mainnet proof now exists for the full MetaMask + `wstETH` path: treasury deployment, smart-account deployment, delegation redemption, treasury spend, and receipt proof
-- The Lido-style `wstETH` treasury path is running against real Base mainnet `wstETH` in the recorded live proof
-- The repo now has a real Next.js dashboard in `apps/web/` instead of the old static prototype
-- Current readiness validators and dashboard config are aligned with the live Base mainnet deployment
+That framing is intuitive, but the implementation is serious: this repo is a Solidity + Foundry treasury system for letting agents operate with real bounded spending power instead of uncontrolled wallet access.
 
-## Key commands
+## What Agent Allowance Protocol is
+
+Agent Allowance Protocol is a treasury primitive for giving an agent a real operating budget **without** giving it direct control over treasury principal.
+
+The protocol separates capital into two layers:
+1. **protected principal**
+2. **spendable yield / surplus headroom**
+
+The treasury owner funds the vault with a yield-bearing asset. In the sponsor-native path, that asset is real Base mainnet `wstETH`. The protocol tracks a protected principal floor separately from the value above that floor. Budgets are carved out of the spendable layer, not out of the protected base.
+
+That means an agent can have meaningful operational autonomy while the capital boundary remains enforceable.
+
+## Why this matters
+
+Most agent-finance systems force a bad choice:
+- give the agent a wallet and accept principal risk, or
+- keep the human in the loop for every spend and lose real autonomy
+
+Agent Allowance Protocol is built to avoid that tradeoff.
+
+It gives agents authority that is:
+- budget-constrained
+- rule-constrained
+- revocable
+- auditable
+- receipt-producing
+
+## How the treasury works
+
+### 1. Principal protection
+
+The treasury keeps a protected principal baseline.
+
+The dedicated `WstETHYieldTreasury` path is built around real `wstETH` semantics, including Base mainnet constraints. The contract protects the principal floor while exposing only the excess above that floor as spendable headroom.
+
+User-facing rule:
+- the principal floor is **not** what the agent gets to spend
+- only the yield / surplus layer becomes allocatable
+
+### 2. Yield / surplus becomes spendable headroom
+
+Once the treasury has value above the protected principal floor, that excess becomes spendable headroom.
+
+The repo supports:
+- root budgets
+- manager-controlled child budgets
+- parent / child reservation semantics
+- non-double-counted allocation
+- budget caps and spend tracking
+
+### 3. Budgets and sub-budgets become allowances
+
+A root budget can represent a broad operating category.
+A child budget can narrow that authority for a more specialized agent or workflow.
+
+That is the core allowance structure:
+- treasury headroom exists at the protocol level
+- budgets partition the spendable layer
+- sub-budgets let a parent operator delegate narrower authority without overstating total allocation
+
+## How agents actually get access to funds
+
+Agents do **not** get treasury ownership.
+
+Instead, they get constrained spend authority enforced by the treasury and authorizer stack.
+
+Those rules can narrow execution by:
+- budget ID
+- executor
+- recipient
+- function selector
+- amount cap
+- time window / expiry
+- revocation state
+
+So the agent gets permission to perform a specific class of treasury actions, not blanket control over the vault.
+
+## How MetaMask delegation is used
+
+The repo includes a real MetaMask Delegation Framework integration workspace in `tools/metamask/`.
+
+The sponsor-native flow is:
+1. derive or deploy a MetaMask smart account / DeleGator
+2. authorize that smart-account address in the treasury path
+3. prepare a constrained delegation artifact for treasury spending
+4. redeem that delegation through the live DelegationManager path
+5. execute a treasury spend and record a receipt from that delegated execution
+
+What is already proven in this repo:
+- smart-account derivation
+- bundler-backed deployment flow
+- constrained delegation artifact generation
+- signed delegation artifact generation
+- redemption helpers
+- preflight / readiness tooling
+- a **live Base mainnet** MetaMask smart-account redemption that triggered the treasury spend
+
+## How receipts work
+
+Every treasury spend produces a structured receipt.
+
+The receipt model is load-bearing, not decorative. It records:
+- `taskId`
+- `budgetId`
+- `evidenceHash`
+- `resultHash`
+- `metadataURI`
+- and the exact matched authorization `ruleId`
+
+That last field is the trust primitive:
+- not just “a spend happened”
+- but “this spend happened because this exact rule authorized it”
+
+That is why the project fits the ERC-8004 / Agents With Receipts direction so naturally.
+
+## Live Base mainnet proof
+
+The strongest current public proof in the repo is the live Base mainnet treasury + MetaMask flow recorded here:
+
+- `Memory/Deployments/base-mainnet-metamask-live.md`
+
+That note includes:
+- Base mainnet treasury addresses
+- real Base mainnet `wstETH`
+- smart-account address
+- DelegationManager address
+- deployment tx hashes
+- live delegation redemption tx hash
+- receipt hash
+- rule ID
+- post-spend state snapshot
+
+The fastest public judge index is:
+- `Memory/Submission/public-evidence-pack.md`
+
+## Next.js judge dashboard
+
+The judge dashboard lives in:
+- `apps/web/`
+- `apps/web/README.md`
+
+It is a Next.js App Router app that surfaces:
+- treasury status
+- budget state
+- receipt lookup
+- MetaMask proof artifacts
+- readiness status
+
+## Honest Synthesis track fit
+
+### Strongest tracks
+
+#### 1. Agents With Receipts — ERC-8004
+Why it fits:
+- receipts are central to the protocol
+- receipts contain execution evidence and authorization provenance
+- ERC-8004 registration tx is recorded
+- public-safe manifest / execution-log packaging exists
+
+Main evidence:
+- `contracts/src/ReceiptRegistry.sol`
+- `submission/agent.json`
+- `submission/agent_log.json`
+- `Memory/Submission/public-evidence-pack.md`
+- `Memory/Deployments/base-mainnet-metamask-live.md`
+
+#### 2. Best Use of Delegations
+Why it fits:
+- constrained authority is core to the protocol
+- hierarchical budgets behave like allowance / sub-delegation structures
+- the repo includes a real MetaMask Delegation Framework integration workspace
+- live Base mainnet smart-account redemption proof exists
+
+Main evidence:
+- `contracts/src/DelegationAuthorizer.sol`
+- `tools/metamask/README.md`
+- `tools/metamask/STATUS.md`
+- `Memory/ProjectDocs/metamask-integration-plan.md`
+- `Memory/Deployments/base-mainnet-metamask-live.md`
+
+#### 3. stETH Agent Treasury
+Why it fits:
+- the project is literally an agent treasury built around principal protection
+- only yield / surplus headroom is spendable
+- the repo contains a dedicated `WstETHYieldTreasury` path
+- live Base mainnet proof uses real `wstETH`
+
+Main evidence:
+- `contracts/src/WstETHYieldTreasury.sol`
+- `contracts/test/WstETHYieldTreasury.t.sol`
+- `Memory/ProjectDocs/sponsor-compliance.md`
+- `Memory/Deployments/base-mainnet-metamask-live.md`
+
+#### 4. Synthesis Open Track
+Why it fits:
+- the project is a full-stack treasury primitive with contracts, live proof, receipt packaging, and a judge dashboard
+
+### Secondary / careful framing
+
+#### Let the Agent Cook
+This repo is **agent-led and heavily agent-assisted**, but it is **not honestly a strict “no humans required” story**.
+
+The stronger truthful framing is:
+- the agent substantially contributed to research, implementation, and integration
+- the repo includes public agent packaging and a judge dashboard
+- but human guidance and final intervention were required to unblock issues and ship the final version
+
+So this is a possible secondary track only if described carefully, not as fake total autonomy.
+
+## How the agent was actually used
+
+This should be presented honestly.
+
+What happened:
+- the agent analyzed the competition and identified strong reward-to-competition opportunities across tracks
+- that helped steer the project toward the Lido + Delegations + receipts combination
+- the agent then helped implement the project end-to-end with human guidance
+- an OpenClaw heartbeat / ongoing automation loop kept the repo integrating, validating, and updating
+- that loop sometimes got stuck or circled on hard blockers
+- human intervention was required to unblock the final steps, polish the repo, and ship the final submission version
+
+That is the credible story:
+- **agent-led in research and large parts of implementation**
+- **human-guided in judgment, unblock decisions, and final shipping**
+
+See:
+- `Memory/Submission/conversation-log.md`
+- `submission/agent.json`
+- `submission/agent_log.json`
+
+## Repo structure
+
+- `contracts/` — Solidity contracts, tests, and Foundry config
+- `apps/web/` — Next.js judge dashboard
+- `tools/` — MetaMask, frontend, final readiness, and submission tooling
+- `Memory/ProjectDocs/` — architecture, track mapping, sponsor alignment, and demo docs
+- `Memory/Deployments/` — live deployment notes and proof artifacts
+- `Memory/Submission/` — judge-facing submission drafts and evidence index
+- `submission/` — public-safe manifest and structured agent log sources
+- `artifacts/` — generated validation and readiness outputs
+
+## Quick commands
 
 ```bash
-bun install
-bun run web:dev
-bun run web:build
 bun run contracts:test
-bun run metamask:preflight
-bun run final:refresh-readiness-bundle
+bun run web:build
 bun run verify:demo
+bun run submission:refresh-public-agent-artifacts
+bun run submission:render-public-evidence-pack
 ```
 
-## Important paths
+## One-sentence summary
 
-- Judge dashboard: `apps/web/`
-- MetaMask workspace: `tools/metamask/`
-- Live Base mainnet deployment note: `Memory/Deployments/base-mainnet-metamask-live.md`
-- Final cutover template: `Memory/Deployments/base-mainnet-cutover-template.md`
-- Public evidence index: `Memory/Submission/public-evidence-pack.md`
-
-## Notes
-
-- Use Bun for JS tooling in this repo.
-- Secrets stay in `.env`; do not commit private keys.
-- Foundry dependencies are vendored under `contracts/lib/`.
+> Agent Allowance Protocol lets a human give an AI agent a real operating budget without giving it the keys to the vault.
