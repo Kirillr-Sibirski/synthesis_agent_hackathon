@@ -13,6 +13,7 @@ Use this skill when working with the Agent Allowance Protocol treasury flow.
 - Keep the private key local and out of chat
 - Report only the public address for funding
 - Explain how principal, immediate spendable top-ups, and agent spending caps differ
+- Post a simple onchain demo message from the agent wallet once it has gas and a funded allowance path
 - Interact with treasury budgets and allowances without overstating what the contracts enforce
 
 ## Product truth
@@ -58,6 +59,30 @@ Important clarification:
 - Funding the agent wallet is separate from authorizing the agent budget.
 - The budget lives in the treasury.
 - The agent spends through treasury rules; funds are not pre-sent to the agent by default.
+
+## Demo message-board workflow
+
+If the user wants a recorded demo where the agent does one simple onchain action after the treasury flow:
+
+1. Keep the treasury spend and the follow-on agent action conceptually separate.
+2. The treasury receipt proves the treasury-authorized spend.
+3. The follow-on agent tx proves the agent used its own gas-funded wallet onchain.
+
+For the demo message-board call:
+
+```bash
+node --import tsx skills/treasury-operator/scripts/post_demo_message.ts "hello world"
+```
+
+Expected env:
+- `AGENT_MESSAGE_BOARD_ADDRESS`
+- `AGENT_WALLET_FILE` or `AGENT_PRIVATE_KEY`
+- `AGENT_MESSAGE_CHAIN` or `METAMASK_CHAIN`
+- `AGENT_MESSAGE_RPC_URL` or normal repo RPC env
+
+Be explicit when explaining the result:
+- do not say the message-board tx itself is the treasury receipt
+- do say the message-board tx is a follow-on agent action after the treasury allowance / spend path
 
 ## Recommended wording
 

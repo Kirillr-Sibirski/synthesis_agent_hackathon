@@ -30,6 +30,7 @@
     "metamask:redeem-signed-delegation": "node --import tsx tools/metamask/redeemSignedDelegation.ts",
     "metamask:run-live-flow": "node --import tsx tools/metamask/runLiveDelegationFlow.ts",
     "metamask:preflight": "node --import tsx tools/metamask/preflight.ts",
+    "demo:post-agent-message": "node --import tsx skills/treasury-operator/scripts/post_demo_message.ts",
     "frontend:write-config": "node --import tsx tools/frontend/writeLocalConfig.ts",
     "frontend:validate-config": "node --import tsx tools/frontend/validateLocalConfig.ts",
     "final:validate-cutover-env": "node --import tsx tools/final/validateCutoverEnv.ts",
