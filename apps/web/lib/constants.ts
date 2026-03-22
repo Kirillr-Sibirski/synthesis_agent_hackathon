@@ -1,6 +1,6 @@
 export const APP_NAME = 'Agent Allowance Protocol';
 export const APP_TAGLINE =
-  'Judge-ready dashboard for treasury status, budget state, receipt lookup, MetaMask proof, and readiness.';
+  'Principal-protected allowances for AI agents.';
 
 export const CHAIN_IDS = {
   baseSepolia: 84532,

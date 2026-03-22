@@ -1,16 +1,12 @@
 "use client";
 
 import * as React from 'react';
-import Image from 'next/image';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ReceiptLookup } from '@/components/receipt-lookup';
-import { ProofWorkspace } from '@/components/proof-workspace';
-import { Separator } from '@/components/ui/separator';
-import { APP_NAME, APP_TAGLINE } from '@/lib/constants';
-import { formatEtherLike, percentSpent, shortAddress, shortHash, yesNo } from '@/lib/format';
+import { APP_NAME } from '@/lib/constants';
+import { formatEtherLike, formatTimestamp, percentSpent, shortAddress, shortHash, yesNo } from '@/lib/format';
 import type { DashboardSnapshot } from '@/lib/types';
 
 interface DashboardProps {
@@ -42,6 +38,55 @@ function StatCard({
   );
 }
 
+function ProofLine({
+  label,
+  value,
+  copyValue,
+}: {
+  label: string;
+  value: string;
+  copyValue?: string | null;
+}): React.JSX.Element {
+  return (
+    <div className="metric-tile">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="section-kicker">{label}</p>
+          <p className="mt-2 break-all font-mono text-sm text-slate-100">{value}</p>
+        </div>
+        {copyValue ? (
+          <Button variant="ghost" size="sm" onClick={() => void navigator.clipboard.writeText(copyValue)}>
+            Copy
+          </Button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function ExplorerLink({
+  label,
+  hash,
+  kind = 'tx',
+}: {
+  label: string;
+  hash: string | null | undefined;
+  kind?: 'tx' | 'address';
+}): React.JSX.Element | null {
+  if (!hash) return null;
+  const href = kind === 'address' ? `https://basescan.org/address/${hash}` : `https://basescan.org/tx/${hash}`;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="soft-pill inline-flex px-3 py-2 text-sm"
+    >
+      {label}
+    </a>
+  );
+}
+
 function ProgressBar({ value }: { value: number }): React.JSX.Element {
   return (
     <div className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -56,9 +101,6 @@ function ProgressBar({ value }: { value: number }): React.JSX.Element {
 export function Dashboard({ initialSnapshot }: DashboardProps): React.JSX.Element {
   const [snapshot, setSnapshot] = React.useState(initialSnapshot);
   const [refreshing, startRefreshing] = React.useTransition();
-  const [walletAccount, setWalletAccount] = React.useState<string | null>(null);
-  const [walletBusy, setWalletBusy] = React.useState(false);
-  const [walletMessage, setWalletMessage] = React.useState('Wallet not connected');
 
   const refresh = React.useCallback(() => {
     startRefreshing(() => {
@@ -78,169 +120,126 @@ export function Dashboard({ initialSnapshot }: DashboardProps): React.JSX.Elemen
     });
   }, []);
 
-  const connectWallet = React.useCallback(async () => {
-    const provider = (window as Window & { ethereum?: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
-    if (!provider) {
-      setWalletMessage('MetaMask not found');
-      return;
-    }
-
-    setWalletBusy(true);
-
-    try {
-      const accounts = (await provider.request({ method: 'eth_requestAccounts' })) as string[];
-      const nextAccount = accounts[0] ?? null;
-      setWalletAccount(nextAccount);
-      setWalletMessage(nextAccount ? `Connected as ${shortAddress(nextAccount)}` : 'No account returned');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Wallet connection failed';
-      setWalletMessage(message);
-    } finally {
-      setWalletBusy(false);
-    }
-  }, []);
-
-  const switchWalletChain = React.useCallback(async () => {
-    const provider = (window as Window & { ethereum?: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
-    if (!provider) {
-      setWalletMessage('MetaMask not found');
-      return;
-    }
-
-    setWalletBusy(true);
-
-    try {
-      await provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: `0x${snapshot.network.chainId.toString(16)}` }],
-      });
-      setWalletMessage(`Wallet switched to ${snapshot.network.chainName}`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not switch wallet chain';
-      setWalletMessage(message);
-    } finally {
-      setWalletBusy(false);
-    }
-  }, [snapshot.network.chainId, snapshot.network.chainName]);
-
   const spentPercent = percentSpent(snapshot.budget.spentWstETH, snapshot.budget.allocationWstETH);
-  const readinessTone = snapshot.readiness.overallReadyForSameNetworkDemoSubmission ? 'success' : 'warning';
 
   return (
-    <main className="app-shell mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <section className="grid gap-4 lg:grid-cols-[1.35fr_0.95fr]">
+    <main className="app-shell mx-auto min-h-screen max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <section className="grid gap-4">
         <Card className="panel-surface panel-grid relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(205,83,52,0.18),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(255,251,252,0.08),transparent_24%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(205,83,52,0.12),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(205,83,52,0.06),transparent_24%)]" />
           <CardHeader className="relative">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div className="flex items-start gap-4">
-                <div className="rounded-[1.5rem] border border-primary/30 bg-[rgba(255,251,252,0.98)] p-3 shadow-[0_18px_44px_rgba(1,4,0,0.24)]">
-                  <Image
-                    src="/logo.png"
-                    alt={`${APP_NAME} logo`}
-                    width={120}
-                    height={120}
-                    priority
-                    className="h-16 w-auto sm:h-20"
-                  />
-                </div>
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="default">{APP_NAME}</Badge>
-                    <Badge variant={snapshot.network.finalChainSelected ? 'success' : 'warning'}>
-                      {snapshot.network.finalChainSelected ? 'Base mainnet live' : 'Prototype network selected'}
-                    </Badge>
-                    <Badge variant={snapshot.network.readyForSelectedNetworkUserOps ? 'success' : 'warning'}>
-                      Bundler {yesNo(snapshot.network.bundlerReachable).toLowerCase()}
-                    </Badge>
-                  </div>
-                  <div className="soft-pill inline-flex px-3 py-2 text-sm text-slate-300">
-                    Official AAP mark wired into the live judge dashboard
-                  </div>
-                </div>
-              </div>
-            </div>
-            <CardTitle className="mt-3 text-3xl tracking-tight sm:text-5xl">
-              Treasury, receipts, and MetaMask proof in one judge dashboard.
+            <p className="section-kicker">Base Mainnet Proof</p>
+            <CardTitle className="mt-1 text-3xl tracking-tight text-[#010400] sm:text-5xl">
+              {APP_NAME}
             </CardTitle>
-            <CardDescription className="max-w-2xl text-base text-slate-300">
-              {APP_TAGLINE} The app reads the latest local artifacts, exposes the proof path through a real Next.js backend,
-              and keeps the story honest about what is live onchain, what is loaded from the current repo artifacts, and what still
-              needs human-only submission polish.
+            <CardDescription className="max-w-3xl text-base">
+              A principal-protected treasury where agents spend from bounded allowances and every live spend is provable on Base mainnet.
             </CardDescription>
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-300">
-              <div className="soft-pill px-3 py-2">Live backend snapshot</div>
-              <div className="soft-pill px-3 py-2">Receipt registry lookup</div>
-              <div className="soft-pill px-3 py-2">MetaMask execution proof</div>
-            </div>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button onClick={refresh} disabled={refreshing}>
-                {refreshing ? 'Refreshing…' : 'Refresh backend snapshot'}
-              </Button>
-              <Button variant="outline" onClick={() => void connectWallet()} disabled={walletBusy}>
-                {walletBusy ? 'Waiting…' : walletAccount ? 'Reconnect wallet' : 'Connect wallet'}
-              </Button>
-              <Button variant="outline" onClick={() => void switchWalletChain()} disabled={walletBusy}>
-                Switch wallet chain
+                {refreshing ? 'Refreshing…' : 'Refresh live snapshot'}
               </Button>
               <Button variant="outline" onClick={() => navigator.clipboard.writeText(snapshot.receipt.lookupHash)}>
                 Copy receipt hash
               </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigator.clipboard.writeText(snapshot.treasury.spendTxHash ?? '')}
+                disabled={!snapshot.treasury.spendTxHash}
+              >
+                Copy spend tx
+              </Button>
+              <ExplorerLink label="View spend tx on BaseScan" hash={snapshot.treasury.spendTxHash} />
+              <ExplorerLink label="View treasury on BaseScan" hash={snapshot.treasury.treasuryAddress} kind="address" />
             </div>
           </CardHeader>
           <CardContent className="relative grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
-              label="Treasury"
-              value={shortAddress(snapshot.treasury.treasuryAddress)}
-              detail={`${snapshot.network.chainName} treasury wired to the current demo proof.`}
+              label="Chain"
+              value={snapshot.network.chainName}
+              detail="The live proof and dashboard are aligned to Base mainnet."
               tone="success"
             />
             <StatCard
-              label="Budget"
+              label="Budget remaining"
               value={`${formatEtherLike(snapshot.budget.remainingWstETH)} wstETH left`}
-              detail={`OPS_BUDGET remaining after ${formatEtherLike(snapshot.budget.spentWstETH)} wstETH spent.`}
+              detail={`OPS_BUDGET still has spendable headroom after ${formatEtherLike(snapshot.budget.spentWstETH)} wstETH spent.`}
+            />
+            <StatCard
+              label="Executor"
+              value={shortAddress(snapshot.receipt.executor)}
+              detail="The receipt points to the smart account as executor, not just the submitting EOA."
+              tone="success"
             />
             <StatCard
               label="Receipt"
               value={shortHash(snapshot.receipt.lookupHash)}
-              detail={`Executor: ${shortAddress(snapshot.receipt.executor)}`}
+              detail={`Recipient ${shortAddress(snapshot.receipt.recipient)} received ${formatEtherLike(snapshot.receipt.amountWstETH)} wstETH.`}
               tone="success"
             />
-            <StatCard
-              label="Readiness"
-              value={snapshot.readiness.overallReadyForSameNetworkDemoSubmission ? 'Ready' : 'Not yet'}
-              detail={snapshot.readiness.currentPosture}
-              tone={snapshot.readiness.overallReadyForSameNetworkDemoSubmission ? 'success' : 'warning'}
-            />
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <Card className="panel-surface">
+          <CardHeader>
+            <p className="section-kicker">Live proof</p>
+            <CardTitle>Public explorer links</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <ExplorerLink label="Spend tx" hash={snapshot.treasury.spendTxHash} />
+              <ExplorerLink label="Treasury deployment tx" hash={snapshot.treasury.deploymentTxHash} />
+              <ExplorerLink label="Treasury contract" hash={snapshot.treasury.treasuryAddress} kind="address" />
+              <ExplorerLink label="Receipt registry" hash={snapshot.treasury.receiptRegistryAddress} kind="address" />
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <ProofLine label="Treasury" value={snapshot.treasury.treasuryAddress} copyValue={snapshot.treasury.treasuryAddress} />
+              <ProofLine label="Smart-account executor" value={snapshot.receipt.executor} copyValue={snapshot.receipt.executor} />
+              <ProofLine label="Spend transaction" value={snapshot.treasury.spendTxHash ?? '—'} copyValue={snapshot.treasury.spendTxHash} />
+              <ProofLine label="Receipt hash" value={snapshot.receipt.lookupHash} copyValue={snapshot.receipt.lookupHash} />
+              <ProofLine label="Budget ID" value={snapshot.budget.budgetId} copyValue={snapshot.budget.budgetId} />
+              <ProofLine label="Task ID" value={snapshot.budget.taskId} copyValue={snapshot.budget.taskId} />
+            </div>
           </CardContent>
         </Card>
 
         <Card className="panel-surface">
           <CardHeader>
-            <p className="section-kicker">Control room</p>
-            <CardTitle>Current posture</CardTitle>
-            <CardDescription>
-              Live network, bundler, wallet bridge, and submission-readiness state for the current judge flow.
-            </CardDescription>
+            <p className="section-kicker">Why it matters</p>
+            <CardTitle>Track-facing summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-3">
               <div className="metric-tile">
-                <p className="section-kicker">Chain</p>
-                <p className="mt-2 font-medium text-slate-100">{snapshot.network.chainName}</p>
-                <p className="mt-1 text-sm text-slate-300">Target: {snapshot.network.finalChainName}</p>
+                <p className="font-medium text-[#010400]">Delegations</p>
+                <p className="mt-2 text-sm text-[rgb(71,56,51,0.78)]">The smart account is the treasury-side executor in the live receipt.</p>
               </div>
               <div className="metric-tile">
-                <p className="section-kicker">Bundler</p>
-                <p className="mt-2 font-medium text-slate-100">{yesNo(snapshot.network.bundlerReachable)}</p>
-                <p className="mt-1 text-sm text-slate-300">Ready for user ops: {yesNo(snapshot.network.readyForSelectedNetworkUserOps)}</p>
+                <p className="font-medium text-[#010400]">stETH / wstETH treasury</p>
+                <p className="mt-2 text-sm text-[rgb(71,56,51,0.78)]">The live path is wired to Base mainnet <code>wstETH</code>, with bounded spendable budget.</p>
+              </div>
+              <div className="metric-tile">
+                <p className="font-medium text-[#010400]">Receipts</p>
+                <p className="mt-2 text-sm text-[rgb(71,56,51,0.78)]">Every spend links to task, budget, evidence, result, and metadata onchain.</p>
+              </div>
+              <div className="metric-tile">
+                <p className="font-medium text-[#010400]">Budget model</p>
+                <p className="mt-2 text-sm text-[rgb(71,56,51,0.78)]">Managers can allocate narrower sub-budgets instead of handing agents the whole treasury.</p>
               </div>
             </div>
-            <div className="metric-tile">
-              <p className="section-kicker">Wallet bridge</p>
-              <p className="mt-2 font-medium text-slate-100">{walletAccount ? shortAddress(walletAccount) : 'Not connected'}</p>
-              <p className="mt-1 text-sm text-slate-300">{walletMessage}</p>
-            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
+        <Card className="panel-surface">
+          <CardHeader>
+            <p className="section-kicker">Onchain snapshot</p>
+            <CardTitle>Numbers to point at</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="data-stack">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-medium text-slate-100">Budget progress</p>
@@ -253,153 +252,38 @@ export function Dashboard({ initialSnapshot }: DashboardProps): React.JSX.Elemen
                 <p>Allocation: {formatEtherLike(snapshot.budget.allocationWstETH)} wstETH</p>
                 <p>Spent: {formatEtherLike(snapshot.budget.spentWstETH)} wstETH</p>
                 <p>Remaining: {formatEtherLike(snapshot.budget.remainingWstETH)} wstETH</p>
+                <p>Available yield: {formatEtherLike(snapshot.treasury.availableYieldWstETH)} wstETH</p>
               </div>
             </div>
-            <Separator />
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <p className="section-kicker">Executor</p>
-                <p className="mt-1 font-mono text-sm text-slate-100">{shortAddress(snapshot.treasury.treasuryExecutorAddress)}</p>
-              </div>
-              <div>
-                <p className="section-kicker">Receipt registry</p>
-                <p className="mt-1 font-mono text-sm text-slate-100">{shortAddress(snapshot.treasury.receiptRegistryAddress)}</p>
-              </div>
-              <div>
-                <p className="section-kicker">Authorizer</p>
-                <p className="mt-1 font-mono text-sm text-slate-100">{shortAddress(snapshot.treasury.authorizerAddress)}</p>
-              </div>
-              <div>
-                <p className="section-kicker">Asset</p>
-                <p className="mt-1 font-mono text-sm text-slate-100">{shortAddress(snapshot.treasury.assetAddress)}</p>
-              </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <ProofLine label="Asset" value={snapshot.treasury.assetAddress} />
+              <ProofLine label="Receipt registry" value={snapshot.treasury.receiptRegistryAddress} />
+              <ProofLine label="Authorizer" value={snapshot.treasury.authorizerAddress} />
+              <ProofLine label="Budget manager" value={snapshot.budget.manager} />
             </div>
           </CardContent>
         </Card>
-      </section>
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-[0.96fr_1.04fr]">
-        <ReceiptLookup snapshot={snapshot} />
-        <ProofWorkspace snapshot={snapshot} />
-      </section>
-
-      <section className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <Card className="panel-surface">
           <CardHeader>
-            <p className="section-kicker">Onchain state</p>
-            <CardTitle>Treasury and budget state</CardTitle>
-            <CardDescription>Readable state for judges who want the actual onchain story, not just a headline.</CardDescription>
+            <p className="section-kicker">Receipt summary</p>
+            <CardTitle>The key receipt facts</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-2">
-            <div className="metric-tile">
-              <p className="section-kicker">Treasury status</p>
-              <div className="mt-3 space-y-2 text-sm text-slate-200">
-                <p>Principal baseline: {formatEtherLike(snapshot.treasury.principalBaselineStETH)} stETH</p>
-                <p>Total allocated: {formatEtherLike(snapshot.treasury.totalBudgetAllocatedWstETH)} wstETH</p>
-                <p>Available yield: {formatEtherLike(snapshot.treasury.availableYieldWstETH)} wstETH</p>
-                <p>Recipient balance: {formatEtherLike(snapshot.treasury.recipientBalanceWstETH)} wstETH</p>
-              </div>
-            </div>
-            <div className="metric-tile">
-              <p className="section-kicker">Budget state</p>
-              <div className="mt-3 space-y-2 text-sm text-slate-200">
-                <p>Label: {snapshot.budget.label}</p>
-                <p>Budget ID: {snapshot.budget.budgetId}</p>
-                <p>Manager: {snapshot.budget.manager}</p>
-                <p>Active: {yesNo(snapshot.budget.active)}</p>
-              </div>
-            </div>
-            <div className="data-stack md:col-span-2">
-              <p className="section-kicker">Receipt-backed spend intent</p>
-              <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <div>
-                  <p className="section-kicker">Task ID</p>
-                  <p className="font-mono text-sm text-slate-100">{snapshot.budget.taskId}</p>
-                </div>
-                <div>
-                  <p className="section-kicker">Receipt hash</p>
-                  <p className="font-mono text-sm text-slate-100">{snapshot.budget.receiptHash}</p>
-                </div>
-                <div>
-                  <p className="section-kicker">Evidence hash</p>
-                  <p className="font-mono text-sm text-slate-100">{snapshot.budget.evidenceHash}</p>
-                </div>
-                <div>
-                  <p className="section-kicker">Result hash</p>
-                  <p className="font-mono text-sm text-slate-100">{snapshot.budget.resultHash}</p>
-                </div>
-                <div>
-                  <p className="section-kicker">Metadata URI</p>
-                  <p className="font-mono text-sm text-slate-100">{snapshot.budget.metadataURI}</p>
-                </div>
-                <div>
-                  <p className="section-kicker">Selector</p>
-                  <p className="font-mono text-sm text-slate-100">{snapshot.budget.selector}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="panel-surface">
-          <CardHeader>
-            <p className="section-kicker">Judge readiness</p>
-            <CardTitle>Readiness summary</CardTitle>
-            <CardDescription>
-              Honest track posture, blockers, and the remaining actions needed to make the final same-network claim.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="metric-tile">
-                <p className="section-kicker">MetaMask</p>
-                <Badge variant={snapshot.readiness.metaMaskFinalSameNetworkReady ? 'success' : 'warning'} className="mt-3">
-                  {yesNo(snapshot.readiness.metaMaskFinalSameNetworkReady)}
-                </Badge>
-              </div>
-              <div className="metric-tile">
-                <p className="section-kicker">Frontend demo</p>
-                <Badge variant={snapshot.readiness.frontendFinalDemoConfigReady ? 'success' : 'warning'} className="mt-3">
-                  {yesNo(snapshot.readiness.frontendFinalDemoConfigReady)}
-                </Badge>
-              </div>
-              <div className="metric-tile">
-                <p className="section-kicker">Cutover env</p>
-                <Badge variant={snapshot.readiness.cutoverEnvReady ? 'success' : 'warning'} className="mt-3">
-                  {yesNo(snapshot.readiness.cutoverEnvReady)}
-                </Badge>
-              </div>
-              <div className="metric-tile">
-                <p className="section-kicker">Submission ready</p>
-                <Badge variant={readinessTone} className="mt-3">
-                  {yesNo(snapshot.readiness.overallReadyForSameNetworkDemoSubmission)}
-                </Badge>
-              </div>
-            </div>
-            <Separator />
-            <div className="space-y-2">
-              {snapshot.readiness.blockers.slice(0, 4).map((blocker) => (
-                <div key={blocker} className="data-stack px-3 py-2 text-sm text-slate-200">
-                  {blocker}
-                </div>
-              ))}
-            </div>
+            <StatCard label="Recipient" value={shortAddress(snapshot.receipt.recipient)} detail="Approved payout recipient in the live spend." />
+            <StatCard label="Amount" value={`${formatEtherLike(snapshot.receipt.amountWstETH)} wstETH`} detail="Amount written into the recorded receipt." />
+            <StatCard label="Timestamp" value={formatTimestamp(snapshot.receipt.timestamp)} detail="When the registry recorded the receipt." />
+            <StatCard label="Readiness" value={yesNo(snapshot.readiness.overallReadyForSameNetworkDemoSubmission)} detail={snapshot.readiness.currentPosture} tone="success" />
           </CardContent>
         </Card>
       </section>
 
       <footer className="mt-6 flex flex-col gap-3 pb-6 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="rounded-xl border border-primary/25 bg-[rgba(255,251,252,0.96)] p-2">
-            <Image src="/logo.png" alt={`${APP_NAME} logo`} width={72} height={72} className="h-8 w-auto" />
-          </div>
-          <div>
-            <p className="font-medium text-slate-200">{APP_NAME}</p>
-            <p className="text-slate-400">Principal-protected agent treasury with receipt-backed accountability.</p>
-          </div>
+        <div>
+          <p className="font-medium text-[#010400]">{APP_NAME}</p>
         </div>
         <div>
-          Snapshot generated at <span className="font-mono text-slate-200">{snapshot.generatedAt}</span>. Backend sources are local file reads plus API routes.
+          Snapshot generated at <span className="font-mono text-[#010400]">{snapshot.generatedAt}</span>.
         </div>
       </footer>
     </main>
