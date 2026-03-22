@@ -699,6 +699,15 @@ export async function loadDashboardSnapshot(): Promise<DashboardSnapshot> {
   const bundler = asRecord(preflightRecord.bundler);
   const spendIntent = asRecord(preflightRecord.spendIntent);
   const summary = asRecord(readinessRecord.summary);
+  const currentState = asRecord(readinessRecord.currentState);
+  const recordedBaseMainnetLiveProof = asRecord(currentState.recordedBaseMainnetLiveProof);
+  const hasRecordedBaseMainnetLiveProof =
+    Boolean(recordedBaseMainnetLiveProof.liveNotePresent) &&
+    Boolean(recordedBaseMainnetLiveProof.hasBaseMainnetHeader) &&
+    Boolean(recordedBaseMainnetLiveProof.hasBaseChainId) &&
+    Boolean(recordedBaseMainnetLiveProof.hasMainnetWstEth) &&
+    Boolean(recordedBaseMainnetLiveProof.hasDelegationRedemption) &&
+    Boolean(recordedBaseMainnetLiveProof.hasReceiptEvidence);
   const trackSummary = buildTrackSummary(readinessRecord);
   const chainKey = resolveSelectedChainKey(preflightRecord, config);
   const chainConfig = config.chains[chainKey];
@@ -739,11 +748,17 @@ export async function loadDashboardSnapshot(): Promise<DashboardSnapshot> {
     Boolean(liveState?.receiptFound) &&
     Boolean(onchain.smartAccountDeployed) &&
     Boolean(bundler.readyForSelectedNetworkUserOps);
+  const recordedMainnetProofComplete =
+    hasRecordedBaseMainnetLiveProof &&
+    asArray<string>(summary.currentlyHonestTracks).includes('bestUseOfDelegations') &&
+    asArray<string>(summary.currentlyHonestTracks).includes('stEthAgentTreasury');
   const currentPosture = overallReady
     ? 'Same-network stack looks ready for the final judge flow.'
     : selectedChain.id === CHAIN_IDS.base
       ? 'Base mainnet proof is live, but a few final submission or validation tasks still remain.'
-      : 'A non-final network is selected right now, so the dashboard is showing a prototype-proof posture instead of the final Base mainnet story.';
+      : recordedMainnetProofComplete
+        ? 'Recorded Base mainnet proof is already present; the current non-mainnet selection only reflects an older local rerun environment.'
+        : 'A non-final network is selected right now, so the dashboard is showing a prototype-proof posture instead of the final Base mainnet story.';
   const relatedHashes = [
     { label: 'Receipt hash', hash: receiptHash },
     { label: 'Budget ID', hash: budgetId },
@@ -825,15 +840,19 @@ export async function loadDashboardSnapshot(): Promise<DashboardSnapshot> {
     proof: {
       qualificationStatus: overallReady
         ? 'Same-network ready'
-        : liveMetaMaskProofComplete
-          ? 'Mainnet cutover pending'
-          : 'Live proof in progress',
+        : recordedMainnetProofComplete
+          ? 'Recorded Base mainnet proof present'
+          : liveMetaMaskProofComplete
+            ? 'Mainnet cutover pending'
+            : 'Live proof in progress',
       liveProofHighlight:
         overallReady
           ? 'Base mainnet MetaMask deployment, delegation redemption, and receipt-backed spend are aligned for the final judge flow.'
-          : liveMetaMaskProofComplete
-            ? `${selectedChain.name} MetaMask smart-account deployment, delegation redemption, and receipt-backed treasury spend are live.`
-            : 'The constrained MetaMask artifact exists, but the live smart-account execution proof still needs completion.',
+          : recordedMainnetProofComplete
+            ? 'The repo already contains recorded Base mainnet delegation redemption and receipt-backed treasury spend proof; the remaining drift is local rerun / submission-surface alignment.'
+            : liveMetaMaskProofComplete
+              ? `${selectedChain.name} MetaMask smart-account deployment, delegation redemption, and receipt-backed treasury spend are live.`
+              : 'The constrained MetaMask artifact exists, but the live smart-account execution proof still needs completion.',
       liveProofNote: liveProofBody,
       liveProofTxs: [
         {

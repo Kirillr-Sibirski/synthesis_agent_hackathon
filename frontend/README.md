@@ -7,6 +7,7 @@ Judge-facing Next.js dashboard for **Agent Allowance Protocol (AAP)**.
 - live treasury status
 - budget / allowance state
 - per-agent **ERC-8004 receipt** views
+- per-agent **MetaMask delegation proof** views
 - receipt lookup
 - MetaMask proof artifacts
 - submission-readiness context from `../agent-artifacts/`
