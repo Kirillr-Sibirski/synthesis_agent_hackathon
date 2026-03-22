@@ -83,6 +83,24 @@ function StatCard({
   );
 }
 
+function InlineAction({
+  children,
+  onClick,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+}): React.JSX.Element {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-full border border-primary/15 bg-white px-3 py-1 text-[11px] font-medium text-[#5d423b] transition-colors hover:border-primary/35 hover:bg-primary/5 hover:text-[#010400]"
+    >
+      {children}
+    </button>
+  );
+}
+
 export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React.JSX.Element {
   const [walletAddress, setWalletAddress] = React.useState<Address | null>(null);
   const [walletBusy, setWalletBusy] = React.useState(false);
@@ -472,45 +490,44 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
     <main className="app-shell mx-auto min-h-screen max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <section className="flex items-start justify-between gap-4">
         <div>
-          <Link href="/" className={`inline-block ${helperClassName()}`}>
+          <Link
+            href="/"
+            className="inline-flex h-9 items-center justify-center rounded-full border border-primary/20 bg-white/80 px-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-primary/10"
+          >
             Back to treasuries
           </Link>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#010400] sm:text-5xl">{treasury.name}</h1>
           <p className={`mt-3 ${helperClassName()}`}>Treasury workspace for principal, budgets, and active agents.</p>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
-          <Button onClick={() => void connectWallet()} disabled={walletBusy}>
-            {walletBusy ? (
-              <>
-                <ButtonSpinner />
-                Connecting...
-              </>
-            ) : walletAddress ? (
-              `${shortAddress(walletAddress)} on Base`
-            ) : (
-              "Connect wallet"
-            )}
-          </Button>
-          {walletAddress ? (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => void connectWallet()}
-                className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
-              >
-                Change wallet
-              </button>
-              <button
-                type="button"
-                onClick={clearWallet}
-                className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
-              >
-                Clear
-              </button>
-            </div>
-          ) : null}
-          <p className={`max-w-[18rem] text-right ${helperClassName()}`}>{walletStatus}</p>
+        <div className="flex max-w-[19rem] flex-col items-end gap-2">
+          <div className="panel-surface flex min-w-[14rem] flex-col gap-2 rounded-[1.35rem] p-2">
+            <Button onClick={() => void connectWallet()} disabled={walletBusy} className="w-full justify-between">
+              {walletBusy ? (
+                <>
+                  <span className="inline-flex items-center gap-2">
+                    <ButtonSpinner />
+                    Connecting...
+                  </span>
+                  <span />
+                </>
+              ) : walletAddress ? (
+                <>
+                  <span>{shortAddress(walletAddress)}</span>
+                  <span className="text-primary-foreground/80">Base</span>
+                </>
+              ) : (
+                "Connect wallet"
+              )}
+            </Button>
+            {walletAddress ? (
+              <div className="flex items-center justify-end gap-2">
+                <InlineAction onClick={() => void connectWallet()}>Change wallet</InlineAction>
+                <InlineAction onClick={clearWallet}>Clear</InlineAction>
+              </div>
+            ) : null}
+          </div>
+          <p className={`text-right ${helperClassName()}`}>{walletStatus}</p>
         </div>
       </section>
 
@@ -521,11 +538,49 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
             <CardTitle>Core treasury stats</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              label="Principal"
-              value={treasury.principalAmountWstETH ? `${treasury.principalAmountWstETH} wstETH` : "Not funded"}
-              detail="Principal capital held in the treasury."
-            />
+            <div className="metric-tile md:col-span-2 xl:col-span-1">
+              <div className="flex items-center gap-2">
+                <SectionLabel>Principal</SectionLabel>
+                <InfoHint text="Principal capital held in the treasury. You can return part of this protected base capital back to the connected operator wallet." />
+              </div>
+              <p className="mt-2 text-lg font-semibold text-[#010400]">
+                {treasury.principalAmountWstETH ? `${treasury.principalAmountWstETH} wstETH` : "Not funded"}
+              </p>
+              <div className="mt-3 space-y-3">
+                <input
+                  className={inputClassName()}
+                  value={withdrawAmount}
+                  onChange={(event) => setWithdrawAmount(event.target.value)}
+                  placeholder="0.001 wstETH"
+                />
+                <div className="flex items-center justify-between gap-3">
+                  <p className={helperClassName()}>
+                    Protected principal: {Number(treasury.principalAmountWstETH ?? "0").toFixed(6)} wstETH
+                  </p>
+                  <InlineAction onClick={() => setWithdrawAmount(Number(treasury.principalAmountWstETH ?? "0").toFixed(6))}>
+                    Use max
+                  </InlineAction>
+                </div>
+                {!canWithdrawPrincipal ? (
+                  <p className="text-sm text-[#cd5334]">Requested withdrawal is above the treasury&apos;s protected principal.</p>
+                ) : null}
+                <Button
+                  onClick={() => void withdrawPrincipal()}
+                  disabled={withdrawBusy || !walletAddress || !manifest || !canWithdrawPrincipal}
+                  className="w-full"
+                >
+                  {withdrawBusy ? (
+                    <>
+                      <ButtonSpinner />
+                      Withdrawing...
+                    </>
+                  ) : (
+                    "Withdraw principal"
+                  )}
+                </Button>
+                <p className={helperClassName()}>{withdrawStatus}</p>
+              </div>
+            </div>
             <StatCard
               label="Spendable amount"
               value={treasury.spendableTopUpWstETH ? `${treasury.spendableTopUpWstETH} wstETH` : "0 wstETH"}
@@ -576,7 +631,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
                 <div key={allowance.id} className="metric-tile">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-base font-semibold text-[#010400]">{allowance.label}</p>
+                      <p className="text-base font-semibold text-[#cd5334]">{allowance.label}</p>
                       <p className={`mt-1 ${helperClassName()}`}>{shortAddress(allowance.executor)}</p>
                     </div>
                     <Badge variant="secondary">{allowance.amountWstETH} wstETH</Badge>
@@ -610,7 +665,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
         </Card>
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-3">
+      <section className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="panel-surface">
           <CardHeader>
             <SectionLabel>Agent Budgeting</SectionLabel>
@@ -619,7 +674,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#010400]">Agent name</label>
+                <label className="text-sm font-medium text-[#cd5334]">Agent name</label>
                 <input
                   className={inputClassName()}
                   value={agentLabel}
@@ -662,7 +717,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
                     {allowanceStep ?? "Working..."}
                   </>
                 ) : (
-                  "Assign allowance"
+                  "Deploy agent allowance"
                 )}
               </Button>
             </div>
@@ -715,55 +770,6 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
             </Button>
 
             <p className={helperClassName()}>{topUpStatus}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="panel-surface">
-          <CardHeader>
-            <SectionLabel>Withdraw Principal</SectionLabel>
-            <CardTitle className="flex items-center gap-2">
-              <span>Return protected funds</span>
-              <InfoHint text="This withdraws protected principal back to the connected operator wallet. It reduces the treasury's protected base capital." />
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[#010400]">Withdraw amount</label>
-              <input
-                className={inputClassName()}
-                value={withdrawAmount}
-                onChange={(event) => setWithdrawAmount(event.target.value)}
-                placeholder="0.001 wstETH"
-              />
-              <div className="flex items-center justify-between gap-3">
-                <p className={helperClassName()}>
-                  Protected principal: {Number(treasury.principalAmountWstETH ?? "0").toFixed(6)} wstETH
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setWithdrawAmount(Number(treasury.principalAmountWstETH ?? "0").toFixed(6))}
-                  className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
-                >
-                  Use max
-                </button>
-              </div>
-              {!canWithdrawPrincipal ? (
-                <p className="text-sm text-[#cd5334]">Requested withdrawal is above the treasury's protected principal.</p>
-              ) : null}
-            </div>
-
-            <Button onClick={() => void withdrawPrincipal()} disabled={withdrawBusy || !walletAddress || !manifest || !canWithdrawPrincipal}>
-              {withdrawBusy ? (
-                <>
-                  <ButtonSpinner />
-                  Withdrawing...
-                </>
-              ) : (
-                "Withdraw principal"
-              )}
-            </Button>
-
-            <p className={helperClassName()}>{withdrawStatus}</p>
           </CardContent>
         </Card>
       </section>
