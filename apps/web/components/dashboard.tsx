@@ -1,291 +1,529 @@
 "use client";
 
-import * as React from 'react';
+import * as React from "react";
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { APP_NAME } from '@/lib/constants';
-import { formatEtherLike, formatTimestamp, percentSpent, shortAddress, shortHash, yesNo } from '@/lib/format';
-import type { DashboardSnapshot } from '@/lib/types';
+import Link from "next/link";
+import { createWalletClient, custom, decodeEventLog, formatUnits, parseUnits, type Address, getAddress } from "viem";
+import { base } from "viem/chains";
 
-interface DashboardProps {
-  initialSnapshot: DashboardSnapshot;
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { shortAddress } from "@/lib/format";
+
+import {
+  ensureBaseNetwork,
+  erc20Abi,
+  FACTORY_STORAGE_KEY,
+  formatUsd,
+  getProvider,
+  helperClassName,
+  inputClassName,
+  publicClient,
+  readStoredTreasuries,
+  toErrorMessage,
+  type ManagedTreasury,
+  type OperatorManifest,
+  type OperatorMarket,
+  writeStoredTreasuries,
+} from "@/components/operator/lib";
+
+function SectionLabel({ children }: { children: React.ReactNode }): React.JSX.Element {
+  return <p className="section-kicker">{children}</p>;
+}
+
+function ButtonSpinner(): React.JSX.Element {
+  return <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />;
+}
+
+function TokenInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}): React.JSX.Element {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-white px-3 py-2 shadow-sm">
+      <input
+        className="min-w-0 flex-1 border-0 bg-transparent px-0 py-2 text-sm text-[#010400] outline-none placeholder:text-[rgb(108,90,84)]"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="0.10"
+      />
+      <div className="flex items-center gap-2 rounded-full bg-[#fff7f3] px-3 py-2">
+        <span className="text-sm font-semibold text-[#010400]">wstETH</span>
+        <img
+          src="https://s2.coinmarketcap.com/static/img/coins/64x64/12409.png"
+          alt="wstETH"
+          className="h-6 w-6 rounded-full"
+        />
+      </div>
+    </div>
+  );
 }
 
 function StatCard({
   label,
   value,
   detail,
-  tone = 'default',
 }: {
   label: string;
   value: string;
   detail: string;
-  tone?: 'default' | 'success' | 'warning';
 }): React.JSX.Element {
   return (
     <div className="metric-tile">
-      <p className="section-kicker">{label}</p>
-      <div className="mt-2 flex items-center justify-between gap-3">
-        <p className="text-lg font-semibold text-slate-50">{value}</p>
-        <Badge variant={tone === 'success' ? 'success' : tone === 'warning' ? 'warning' : 'secondary'}>
-          {tone === 'success' ? 'Live' : tone === 'warning' ? 'Needs cutover' : 'Snapshot'}
-        </Badge>
-      </div>
-      <p className="mt-2 text-sm text-slate-300">{detail}</p>
+      <SectionLabel>{label}</SectionLabel>
+      <p className="mt-2 text-lg font-semibold text-[#010400]">{value}</p>
+      <p className={`mt-2 ${helperClassName()}`}>{detail}</p>
     </div>
   );
 }
 
-function ProofLine({
-  label,
-  value,
-  copyValue,
-}: {
-  label: string;
-  value: string;
-  copyValue?: string | null;
-}): React.JSX.Element {
+function TreasuryListItem({ treasury }: { treasury: ManagedTreasury }): React.JSX.Element {
   return (
     <div className="metric-tile">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="section-kicker">{label}</p>
-          <p className="mt-2 break-all font-mono text-sm text-slate-100">{value}</p>
+          <p className="text-base font-semibold text-[#010400]">{treasury.name}</p>
+          <p className={`mt-1 ${helperClassName()}`}>
+            {treasury.allowances.length} {treasury.allowances.length === 1 ? "agent" : "agents"}
+          </p>
         </div>
-        {copyValue ? (
-          <Button variant="ghost" size="sm" onClick={() => void navigator.clipboard.writeText(copyValue)}>
-            Copy
-          </Button>
-        ) : null}
+        <Badge variant="secondary">
+          {treasury.principalAmountWstETH ? `${treasury.principalAmountWstETH} wstETH` : "New"}
+        </Badge>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <p className={helperClassName()}>
+          Owner {shortAddress(treasury.ownerAddress)}
+        </p>
+        <Link
+          href={`/treasury/${treasury.id}`}
+          className="inline-flex h-9 items-center justify-center rounded-full border border-primary/20 bg-white/80 px-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-primary/10"
+        >
+          Open workspace
+        </Link>
       </div>
     </div>
   );
 }
 
-function ExplorerLink({
-  label,
-  hash,
-  kind = 'tx',
-}: {
-  label: string;
-  hash: string | null | undefined;
-  kind?: 'tx' | 'address';
-}): React.JSX.Element | null {
-  if (!hash) return null;
-  const href = kind === 'address' ? `https://basescan.org/address/${hash}` : `https://basescan.org/tx/${hash}`;
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="soft-pill inline-flex px-3 py-2 text-sm"
-    >
-      {label}
-    </a>
-  );
-}
+export function Dashboard(): React.JSX.Element {
+  const [walletAddress, setWalletAddress] = React.useState<Address | null>(null);
+  const [walletBusy, setWalletBusy] = React.useState(false);
+  const [walletStatus, setWalletStatus] = React.useState("Connect your wallet to create and manage treasuries.");
+  const [manifest, setManifest] = React.useState<OperatorManifest | null>(null);
+  const [market, setMarket] = React.useState<OperatorMarket>({ aprPercent: 2.4, ethUsd: 0, sourceNote: "" });
+  const [managedTreasuries, setManagedTreasuries] = React.useState<ManagedTreasury[]>([]);
+  const [factoryAddress, setFactoryAddress] = React.useState<Address | null>(null);
+  const [walletAssetBalance, setWalletAssetBalance] = React.useState("0");
+  const [creationStatus, setCreationStatus] = React.useState("Create a treasury and make the first principal deposit in one guided flow.");
+  const [creationBusy, setCreationBusy] = React.useState(false);
+  const [creationStep, setCreationStep] = React.useState<string | null>(null);
+  const [treasuryName, setTreasuryName] = React.useState("My Agent Treasury");
+  const [principalAmount, setPrincipalAmount] = React.useState("0.10");
 
-function ProgressBar({ value }: { value: number }): React.JSX.Element {
-  return (
-    <div className="h-2 overflow-hidden rounded-full bg-white/10">
-      <div
-        className="h-full rounded-full bg-gradient-to-r from-primary via-[#e08268] to-[#fffbfc] shadow-[0_0_24px_rgba(205,83,52,0.35)]"
-        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-      />
-    </div>
-  );
-}
-
-export function Dashboard({ initialSnapshot }: DashboardProps): React.JSX.Element {
-  const [snapshot, setSnapshot] = React.useState(initialSnapshot);
-  const [refreshing, startRefreshing] = React.useTransition();
-
-  const refresh = React.useCallback(() => {
-    startRefreshing(() => {
-      void (async () => {
-        try {
-          const response = await fetch('/api/snapshot', { cache: 'no-store' });
-          if (!response.ok) {
-            throw new Error(`Snapshot endpoint returned HTTP ${response.status}`);
-          }
-
-          const nextSnapshot = (await response.json()) as DashboardSnapshot;
-          setSnapshot(nextSnapshot);
-        } catch {
-          // Keep the last good snapshot on screen.
-        }
-      })();
-    });
+  React.useEffect(() => {
+    const stored = readStoredTreasuries();
+    setManagedTreasuries(stored);
+    const storedFactory = window.localStorage.getItem(FACTORY_STORAGE_KEY);
+    if (storedFactory) {
+      try {
+        setFactoryAddress(getAddress(storedFactory));
+      } catch {
+        window.localStorage.removeItem(FACTORY_STORAGE_KEY);
+      }
+    }
   }, []);
 
-  const spentPercent = percentSpent(snapshot.budget.spentWstETH, snapshot.budget.allocationWstETH);
+  React.useEffect(() => {
+    const provider = getProvider();
+    if (!provider) return;
+
+    void (async () => {
+      try {
+        const accounts = (await provider.request({ method: "eth_accounts" })) as string[];
+        if (!accounts[0]) return;
+
+        const nextAccount = getAddress(accounts[0]);
+        const chainId = (await provider.request({ method: "eth_chainId" })) as string;
+        setWalletAddress(nextAccount);
+        setWalletStatus(
+          chainId === "0x2105"
+            ? `Connected ${shortAddress(nextAccount)} on Base.`
+            : `Connected ${shortAddress(nextAccount)}. Switch to Base to continue.`,
+        );
+      } catch {
+        // Ignore passive auto-connect failures.
+      }
+    })();
+  }, []);
+
+  React.useEffect(() => {
+    writeStoredTreasuries(managedTreasuries);
+  }, [managedTreasuries]);
+
+  React.useEffect(() => {
+    void (async () => {
+      try {
+        const [manifestResponse, marketResponse] = await Promise.all([
+          fetch("/api/operator-manifest", { cache: "no-store" }),
+          fetch("/api/operator-market", { cache: "no-store" }),
+        ]);
+
+        if (manifestResponse.ok) {
+          setManifest((await manifestResponse.json()) as OperatorManifest);
+        }
+
+        if (marketResponse.ok) {
+          setMarket((await marketResponse.json()) as OperatorMarket);
+        }
+      } catch {
+        // Keep fallbacks.
+      }
+    })();
+  }, []);
+
+  React.useEffect(() => {
+    if (!walletAddress || !manifest) return;
+
+    void (async () => {
+      try {
+        const balance = await publicClient.readContract({
+          address: manifest.baseAssetAddress,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [walletAddress],
+        });
+        setWalletAssetBalance(formatUnits(balance, 18));
+      } catch {
+        setWalletAssetBalance("0");
+      }
+    })();
+  }, [manifest, walletAddress]);
+
+  const dailyYieldAsset = Number(principalAmount || "0") * (market.aprPercent / 100) / 365;
+  const dailyYieldUsd = dailyYieldAsset * market.ethUsd;
+  const hasEnoughAssetBalance = Number(principalAmount || "0") <= Number(walletAssetBalance || "0");
+
+  const connectWallet = React.useCallback(async () => {
+    const provider = getProvider();
+    if (!provider) {
+      setWalletStatus("MetaMask was not found in this browser.");
+      return;
+    }
+
+    setWalletBusy(true);
+    try {
+      await ensureBaseNetwork(provider);
+      const accounts = (await provider.request({ method: "eth_requestAccounts" })) as string[];
+      const nextAccount = getAddress(accounts[0] ?? "0x0000000000000000000000000000000000000000");
+      setWalletAddress(nextAccount);
+      setWalletStatus(`Connected ${shortAddress(nextAccount)} on Base.`);
+    } catch (error) {
+      setWalletStatus(toErrorMessage(error));
+    } finally {
+      setWalletBusy(false);
+    }
+  }, []);
+
+  const clearWallet = React.useCallback(() => {
+    setWalletAddress(null);
+    setWalletAssetBalance("0");
+    setWalletStatus("Wallet cleared for this app. Reconnect or switch accounts in MetaMask.");
+  }, []);
+
+  const createAndFundTreasury = React.useCallback(async () => {
+    const provider = getProvider();
+    if (!provider || !walletAddress || !manifest) {
+      setCreationStatus("Connect your wallet first.");
+      return;
+    }
+
+    if (!hasEnoughAssetBalance) {
+      setCreationStatus("Not enough wstETH in the connected wallet for this principal deposit.");
+      return;
+    }
+
+    setCreationBusy(true);
+
+    try {
+      await ensureBaseNetwork(provider);
+      const walletClient = createWalletClient({
+        account: walletAddress,
+        chain: base,
+        transport: custom(provider),
+      });
+
+      const principalWei = parseUnits(principalAmount, 18);
+      let activeFactory = factoryAddress;
+
+      if (activeFactory) {
+        let factoryLooksValid = false;
+
+        try {
+          const factoryCode = await publicClient.getCode({ address: activeFactory });
+          if (factoryCode && factoryCode !== "0x") {
+            await publicClient.readContract({
+              address: activeFactory,
+              abi: manifest.factory.abi,
+              functionName: "treasuryOperator",
+              args: ["0x0000000000000000000000000000000000000000"],
+            });
+            factoryLooksValid = true;
+          }
+        } catch {
+          factoryLooksValid = false;
+        }
+
+        if (!factoryLooksValid) {
+          activeFactory = null;
+          setFactoryAddress(null);
+          window.localStorage.removeItem(FACTORY_STORAGE_KEY);
+        }
+      }
+
+      if (!activeFactory) {
+        setCreationStep("1/3 Deploying operator factory");
+        const deployFactoryTx = await walletClient.deployContract({
+          abi: manifest.factory.abi,
+          bytecode: manifest.factory.bytecode,
+        });
+        const deployFactoryReceipt = await publicClient.waitForTransactionReceipt({ hash: deployFactoryTx });
+        activeFactory = getAddress(deployFactoryReceipt.contractAddress ?? "0x0000000000000000000000000000000000000000");
+        setFactoryAddress(activeFactory);
+        window.localStorage.setItem(FACTORY_STORAGE_KEY, activeFactory);
+      }
+
+      setCreationStep(activeFactory === factoryAddress ? "1/2 Approving wstETH" : "2/3 Approving wstETH");
+      await publicClient.waitForTransactionReceipt({
+        hash: await walletClient.writeContract({
+          address: manifest.baseAssetAddress,
+          abi: erc20Abi,
+          functionName: "approve",
+          args: [activeFactory, principalWei],
+        }),
+      });
+
+      setCreationStep(activeFactory === factoryAddress ? "2/2 Creating treasury" : "3/3 Creating treasury");
+      const bootstrapTx = await walletClient.writeContract({
+        address: activeFactory,
+        abi: manifest.factory.abi,
+        functionName: "bootstrapTreasury",
+        args: [
+          manifest.baseAssetAddress,
+          principalWei,
+          treasuryName.trim() || "Untitled Treasury",
+          {
+            label: "",
+            agent: "0x0000000000000000000000000000000000000000",
+            amountWstETH: 0n,
+            enabled: false,
+          },
+        ],
+      });
+      const bootstrapReceipt = await publicClient.waitForTransactionReceipt({ hash: bootstrapTx });
+
+      let treasuryAddress: Address | null = null;
+      let authorizerAddress: Address | null = null;
+      let receiptRegistryAddress: Address | null = null;
+
+      for (const log of bootstrapReceipt.logs) {
+        try {
+          const decoded = decodeEventLog({
+            abi: manifest.factory.abi,
+            data: log.data,
+            topics: log.topics,
+          });
+
+          if (decoded.eventName === "TreasuryBootstrapped") {
+            const args = decoded.args as {
+              treasury: Address;
+              authorizer: Address;
+              receiptRegistry: Address;
+            };
+            treasuryAddress = getAddress(args.treasury);
+            authorizerAddress = getAddress(args.authorizer);
+            receiptRegistryAddress = getAddress(args.receiptRegistry);
+            break;
+          }
+        } catch {
+          // Ignore unrelated logs.
+        }
+      }
+
+      if (!treasuryAddress || !authorizerAddress || !receiptRegistryAddress) {
+        throw new Error("Treasury deployment completed, but the new addresses could not be decoded.");
+      }
+
+      const nextTreasury: ManagedTreasury = {
+        id: crypto.randomUUID(),
+        name: treasuryName.trim() || "Untitled Treasury",
+        ownerAddress: walletAddress,
+        assetAddress: manifest.baseAssetAddress,
+        treasuryAddress,
+        authorizerAddress,
+        receiptRegistryAddress,
+        createdAt: new Date().toISOString(),
+        creationTxHashes: {
+          authorizer: bootstrapTx,
+          treasury: bootstrapTx,
+          receiptRegistry: bootstrapTx,
+        },
+        principalAmountWstETH: principalAmount,
+        principalDepositTxHash: bootstrapTx,
+        allowances: [],
+      };
+
+      setManagedTreasuries((current) => {
+        const next = [nextTreasury, ...current];
+        writeStoredTreasuries(next);
+        return next;
+      });
+      setCreationStatus(`${nextTreasury.name} is live. Open its workspace to assign agent budgets.`);
+    } catch (error) {
+      const message = toErrorMessage(error);
+      if (message.toLowerCase().includes("simulation")) {
+        setCreationStatus("Treasury creation simulation failed. I cleared any stale factory state; try once more and the app will redeploy the operator factory if needed.");
+      } else {
+        setCreationStatus(message);
+      }
+    } finally {
+      setCreationBusy(false);
+      setCreationStep(null);
+    }
+  }, [factoryAddress, hasEnoughAssetBalance, manifest, principalAmount, treasuryName, walletAddress]);
 
   return (
     <main className="app-shell mx-auto min-h-screen max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-      <section className="grid gap-4">
-        <Card className="panel-surface panel-grid relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(205,83,52,0.12),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(205,83,52,0.06),transparent_24%)]" />
-          <CardHeader className="relative">
-            <p className="section-kicker">Base Mainnet Proof</p>
-            <CardTitle className="mt-1 text-3xl tracking-tight text-[#010400] sm:text-5xl">
-              {APP_NAME}
-            </CardTitle>
-            <CardDescription className="max-w-3xl text-base">
-              A principal-protected treasury where agents spend from bounded allowances and every live spend is provable on Base mainnet.
-            </CardDescription>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <Button onClick={refresh} disabled={refreshing}>
-                {refreshing ? 'Refreshing…' : 'Refresh live snapshot'}
-              </Button>
-              <Button variant="outline" onClick={() => navigator.clipboard.writeText(snapshot.receipt.lookupHash)}>
-                Copy receipt hash
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigator.clipboard.writeText(snapshot.treasury.spendTxHash ?? '')}
-                disabled={!snapshot.treasury.spendTxHash}
+      <section className="flex items-start justify-between gap-4">
+        <div>
+          <SectionLabel>Manage My Treasuries</SectionLabel>
+          <h1 className="mt-1 text-3xl tracking-tight sm:text-5xl">
+            <span className="text-[#cd5334] underline decoration-[#cd5334] underline-offset-8">Agent</span>{" "}
+            <span className="text-[#010400]">Allowance</span>{" "}
+            <span className="text-[#cd5334] italic">Protocol</span>
+          </h1>
+          <p className={`mt-3 ${helperClassName()}`}>{managedTreasuries.length} treasuries in this workspace</p>
+        </div>
+
+        <div className="flex flex-col items-end gap-2">
+          <Button onClick={() => void connectWallet()} disabled={walletBusy}>
+            {walletBusy ? (
+              <>
+                <ButtonSpinner />
+                Connecting...
+              </>
+            ) : walletAddress ? (
+              `${shortAddress(walletAddress)} on Base`
+            ) : (
+              "Connect wallet"
+            )}
+          </Button>
+          {walletAddress ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void connectWallet()}
+                className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
               >
-                Copy spend tx
-              </Button>
-              <ExplorerLink label="View spend tx on BaseScan" hash={snapshot.treasury.spendTxHash} />
-              <ExplorerLink label="View treasury on BaseScan" hash={snapshot.treasury.treasuryAddress} kind="address" />
+                Change wallet
+              </button>
+              <button
+                type="button"
+                onClick={clearWallet}
+                className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
+              >
+                Clear
+              </button>
             </div>
-          </CardHeader>
-          <CardContent className="relative grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              label="Chain"
-              value={snapshot.network.chainName}
-              detail="The live proof and dashboard are aligned to Base mainnet."
-              tone="success"
-            />
-            <StatCard
-              label="Budget remaining"
-              value={`${formatEtherLike(snapshot.budget.remainingWstETH)} wstETH left`}
-              detail={`OPS_BUDGET still has spendable headroom after ${formatEtherLike(snapshot.budget.spentWstETH)} wstETH spent.`}
-            />
-            <StatCard
-              label="Executor"
-              value={shortAddress(snapshot.receipt.executor)}
-              detail="The receipt points to the smart account as executor, not just the submitting EOA."
-              tone="success"
-            />
-            <StatCard
-              label="Receipt"
-              value={shortHash(snapshot.receipt.lookupHash)}
-              detail={`Recipient ${shortAddress(snapshot.receipt.recipient)} received ${formatEtherLike(snapshot.receipt.amountWstETH)} wstETH.`}
-              tone="success"
-            />
-          </CardContent>
-        </Card>
+          ) : null}
+          <p className={`max-w-[18rem] text-right ${helperClassName()}`}>{walletStatus}</p>
+        </div>
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <Card className="panel-surface">
           <CardHeader>
-            <p className="section-kicker">Live proof</p>
-            <CardTitle>Public explorer links</CardTitle>
+            <SectionLabel>My Treasuries</SectionLabel>
+            <CardTitle>Operator workspace</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              <ExplorerLink label="Spend tx" hash={snapshot.treasury.spendTxHash} />
-              <ExplorerLink label="Treasury deployment tx" hash={snapshot.treasury.deploymentTxHash} />
-              <ExplorerLink label="Treasury contract" hash={snapshot.treasury.treasuryAddress} kind="address" />
-              <ExplorerLink label="Receipt registry" hash={snapshot.treasury.receiptRegistryAddress} kind="address" />
-            </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              <ProofLine label="Treasury" value={snapshot.treasury.treasuryAddress} copyValue={snapshot.treasury.treasuryAddress} />
-              <ProofLine label="Smart-account executor" value={snapshot.receipt.executor} copyValue={snapshot.receipt.executor} />
-              <ProofLine label="Spend transaction" value={snapshot.treasury.spendTxHash ?? '—'} copyValue={snapshot.treasury.spendTxHash} />
-              <ProofLine label="Receipt hash" value={snapshot.receipt.lookupHash} copyValue={snapshot.receipt.lookupHash} />
-              <ProofLine label="Budget ID" value={snapshot.budget.budgetId} copyValue={snapshot.budget.budgetId} />
-              <ProofLine label="Task ID" value={snapshot.budget.taskId} copyValue={snapshot.budget.taskId} />
-            </div>
+            {managedTreasuries.length ? (
+              managedTreasuries.map((treasury) => <TreasuryListItem key={treasury.id} treasury={treasury} />)
+            ) : (
+              <div className="metric-tile">
+                <p className="text-base font-semibold text-[#010400]">No treasuries yet</p>
+                <p className={`mt-2 ${helperClassName()}`}>Create the first treasury to start assigning allowances to agents.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card className="panel-surface">
           <CardHeader>
-            <p className="section-kicker">Why it matters</p>
-            <CardTitle>Track-facing summary</CardTitle>
+            <SectionLabel>Create New Treasury</SectionLabel>
+            <CardTitle>Deploy and fund principal</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="metric-tile">
-                <p className="font-medium text-[#010400]">Delegations</p>
-                <p className="mt-2 text-sm text-[rgb(71,56,51,0.78)]">The smart account is the treasury-side executor in the live receipt.</p>
-              </div>
-              <div className="metric-tile">
-                <p className="font-medium text-[#010400]">stETH / wstETH treasury</p>
-                <p className="mt-2 text-sm text-[rgb(71,56,51,0.78)]">The live path is wired to Base mainnet <code>wstETH</code>, with bounded spendable budget.</p>
-              </div>
-              <div className="metric-tile">
-                <p className="font-medium text-[#010400]">Receipts</p>
-                <p className="mt-2 text-sm text-[rgb(71,56,51,0.78)]">Every spend links to task, budget, evidence, result, and metadata onchain.</p>
-              </div>
-              <div className="metric-tile">
-                <p className="font-medium text-[#010400]">Budget model</p>
-                <p className="mt-2 text-sm text-[rgb(71,56,51,0.78)]">Managers can allocate narrower sub-budgets instead of handing agents the whole treasury.</p>
-              </div>
+          <CardContent className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#010400]">Treasury name</label>
+              <input
+                className={inputClassName()}
+                value={treasuryName}
+                onChange={(event) => setTreasuryName(event.target.value)}
+              />
             </div>
-          </CardContent>
-        </Card>
-      </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
-        <Card className="panel-surface">
-          <CardHeader>
-            <p className="section-kicker">Onchain snapshot</p>
-            <CardTitle>Numbers to point at</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="data-stack">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#010400]">Principal deposit</label>
+              <TokenInput value={principalAmount} onChange={setPrincipalAmount} />
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-slate-100">Budget progress</p>
-                <span className="font-mono text-sm text-slate-300">{spentPercent.toFixed(1)}%</span>
+                <p className={helperClassName()}>Wallet balance: {Number(walletAssetBalance).toFixed(6)} wstETH</p>
+                {walletAddress ? (
+                  <button
+                    type="button"
+                    onClick={() => setPrincipalAmount(Number(walletAssetBalance).toFixed(6))}
+                    className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
+                  >
+                    Use max
+                  </button>
+                ) : null}
               </div>
-              <div className="mt-3">
-                <ProgressBar value={spentPercent} />
-              </div>
-              <div className="mt-3 grid gap-2 text-sm text-slate-300">
-                <p>Allocation: {formatEtherLike(snapshot.budget.allocationWstETH)} wstETH</p>
-                <p>Spent: {formatEtherLike(snapshot.budget.spentWstETH)} wstETH</p>
-                <p>Remaining: {formatEtherLike(snapshot.budget.remainingWstETH)} wstETH</p>
-                <p>Available yield: {formatEtherLike(snapshot.treasury.availableYieldWstETH)} wstETH</p>
-              </div>
+              {!hasEnoughAssetBalance ? (
+                <p className="text-sm text-[#cd5334]">Connected wallet does not have enough wstETH for this deposit.</p>
+              ) : null}
             </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              <ProofLine label="Asset" value={snapshot.treasury.assetAddress} />
-              <ProofLine label="Receipt registry" value={snapshot.treasury.receiptRegistryAddress} />
-              <ProofLine label="Authorizer" value={snapshot.treasury.authorizerAddress} />
-              <ProofLine label="Budget manager" value={snapshot.budget.manager} />
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card className="panel-surface">
-          <CardHeader>
-            <p className="section-kicker">Receipt summary</p>
-            <CardTitle>The key receipt facts</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3 md:grid-cols-2">
-            <StatCard label="Recipient" value={shortAddress(snapshot.receipt.recipient)} detail="Approved payout recipient in the live spend." />
-            <StatCard label="Amount" value={`${formatEtherLike(snapshot.receipt.amountWstETH)} wstETH`} detail="Amount written into the recorded receipt." />
-            <StatCard label="Timestamp" value={formatTimestamp(snapshot.receipt.timestamp)} detail="When the registry recorded the receipt." />
-            <StatCard label="Readiness" value={yesNo(snapshot.readiness.overallReadyForSameNetworkDemoSubmission)} detail={snapshot.readiness.currentPosture} tone="success" />
+            <div className="grid gap-3 md:grid-cols-3">
+              <StatCard label="Lido APR" value={`${market.aprPercent.toFixed(1)}%`} detail="Live yield reference for the treasury asset." />
+              <StatCard label="Agent budget / day" value={`${dailyYieldAsset.toFixed(6)} wstETH`} detail="Estimated daily allowance based on current principal." />
+              <StatCard label="Agent budget / day" value={formatUsd(dailyYieldUsd)} detail="Estimated daily value in USD." />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Button onClick={() => void createAndFundTreasury()} disabled={creationBusy || !walletAddress || !manifest || !hasEnoughAssetBalance}>
+                {creationBusy ? (
+                  <>
+                    <ButtonSpinner />
+                    {creationStep ?? "Working..."}
+                  </>
+                ) : (
+                  "Create treasury"
+                )}
+              </Button>
+              <p className={helperClassName()}>
+                Treasury creation now targets a batched flow: one-time factory deploy if needed, one token approval, then one bootstrap transaction.
+              </p>
+            </div>
+
+            <p className={helperClassName()}>{creationStatus}</p>
           </CardContent>
         </Card>
       </section>
-
-      <footer className="mt-6 flex flex-col gap-3 pb-6 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="font-medium text-[#010400]">{APP_NAME}</p>
-        </div>
-        <div>
-          Snapshot generated at <span className="font-mono text-[#010400]">{snapshot.generatedAt}</span>.
-        </div>
-      </footer>
     </main>
   );
 }

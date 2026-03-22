@@ -6,5 +6,5 @@ export function Separator({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>): React.JSX.Element {
-  return <div className={cn('h-px w-full bg-white/10', className)} role="separator" {...props} />;
+  return <div className={cn('h-px w-full bg-primary/12', className)} role="separator" {...props} />;
 }
