@@ -26,7 +26,6 @@ const FACTORY_EVENT_ABI = parseAbi([
 
 const DEFAULT_AAP_TREASURY_ADDRESS = '0xe07402f1B072FB1Cc5651E763D2139c1218016C9' as const;
 const DEFAULT_AAP_BUDGET_ID = '0xb3e0fae8b586325ab4a14d8c2d0ed544d80af3db3bc870137bebb448314c0224' as const;
-const DEFAULT_AAP_AMOUNT_WSTETH = '0.000001' as const;
 const LOG_WINDOW = 10_000n;
 const DEFAULT_ALLOWANCE_LOOKBACK_BLOCKS = 250_000n;
 
@@ -99,6 +98,14 @@ function requireBytes32(name: string, value: string | undefined) {
     throw new Error(`Missing or invalid ${name}. Expected a 32-byte hex string.`);
   }
   return value as `0x${string}`;
+}
+
+function requireAmount(name: string, value: string | undefined) {
+  const normalized = value?.trim();
+  if (!normalized) {
+    throw new Error(`Missing ${name}. The human must explicitly provide the wstETH amount to claim.`);
+  }
+  return normalized;
 }
 
 function parseLookbackBlocks() {
@@ -174,7 +181,7 @@ async function main() {
     throw new Error('Provide a task description as CLI args or set AAP_TASK_TEXT.');
   }
 
-  const amountRaw = process.env.AAP_AMOUNT_WSTETH?.trim() || DEFAULT_AAP_AMOUNT_WSTETH;
+  const amountRaw = requireAmount('AAP_AMOUNT_WSTETH', process.env.AAP_AMOUNT_WSTETH);
   const amountWstETH = parseUnits(amountRaw, 18);
 
   const transport = http(rpcUrl);

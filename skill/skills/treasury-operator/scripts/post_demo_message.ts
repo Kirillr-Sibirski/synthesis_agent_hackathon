@@ -18,7 +18,6 @@ const ERC20_ABI = parseAbi([
 
 const DEFAULT_MESSAGE_BOARD_ADDRESS = '0x440847B6CD69835B19486ed3B88E795633593203' as const;
 const DEFAULT_WSTETH_ADDRESS = '0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452' as const;
-const DEFAULT_MESSAGE_AMOUNT_WEI = '1000000000000' as const;
 
 const chains = {
   base,
@@ -64,6 +63,34 @@ async function resolvePrivateKey() {
   return parsed.privateKey as `0x${string}`;
 }
 
+function resolveMessageAmountWei() {
+  const weiRaw = process.env.AGENT_MESSAGE_AMOUNT_WEI?.trim();
+  if (weiRaw) {
+    const amount = BigInt(weiRaw);
+    if (amount <= 0n) {
+      throw new Error('AGENT_MESSAGE_AMOUNT_WEI must be greater than 0.');
+    }
+    return { amount: amount.toString(), source: 'AGENT_MESSAGE_AMOUNT_WEI' as const };
+  }
+
+  const wstEthRaw = process.env.AAP_AMOUNT_WSTETH?.trim();
+  if (!wstEthRaw) {
+    throw new Error('Missing AGENT_MESSAGE_AMOUNT_WEI or AAP_AMOUNT_WSTETH. The human must explicitly provide the spend amount.');
+  }
+
+  const [wholePart, fractionPartRaw = ''] = wstEthRaw.split('.');
+  if (!/^\d+$/.test(wholePart || '0') || !/^\d*$/.test(fractionPartRaw)) {
+    throw new Error('AAP_AMOUNT_WSTETH must be a decimal string.');
+  }
+
+  const fractionPart = fractionPartRaw.padEnd(18, '0').slice(0, 18);
+  const amount = BigInt(`${wholePart || '0'}${fractionPart}`.replace(/^0+(?=\d)/, ''));
+  if (amount <= 0n) {
+    throw new Error('AAP_AMOUNT_WSTETH must be greater than 0.');
+  }
+  return { amount: amount.toString(), source: 'AAP_AMOUNT_WSTETH' as const };
+}
+
 async function main() {
   const chainKey = resolveChainKey();
   const chain = chains[chainKey];
@@ -80,11 +107,8 @@ async function main() {
 
   const boardAddress = getAddress(addressRaw);
   const tokenRaw = process.env.WSTETH_ADDRESS?.trim() || DEFAULT_WSTETH_ADDRESS;
-  const amountRaw = process.env.AGENT_MESSAGE_AMOUNT_WEI?.trim() || DEFAULT_MESSAGE_AMOUNT_WEI;
-  const amount = BigInt(amountRaw);
-  if (amount <= 0n) {
-    throw new Error('AGENT_MESSAGE_AMOUNT_WEI must be greater than 0.');
-  }
+  const resolvedAmount = resolveMessageAmountWei();
+  const amount = BigInt(resolvedAmount.amount);
 
   const tokenAddress = getAddress(tokenRaw);
   const transport = http(rpcUrl);
@@ -111,6 +135,7 @@ async function main() {
       sender: account.address,
       tokenAddress,
       amountWei: amount.toString(),
+      amountSource: resolvedAmount.source,
       message,
       approveCalldata: encodeFunctionData({
         abi: ERC20_ABI,
@@ -148,6 +173,7 @@ async function main() {
     sender,
     tokenAddress: storedToken,
     amountWei: storedAmount.toString(),
+    amountSource: resolvedAmount.source,
     message: storedMessage,
     messageHash,
     timestamp: Number(timestamp),

@@ -66,7 +66,7 @@ The default next step is to execute the bundled demo flow.
 
 Recommended wording:
 
-> Great — once you confirm the wallet has gas and the allowance is live, I will claim the demo amount from AAP and then send the paid hello-world transaction unless you want to override the amount.
+> Great — once you confirm the wallet has gas and the allowance is live, tell me the exact wstETH amount I should claim and spend in the demo. After that, I will execute the claim and paid hello-world transaction.
 
 ## Bundled deterministic task path
 
@@ -77,26 +77,25 @@ The current skill supports one concrete end-to-end path:
 
 ### Live Base mainnet demo defaults
 
-Unless the human explicitly overrides them, use these known live demo defaults:
+Use these known live demo defaults for addresses only:
 
 - AAP treasury: `0xe07402f1B072FB1Cc5651E763D2139c1218016C9`
 - AAP budget ID: `0xb3e0fae8b586325ab4a14d8c2d0ed544d80af3db3bc870137bebb448314c0224`
 - Base mainnet `wstETH`: `0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452`
 - paid hello-world contract: `0x440847B6CD69835B19486ed3B88E795633593203`
-- example claim amount: `0.000001 wstETH`
-- example paid hello-world amount: `1000000000000` wei of `wstETH` (`0.000001 wstETH`)
 
 That means:
 - if the human says the wallet has gas and the budget is allocated, first try to auto-discover the assigned treasury and budget from recent `AllowanceAssigned` events for the agent wallet
 - do **not** ask again for treasury address or budget ID unless auto-discovery fails or the human explicitly wants a different one
-- use the live Base mainnet defaults above
-- execute the bundled example flow and return the transaction hashes
+- use the live Base mainnet address defaults above
+- always ask the human for the exact spend amount unless they already provided it in the current conversation
+- execute the bundled flow and return the transaction hashes
 
 ### Claim the AAP budget into the agent wallet
 
 Use this when the human has already allocated a budget to the agent wallet.
 
-If the human does not specify overrides, use the live Base mainnet defaults above.
+If the human does not specify address overrides, use the live Base mainnet address defaults above.
 
 Run:
 
@@ -120,7 +119,9 @@ Optional env:
 If treasury-specific env is missing, the bundled script:
 - scans recent Base mainnet `AllowanceAssigned` events for the current agent wallet to discover its assigned treasury and budget
 - falls back to the live demo treasury and budget only if discovery does not find a match
-- uses the example amount `0.000001 wstETH` unless overridden
+
+The claim amount is **not** defaulted.
+The human must explicitly provide `AAP_AMOUNT_WSTETH`.
 
 What this does:
 - calls `spendFromBudget(...)` on the AAP treasury
@@ -141,7 +142,7 @@ This bundled example transaction is:
 - function: `postMessage(address token, uint256 amount, string message)`
 - token: Base mainnet `wstETH` at `0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452`
 - default message: `hello world`
-- default amount: `1000000000000` wei of `wstETH`
+- amount: use the exact human-provided spend amount from the current demo
 
 Run:
 
@@ -156,6 +157,7 @@ Expected env:
 - `AGENT_MESSAGE_RPC_URL` or normal repo RPC env
 
 If the board address env is missing, use the live default contract address from this skill.
+If `AGENT_MESSAGE_AMOUNT_WEI` is missing, derive it from `AAP_AMOUNT_WSTETH`.
 
 Be explicit when explaining the result:
 - do **not** say the message-board tx itself is the treasury receipt
@@ -178,18 +180,19 @@ Your task:
 2. Stop and tell the human exactly what to do next before you proceed:
 - fund the agent wallet with enough ETH for gas on the target chain
 - create a treasury allowance / budget for the agent
-- tell you the exact amount to claim and spend if they do not want the default tiny demo amount
+- tell you the exact amount to claim and spend in this run
 3. Do not continue until those prerequisites are satisfied.
 4. Once they are satisfied, do not ask again for treasury address or budget ID. First auto-discover the assigned treasury and budget from recent `AllowanceAssigned` events for the agent wallet, and only fall back to the known live Base mainnet defaults from this skill if discovery fails or the human explicitly overrides them.
-5. If the human says "execute" or otherwise confirms to proceed, immediately run the bundled treasury claim flow so the wallet receives the demo budget.
-6. Then use the agent wallet to send a paid "hello world" message to the deployed AgentMessageBoard contract by running:
+5. If the human says "execute" or otherwise confirms to proceed, only continue if they already gave you the exact wstETH amount for this run. If they did not, ask for it explicitly and wait.
+6. After you have the amount, immediately run the bundled treasury claim flow so the wallet receives that demo budget.
+7. Then use the agent wallet to send a paid "hello world" message to the deployed AgentMessageBoard contract by running:
    node --import tsx skill/skills/treasury-operator/scripts/post_demo_message.ts "hello world"
-7. The hello-world task is hard coded:
+8. The hello-world task is hard coded:
 - call the deployed AgentMessageBoard contract
 - post the message `hello world`
-- send the requested `wstETH` amount to that contract in the same flow, or use the default tiny demo amount if the human did not override it
-8. Do not print any private key.
-9. After the transactions complete, return only:
+- send the exact human-provided `wstETH` amount to that contract in the same flow
+9. Do not print any private key.
+10. After the transactions complete, return only:
 - the treasury claim transaction hash
 - the agent wallet address used
 - the message-board contract address
@@ -207,6 +210,7 @@ Important:
 - if the wallet does not have enough wstETH or ETH, stop and say exactly what is missing
 - do not stop to ask for treasury address, budget ID, or board contract address if the human already said the live demo wallet has gas and the budget is allocated
 - infer the treasury assignment by finding recent `AllowanceAssigned` events where the current agent wallet is the indexed `agent`
+- never invent or default the spend amount
 ```
 
 ## What to tell the human after it runs
