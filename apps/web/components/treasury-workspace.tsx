@@ -11,6 +11,7 @@ import {
   getAddress,
   parseUnits,
   type Address,
+  type Hex,
 } from "viem";
 import { base } from "viem/chains";
 
@@ -101,6 +102,46 @@ function InlineAction({
   );
 }
 
+type AgentReceipt = {
+  receiptHash: Hex;
+  taskId: Hex;
+  ruleId: Hex;
+  executor: Address;
+  recipient: Address;
+  amountWstETH: string;
+  budgetId: Hex;
+  evidenceHash: Hex;
+  resultHash: Hex;
+  metadataURI: string;
+  timestamp: string;
+  txHash: Hex;
+};
+
+const receiptRegistryAbi = [
+  {
+    type: "event",
+    name: "ReceiptRegistered",
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "bytes32", name: "receiptHash", type: "bytes32" },
+      { indexed: true, internalType: "bytes32", name: "taskId", type: "bytes32" },
+      { indexed: true, internalType: "bytes32", name: "ruleId", type: "bytes32" },
+      { indexed: false, internalType: "address", name: "executor", type: "address" },
+      { indexed: false, internalType: "address", name: "recipient", type: "address" },
+      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
+      { indexed: false, internalType: "bytes32", name: "budgetId", type: "bytes32" },
+      { indexed: false, internalType: "bytes32", name: "evidenceHash", type: "bytes32" },
+      { indexed: false, internalType: "bytes32", name: "resultHash", type: "bytes32" },
+      { indexed: false, internalType: "string", name: "metadataURI", type: "string" },
+      { indexed: false, internalType: "uint64", name: "timestamp", type: "uint64" },
+    ],
+  },
+] as const;
+
+function formatReceiptTimestamp(timestamp: bigint): string {
+  return new Date(Number(timestamp) * 1000).toLocaleString();
+}
+
 export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React.JSX.Element {
   const [walletAddress, setWalletAddress] = React.useState<Address | null>(null);
   const [walletBusy, setWalletBusy] = React.useState(false);
@@ -123,6 +164,10 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   const [agentLabel, setAgentLabel] = React.useState("Research Agent");
   const [agentWallet, setAgentWallet] = React.useState("");
   const [agentAmount, setAgentAmount] = React.useState("0.01");
+  const [selectedAllowanceId, setSelectedAllowanceId] = React.useState<string | null>(null);
+  const [receiptsLoading, setReceiptsLoading] = React.useState(false);
+  const [receiptsError, setReceiptsError] = React.useState<string | null>(null);
+  const [agentReceipts, setAgentReceipts] = React.useState<Record<string, AgentReceipt[]>>({});
 
   React.useEffect(() => {
     const stored = readStoredTreasuries();
@@ -208,6 +253,82 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   const treasury = treasuries.find((item) => item.id === treasuryId) ?? null;
   const hasEnoughTopUpBalance = Number(topUpAmount || "0") <= Number(walletAssetBalance || "0");
   const canWithdrawPrincipal = Number(withdrawAmount || "0") <= Number(treasury?.principalAmountWstETH ?? "0");
+  const selectedAllowance = treasury?.allowances.find((allowance) => allowance.id === selectedAllowanceId) ?? null;
+  const selectedAllowanceReceipts = selectedAllowance ? agentReceipts[selectedAllowance.id] ?? [] : [];
+
+  React.useEffect(() => {
+    if (!treasury?.allowances.length) {
+      setSelectedAllowanceId(null);
+      return;
+    }
+
+    if (!selectedAllowanceId || !treasury.allowances.some((allowance) => allowance.id === selectedAllowanceId)) {
+      setSelectedAllowanceId(treasury.allowances[0]?.id ?? null);
+    }
+  }, [selectedAllowanceId, treasury]);
+
+  const loadReceiptsForAllowance = React.useCallback(async (allowance: ManagedAllowance) => {
+    if (!treasury) return;
+
+    setReceiptsLoading(true);
+    setReceiptsError(null);
+
+    try {
+      const logs = await publicClient.getLogs({
+        address: treasury.receiptRegistryAddress,
+        event: receiptRegistryAbi[0],
+        fromBlock: 0n,
+        toBlock: "latest",
+      });
+
+      const nextReceipts: AgentReceipt[] = logs
+        .filter((log) => {
+          const { executor, budgetId, timestamp, receiptHash, taskId, ruleId, recipient, amount, evidenceHash, resultHash, metadataURI } = log.args;
+          if (
+            !executor || !budgetId || timestamp === undefined || !receiptHash || !taskId || !ruleId || !recipient || amount === undefined
+            || !evidenceHash || !resultHash || metadataURI === undefined
+          ) {
+            return false;
+          }
+
+          return getAddress(executor) === allowance.executor || budgetId === allowance.budgetId;
+        })
+        .sort((left, right) => Number((right.args.timestamp ?? 0n)) - Number((left.args.timestamp ?? 0n)))
+        .map((log) => {
+          const { executor, budgetId, timestamp, receiptHash, taskId, ruleId, recipient, amount, evidenceHash, resultHash, metadataURI } = log.args;
+
+          return {
+            receiptHash: receiptHash as Hex,
+            taskId: taskId as Hex,
+            ruleId: ruleId as Hex,
+            executor: getAddress(executor as Address),
+            recipient: getAddress(recipient as Address),
+            amountWstETH: formatUnits(amount as bigint, 18),
+            budgetId: budgetId as Hex,
+            evidenceHash: evidenceHash as Hex,
+            resultHash: resultHash as Hex,
+            metadataURI: metadataURI ?? "",
+            timestamp: formatReceiptTimestamp(timestamp as bigint),
+            txHash: log.transactionHash,
+          };
+        });
+
+      setAgentReceipts((current) => ({
+        ...current,
+        [allowance.id]: nextReceipts,
+      }));
+    } catch (error) {
+      setReceiptsError(toErrorMessage(error));
+    } finally {
+      setReceiptsLoading(false);
+    }
+  }, [treasury]);
+
+  React.useEffect(() => {
+    if (!selectedAllowance) return;
+    if (agentReceipts[selectedAllowance.id]) return;
+    void loadReceiptsForAllowance(selectedAllowance);
+  }, [agentReceipts, loadReceiptsForAllowance, selectedAllowance]);
 
   const connectWallet = React.useCallback(async () => {
     const provider = getProvider();
@@ -457,6 +578,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
         return next;
       });
 
+      setSelectedAllowanceId(nextAllowance.id);
       setAllowanceStatus(`${agentLabel} is ready with ${agentAmount} wstETH of allowance.`);
     } catch (error) {
       setAllowanceStatus(toErrorMessage(error));
@@ -627,34 +749,53 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {treasury.allowances.length ? (
-              treasury.allowances.map((allowance) => (
-                <div key={allowance.id} className="metric-tile">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-base font-semibold text-[#cd5334]">{allowance.label}</p>
-                      <p className={`mt-1 ${helperClassName()}`}>{shortAddress(allowance.executor)}</p>
+              treasury.allowances.map((allowance) => {
+                const isSelected = selectedAllowanceId === allowance.id;
+                const receiptCount = agentReceipts[allowance.id]?.length;
+
+                return (
+                  <button
+                    key={allowance.id}
+                    type="button"
+                    onClick={() => setSelectedAllowanceId(allowance.id)}
+                    className={`metric-tile text-left transition-all ${isSelected ? "ring-2 ring-primary/25" : "hover:ring-2 hover:ring-primary/10"}`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-base font-semibold text-[#cd5334]">{allowance.label}</p>
+                        <p className={`mt-1 ${helperClassName()}`}>{shortAddress(allowance.executor)}</p>
+                      </div>
+                      <Badge variant="secondary">{allowance.amountWstETH} wstETH</Badge>
                     </div>
-                    <Badge variant="secondary">{allowance.amountWstETH} wstETH</Badge>
-                  </div>
-                  <div className={`mt-3 grid gap-2 ${helperClassName()}`}>
-                    <p>Total allowed to spend: {allowance.amountWstETH} wstETH</p>
-                    <p>Current spend: {allowance.spentWstETH ?? "0"} wstETH</p>
-                    <p>
-                      Percent spent:{" "}
-                      {(
-                        Math.min(
-                          100,
-                          Math.max(
-                            0,
-                            ((Number(allowance.spentWstETH ?? "0") || 0) / Math.max(Number(allowance.amountWstETH) || 1, 1e-12)) * 100,
-                          ),
-                        )
-                      ).toFixed(1)}
-                      %
-                    </p>
-                  </div>
-                </div>
-              ))
+                    <div className={`mt-3 grid gap-2 ${helperClassName()}`}>
+                      <p>Total allowed to spend: {allowance.amountWstETH} wstETH</p>
+                      <p>Current spend: {allowance.spentWstETH ?? "0"} wstETH</p>
+                      <p>
+                        Percent spent:{" "}
+                        {(
+                          Math.min(
+                            100,
+                            Math.max(
+                              0,
+                              ((Number(allowance.spentWstETH ?? "0") || 0) / Math.max(Number(allowance.amountWstETH) || 1, 1e-12)) * 100,
+                            ),
+                          )
+                        ).toFixed(1)}
+                        %
+                      </p>
+                      <p>ERC-8004 receipts: {receiptCount ?? "—"}</p>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#cd5334]">
+                        {isSelected ? "Viewing agent actions" : "Open agent actions"}
+                      </span>
+                      <span className="rounded-full border border-primary/15 bg-white px-3 py-1 text-[11px] font-medium text-[#5d423b]">
+                        View receipts
+                      </span>
+                    </div>
+                  </button>
+                );
+              })
             ) : (
               <div className="metric-tile">
                 <p className="text-base font-semibold text-[#010400]">No agents yet</p>
@@ -664,6 +805,122 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
           </CardContent>
         </Card>
       </section>
+
+      {selectedAllowance ? (
+        <section className="mt-6">
+          <Card className="panel-surface">
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <SectionLabel>Agent action receipts</SectionLabel>
+                <CardTitle>{selectedAllowance.label}</CardTitle>
+                <p className={`mt-2 max-w-3xl ${helperClassName()}`}>
+                  These are the <strong className="text-[#010400]">ERC-8004 receipts</strong> recorded for this agent&apos;s AAP actions. Each one ties a spend back to the matching rule, task hash, and receipt metadata captured onchain.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="secondary">{shortAddress(selectedAllowance.executor)}</Badge>
+                <InlineAction onClick={() => void loadReceiptsForAllowance(selectedAllowance)}>
+                  {receiptsLoading ? "Refreshing..." : "Refresh receipts"}
+                </InlineAction>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="metric-tile">
+                  <SectionLabel>Allowance cap</SectionLabel>
+                  <p className="mt-2 text-lg font-semibold text-[#010400]">{selectedAllowance.amountWstETH} wstETH</p>
+                  <p className={`mt-2 ${helperClassName()}`}>Maximum spend approved for this agent budget.</p>
+                </div>
+                <div className="metric-tile">
+                  <SectionLabel>Budget ID</SectionLabel>
+                  <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{selectedAllowance.budgetId}</p>
+                  <p className={`mt-2 ${helperClassName()}`}>AAP budget bucket this agent spends through.</p>
+                </div>
+                <div className="metric-tile">
+                  <SectionLabel>Authorization rule</SectionLabel>
+                  <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{selectedAllowance.ruleId}</p>
+                  <p className={`mt-2 ${helperClassName()}`}>Delegation / rule provenance attached to the spend flow.</p>
+                </div>
+              </div>
+
+              {receiptsError ? <p className="text-sm text-[#cd5334]">{receiptsError}</p> : null}
+
+              {receiptsLoading && !selectedAllowanceReceipts.length ? (
+                <div className="metric-tile">
+                  <p className="text-base font-semibold text-[#010400]">Loading receipts...</p>
+                  <p className={`mt-2 ${helperClassName()}`}>Querying the onchain receipt registry for this agent.</p>
+                </div>
+              ) : selectedAllowanceReceipts.length ? (
+                <div className="space-y-3">
+                  {selectedAllowanceReceipts.map((receipt) => (
+                    <div key={receipt.receiptHash} className="metric-tile">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                          <SectionLabel>ERC-8004 receipt</SectionLabel>
+                          <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{receipt.receiptHash}</p>
+                        </div>
+                        <a
+                          href={`https://basescan.org/tx/${receipt.txHash}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex h-9 items-center justify-center rounded-full border border-primary/20 bg-white/80 px-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-primary/10"
+                        >
+                          View tx
+                        </a>
+                      </div>
+                      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Amount</p>
+                          <p className="mt-1 text-sm font-semibold text-[#010400]">{receipt.amountWstETH} wstETH</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Executor</p>
+                          <p className="mt-1 text-sm font-semibold text-[#010400]">{shortAddress(receipt.executor)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Recipient</p>
+                          <p className="mt-1 text-sm font-semibold text-[#010400]">{shortAddress(receipt.recipient)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Task ID</p>
+                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.taskId}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Rule ID</p>
+                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.ruleId}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Timestamp</p>
+                          <p className="mt-1 text-sm font-semibold text-[#010400]">{receipt.timestamp}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Evidence hash</p>
+                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.evidenceHash}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Result hash</p>
+                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.resultHash}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Metadata URI</p>
+                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.metadataURI || "—"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="metric-tile">
+                  <p className="text-base font-semibold text-[#010400]">No receipts yet</p>
+                  <p className={`mt-2 ${helperClassName()}`}>
+                    Once this agent performs an authorized AAP spend, the receipt registry will show the ERC-8004 receipt entries here.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
 
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="panel-surface">

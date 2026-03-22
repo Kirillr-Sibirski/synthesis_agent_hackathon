@@ -171,6 +171,7 @@ The judge dashboard lives in:
 It is a Next.js App Router app that surfaces:
 - treasury status
 - budget state
+- per-agent ERC-8004 receipt views inside the treasury workspace
 - receipt lookup
 - MetaMask proof artifacts
 - readiness status
