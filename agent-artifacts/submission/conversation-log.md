@@ -150,9 +150,23 @@ The most accurate summary is:
 
 That is not a weakness. It is the true collaboration model behind this submission.
 
+## Phase 9 — ERC-8004 root discovery files
+
+On 2026-03-22 (final day), the automation loop committed the ERC-8004 discovery files to the repo root:
+- `agent.json`
+- `agent_log.json`
+- `.well-known/agent.json`
+- `.well-known/agent_log.json`
+
+These provide the standard judge-facing ERC-8004 discovery surface and were previously missing from the root despite existing in `agent-artifacts/erc8004/`.
+
+All 9/9 forge tests still passing at this snapshot.
+
 ## Remaining human-only final tasks
 
 - final video
 - cover image / screenshots / logo
 - Moltbook URL if needed
 - final metadata polish in the submission UI
+- project UUID from Synthesis submission form
+- final track checkbox selection in the submission UI

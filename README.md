@@ -202,8 +202,12 @@ Why it fits:
 
 Main evidence:
 - `contracts/src/ReceiptRegistry.sol`
-- `agent-artifacts/erc8004/submission-agent.json`
-- `agent-artifacts/erc8004/submission-agent-log.json`
+- `agent.json` — root ERC-8004 agent manifest (judge discovery)
+- `agent_log.json` — root ERC-8004 execution log (judge discovery)
+- `.well-known/agent.json` — standard well-known path mirror
+- `.well-known/agent_log.json` — standard well-known path mirror
+- `agent-artifacts/erc8004/submission-agent.json` — canonical source
+- `agent-artifacts/erc8004/submission-agent-log.json` — canonical source
 - `agent-artifacts/submission/public-evidence-pack.md`
 - `agent-artifacts/deployments/base-mainnet-metamask-live.md`
 
@@ -305,6 +309,8 @@ Important mental model:
 - `frontend/` — Next.js judge dashboard
 - `skill/` — OpenClaw treasury-operator skill used for role-separated agent flows
 - `agent-artifacts/` — canonical judge-facing implementation record, deployment notes, ERC-8004 artifacts, and preserved evidence
+- `agent.json` / `agent_log.json` — ERC-8004 agent manifest and execution log at repo root for judge discovery
+- `.well-known/agent.json` / `.well-known/agent_log.json` — standard well-known path mirrors
 
 ## Quick commands
 

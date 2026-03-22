@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-22T09:23:54.292Z
+Generated at: 2026-03-22T23:25:00.000Z
 
 ## 1. Public repo
 
@@ -16,9 +16,12 @@ The project has already completed Synthesis registration and recorded the result
 
 - owner / operator address: `0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948`
 - registration tx: `0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b`
-- public manifest draft: `agent-artifacts/erc8004/submission-agent.json`
-- public execution log draft: `agent-artifacts/erc8004/submission-agent-log.json`
-- judge-discovery mirrors can be refreshed to repo root and `.well-known/` with `bun run submission:refresh-public-agent-artifacts`
+- root manifest: `agent.json` ← **committed to repo root** (2026-03-22)
+- root execution log: `agent_log.json` ← **committed to repo root** (2026-03-22)
+- well-known manifest: `.well-known/agent.json` ← **committed** (2026-03-22)
+- well-known execution log: `.well-known/agent_log.json` ← **committed** (2026-03-22)
+- canonical source: `agent-artifacts/erc8004/submission-agent.json`
+- canonical log source: `agent-artifacts/erc8004/submission-agent-log.json`
 
 Private API credentials and registration state remain local-only in `submission/private-registration.json` and are intentionally excluded from git.
 

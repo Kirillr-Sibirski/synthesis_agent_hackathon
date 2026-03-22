@@ -17,15 +17,15 @@
 - [x] Judge dashboard exists and validates against the live proof set
 - [x] Project description draft written
 - [x] Problem statement draft written
-- [x] Human–agent collaboration log drafted and updated
+- [x] Human-agent collaboration log drafted and updated
 - [x] Public-safe evidence pack generated
 
 ## Still needed
 
 - [~] Final track list confirmation in the submission UI
-- [~] Public-facing ERC-8004 manifest linkage polish (registration tx is recorded; public-safe manifest/log exist; final project UUID/media fields still need the human’s last pass)
-- [~] `agent-artifacts/erc8004/submission-agent.json` final polish (final name is set; remaining work is submission-side metadata / UUID / media)
-- [~] `agent-artifacts/erc8004/submission-agent-log.json` final polish (honest collaboration framing is set; remaining work is submission-side metadata / UUID / media)
+- [x] Public-facing ERC-8004 manifest / execution-log at repo root (`agent.json`, `agent_log.json`, `.well-known/agent.json`, `.well-known/agent_log.json`) — committed and pushed 2026-03-22
+- [~] `agent-artifacts/erc8004/submission-agent.json` final polish (final name is set; remaining work is submission-side UUID / media / project URL from the Synthesis UI)
+- [~] `agent-artifacts/erc8004/submission-agent-log.json` final polish (honest collaboration framing is set; remaining work is submission-side UUID / media from the Synthesis UI)
 - [ ] Moltbook post URL if needed
 - [ ] Video URL
 - [ ] Cover image / screenshots / logo
@@ -53,7 +53,7 @@
 ## Honest track posture right now
 
 ### Strongest
-- Agents With Receipts — ERC-8004
+- Agents With Receipts - ERC-8004
 - Best Use of Delegations
 - stETH Agent Treasury
 - Synthesis Open Track
