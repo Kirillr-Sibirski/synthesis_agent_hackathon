@@ -9,6 +9,8 @@ lib/
 
 # Legacy/local frontend config artifacts
 frontend/
+!tools/frontend/
+!tools/frontend/**
 
 # Env
 .env
