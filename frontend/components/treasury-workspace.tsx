@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { shortAddress } from "@/lib/format";
+import type { DashboardSnapshot } from "@/lib/types";
 
 import {
   ensureBaseNetwork,
@@ -102,6 +103,69 @@ function InlineAction({
   );
 }
 
+function ProofTabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-3 py-2 text-sm font-medium transition-all ${
+        active
+          ? "border-[#cd5334] bg-[#fff2ec] text-[#010400]"
+          : "border-primary/15 bg-white text-[#5d423b] hover:border-primary/35 hover:bg-primary/5 hover:text-[#010400]"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return value as Record<string, unknown>;
+}
+
+function asString(value: unknown): string | null {
+  return typeof value === "string" && value.length ? value : null;
+}
+
+function asNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim().length) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((entry): entry is string => typeof entry === "string" && entry.length > 0);
+}
+
+function formatUnixTimestamp(value: number | null): string {
+  if (!value) return "—";
+  return new Date(value * 1000).toLocaleString();
+}
+
+function shortHex(value: string | null | undefined): string {
+  if (!value || value.length <= 18) return value ?? "—";
+  return `${value.slice(0, 10)}…${value.slice(-8)}`;
+}
+
+function describeSelector(selector: string | null | undefined): string {
+  if (!selector) return "—";
+  if (selector.toLowerCase() === "0x7441041a") return "spendFromBudget(...)";
+  return selector;
+}
+
 type AgentReceipt = {
   receiptHash: Hex;
   taskId: Hex;
@@ -116,6 +180,8 @@ type AgentReceipt = {
   timestamp: string;
   txHash: Hex;
 };
+
+type AgentProofTab = "receipts" | "delegations";
 
 const receiptRegistryAbi = [
   {
@@ -165,9 +231,12 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   const [agentWallet, setAgentWallet] = React.useState("");
   const [agentAmount, setAgentAmount] = React.useState("0.01");
   const [selectedAllowanceId, setSelectedAllowanceId] = React.useState<string | null>(null);
+  const [activeProofTab, setActiveProofTab] = React.useState<AgentProofTab>("receipts");
   const [receiptsLoading, setReceiptsLoading] = React.useState(false);
   const [receiptsError, setReceiptsError] = React.useState<string | null>(null);
   const [agentReceipts, setAgentReceipts] = React.useState<Record<string, AgentReceipt[]>>({});
+  const [dashboardSnapshot, setDashboardSnapshot] = React.useState<DashboardSnapshot | null>(null);
+  const [snapshotError, setSnapshotError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const stored = readStoredTreasuries();
@@ -214,9 +283,10 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   React.useEffect(() => {
     void (async () => {
       try {
-        const [manifestResponse, marketResponse] = await Promise.all([
+        const [manifestResponse, marketResponse, snapshotResponse] = await Promise.all([
           fetch("/api/operator-manifest", { cache: "no-store" }),
           fetch("/api/operator-market", { cache: "no-store" }),
+          fetch("/api/snapshot", { cache: "no-store" }),
         ]);
 
         if (manifestResponse.ok) {
@@ -226,7 +296,15 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
         if (marketResponse.ok) {
           setMarket((await marketResponse.json()) as OperatorMarket);
         }
-      } catch {
+
+        if (snapshotResponse.ok) {
+          setDashboardSnapshot((await snapshotResponse.json()) as DashboardSnapshot);
+          setSnapshotError(null);
+        } else {
+          setSnapshotError("Could not load the packaged MetaMask proof snapshot.");
+        }
+      } catch (error) {
+        setSnapshotError(toErrorMessage(error));
         // Keep fallbacks.
       }
     })();
@@ -263,6 +341,19 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   const canWithdrawPrincipal = Number(withdrawAmount || "0") <= Number(treasury?.principalAmountWstETH ?? "0");
   const selectedAllowance = treasury?.allowances.find((allowance) => allowance.id === selectedAllowanceId) ?? null;
   const selectedAllowanceReceipts = selectedAllowance ? agentReceipts[selectedAllowance.id] ?? [] : [];
+  const packagedDelegation = asRecord(dashboardSnapshot?.proof.signedDelegation);
+  const packagedDelegationAccounts = asRecord(packagedDelegation.accounts);
+  const packagedDelegationNetwork = asRecord(packagedDelegation.network);
+  const packagedCaveatSummary = asRecord(packagedDelegation.caveatSummary);
+  const packagedAllowedTargets = asStringArray(packagedCaveatSummary.allowedTargets);
+  const packagedAllowedMethods = asStringArray(packagedCaveatSummary.allowedMethods);
+  const packagedRedeemers = asStringArray(packagedCaveatSummary.redeemers);
+  const packagedLimitedCalls = asNumber(packagedCaveatSummary.limitedCalls);
+  const packagedMaxValueWei = asString(packagedCaveatSummary.maxValueWei);
+  const packagedValidAfter = asNumber(packagedCaveatSummary.validAfter);
+  const packagedValidBefore = asNumber(packagedCaveatSummary.validBefore);
+  const packagedExactCalldata = asString(packagedCaveatSummary.exactCalldata);
+  const liveProofTxs = dashboardSnapshot?.proof.liveProofTxs ?? [];
 
   React.useEffect(() => {
     if (!treasury?.allowances.length) {
@@ -821,111 +912,240 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
           <Card className="panel-surface">
             <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <SectionLabel>Agent action receipts</SectionLabel>
+                <SectionLabel>Agent action proof</SectionLabel>
                 <CardTitle>{selectedAllowance.label}</CardTitle>
                 <p className={`mt-2 max-w-3xl ${helperClassName()}`}>
-                  These are the <strong className="text-[#010400]">ERC-8004 receipts</strong> recorded for this agent&apos;s AAP actions. Each one ties a spend back to the matching rule, task hash, and receipt metadata captured onchain.
+                  Switch between the <strong className="text-[#010400]">ERC-8004 receipt view</strong> and the <strong className="text-[#010400]">MetaMask delegation view</strong>. Together they show both halves of the story: how the action was authorized and how it was recorded onchain.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary">{shortAddress(selectedAllowance.executor)}</Badge>
-                <InlineAction onClick={() => void loadReceiptsForAllowance(selectedAllowance)}>
-                  {receiptsLoading ? "Refreshing..." : "Refresh receipts"}
-                </InlineAction>
+                <ProofTabButton active={activeProofTab === "receipts"} onClick={() => setActiveProofTab("receipts")}>ERC-8004 receipts</ProofTabButton>
+                <ProofTabButton active={activeProofTab === "delegations"} onClick={() => setActiveProofTab("delegations")}>MetaMask delegations</ProofTabButton>
+                {activeProofTab === "receipts" ? (
+                  <InlineAction onClick={() => void loadReceiptsForAllowance(selectedAllowance)}>
+                    {receiptsLoading ? "Refreshing..." : "Refresh receipts"}
+                  </InlineAction>
+                ) : null}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="metric-tile">
-                  <SectionLabel>Allowance cap</SectionLabel>
-                  <p className="mt-2 text-lg font-semibold text-[#010400]">{selectedAllowance.amountWstETH} wstETH</p>
-                  <p className={`mt-2 ${helperClassName()}`}>Maximum spend approved for this agent budget.</p>
-                </div>
-                <div className="metric-tile">
-                  <SectionLabel>Budget ID</SectionLabel>
-                  <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{selectedAllowance.budgetId}</p>
-                  <p className={`mt-2 ${helperClassName()}`}>AAP budget bucket this agent spends through.</p>
-                </div>
-                <div className="metric-tile">
-                  <SectionLabel>Authorization rule</SectionLabel>
-                  <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{selectedAllowance.ruleId}</p>
-                  <p className={`mt-2 ${helperClassName()}`}>Delegation / rule provenance attached to the spend flow.</p>
-                </div>
-              </div>
+              {activeProofTab === "receipts" ? (
+                <>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="metric-tile">
+                      <SectionLabel>Allowance cap</SectionLabel>
+                      <p className="mt-2 text-lg font-semibold text-[#010400]">{selectedAllowance.amountWstETH} wstETH</p>
+                      <p className={`mt-2 ${helperClassName()}`}>Maximum spend approved for this agent budget.</p>
+                    </div>
+                    <div className="metric-tile">
+                      <SectionLabel>Budget ID</SectionLabel>
+                      <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{selectedAllowance.budgetId}</p>
+                      <p className={`mt-2 ${helperClassName()}`}>AAP budget bucket this agent spends through.</p>
+                    </div>
+                    <div className="metric-tile">
+                      <SectionLabel>Authorization rule</SectionLabel>
+                      <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{selectedAllowance.ruleId}</p>
+                      <p className={`mt-2 ${helperClassName()}`}>Delegation / rule provenance attached to the spend flow.</p>
+                    </div>
+                  </div>
 
-              {receiptsError ? <p className="text-sm text-[#cd5334]">{receiptsError}</p> : null}
+                  {receiptsError ? <p className="text-sm text-[#cd5334]">{receiptsError}</p> : null}
 
-              {receiptsLoading && !selectedAllowanceReceipts.length ? (
-                <div className="metric-tile">
-                  <p className="text-base font-semibold text-[#010400]">Loading receipts...</p>
-                  <p className={`mt-2 ${helperClassName()}`}>Querying the onchain receipt registry for this agent.</p>
-                </div>
-              ) : selectedAllowanceReceipts.length ? (
-                <div className="space-y-3">
-                  {selectedAllowanceReceipts.map((receipt) => (
-                    <div key={receipt.receiptHash} className="metric-tile">
-                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                        <div>
-                          <SectionLabel>ERC-8004 receipt</SectionLabel>
-                          <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{receipt.receiptHash}</p>
+                  {receiptsLoading && !selectedAllowanceReceipts.length ? (
+                    <div className="metric-tile">
+                      <p className="text-base font-semibold text-[#010400]">Loading receipts...</p>
+                      <p className={`mt-2 ${helperClassName()}`}>Querying the onchain receipt registry for this agent.</p>
+                    </div>
+                  ) : selectedAllowanceReceipts.length ? (
+                    <div className="space-y-3">
+                      {selectedAllowanceReceipts.map((receipt) => (
+                        <div key={receipt.receiptHash} className="metric-tile">
+                          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                            <div>
+                              <SectionLabel>ERC-8004 receipt</SectionLabel>
+                              <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{receipt.receiptHash}</p>
+                            </div>
+                            <a
+                              href={`https://basescan.org/tx/${receipt.txHash}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex h-9 items-center justify-center rounded-full border border-primary/20 bg-white/80 px-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-primary/10"
+                            >
+                              View tx
+                            </a>
+                          </div>
+                          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Amount</p>
+                              <p className="mt-1 text-sm font-semibold text-[#010400]">{receipt.amountWstETH} wstETH</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Executor</p>
+                              <p className="mt-1 text-sm font-semibold text-[#010400]">{shortAddress(receipt.executor)}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Recipient</p>
+                              <p className="mt-1 text-sm font-semibold text-[#010400]">{shortAddress(receipt.recipient)}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Task ID</p>
+                              <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.taskId}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Rule ID</p>
+                              <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.ruleId}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Timestamp</p>
+                              <p className="mt-1 text-sm font-semibold text-[#010400]">{receipt.timestamp}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Evidence hash</p>
+                              <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.evidenceHash}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Result hash</p>
+                              <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.resultHash}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Metadata URI</p>
+                              <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.metadataURI || "—"}</p>
+                            </div>
+                          </div>
                         </div>
-                        <a
-                          href={`https://basescan.org/tx/${receipt.txHash}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex h-9 items-center justify-center rounded-full border border-primary/20 bg-white/80 px-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-primary/10"
-                        >
-                          View tx
-                        </a>
-                      </div>
-                      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Amount</p>
-                          <p className="mt-1 text-sm font-semibold text-[#010400]">{receipt.amountWstETH} wstETH</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Executor</p>
-                          <p className="mt-1 text-sm font-semibold text-[#010400]">{shortAddress(receipt.executor)}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Recipient</p>
-                          <p className="mt-1 text-sm font-semibold text-[#010400]">{shortAddress(receipt.recipient)}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Task ID</p>
-                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.taskId}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Rule ID</p>
-                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.ruleId}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Timestamp</p>
-                          <p className="mt-1 text-sm font-semibold text-[#010400]">{receipt.timestamp}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Evidence hash</p>
-                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.evidenceHash}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Result hash</p>
-                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.resultHash}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[rgb(108,90,84)]">Metadata URI</p>
-                          <p className="mt-1 break-all text-xs font-semibold text-[#010400]">{receipt.metadataURI || "—"}</p>
-                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="metric-tile">
+                      <p className="text-base font-semibold text-[#010400]">No receipts yet</p>
+                      <p className={`mt-2 ${helperClassName()}`}>
+                        Once this agent performs an authorized AAP spend, the receipt registry will show the ERC-8004 receipt entries here.
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="metric-tile">
+                    <p className="text-sm font-medium text-[#010400]">
+                      This tab shows the <strong>MetaMask authorization side</strong> of the exact same flow. A constrained delegation lets the smart account execute the treasury spend, and the treasury then records the receipt with the matching rule provenance.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="metric-tile">
+                      <SectionLabel>Delegator smart account</SectionLabel>
+                      <p className="mt-2 break-all text-sm font-semibold text-[#010400]">
+                        {dashboardSnapshot?.treasury.smartAccountAddress ?? "Unavailable"}
+                      </p>
+                      <p className={`mt-2 ${helperClassName()}`}>This is the MetaMask smart account that ultimately appears as executor in the receipt.</p>
+                    </div>
+                    <div className="metric-tile">
+                      <SectionLabel>Allowed target</SectionLabel>
+                      <p className="mt-2 break-all text-sm font-semibold text-[#010400]">
+                        {packagedAllowedTargets[0] ?? treasury.treasuryAddress}
+                      </p>
+                      <p className={`mt-2 ${helperClassName()}`}>Delegation is constrained to the treasury contract, not a generic arbitrary call surface.</p>
+                    </div>
+                    <div className="metric-tile">
+                      <SectionLabel>Allowed method</SectionLabel>
+                      <p className="mt-2 text-sm font-semibold text-[#010400]">
+                        {describeSelector(packagedAllowedMethods[0] ?? dashboardSnapshot?.budget.selector)}
+                      </p>
+                      <p className={`mt-2 ${helperClassName()}`}>The delegation only permits the treasury spend entrypoint that powers the allowance flow.</p>
+                    </div>
+                    <div className="metric-tile">
+                      <SectionLabel>Rule linkage</SectionLabel>
+                      <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{selectedAllowance.ruleId}</p>
+                      <p className={`mt-2 ${helperClassName()}`}>AAP still matches the resulting call against this treasury rule before the receipt is registered.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                    <div className="metric-tile">
+                      <SectionLabel>How to present this</SectionLabel>
+                      <ol className="mt-3 list-decimal space-y-2 pl-4 text-sm text-[rgb(71,56,51,0.88)]">
+                        <li>The human controls a MetaMask smart account and creates a constrained delegation instead of handing over treasury ownership.</li>
+                        <li>That delegation is locked down to the treasury target, the `spendFromBudget(...)` method, and a narrow set of caveats such as redeemer, call count, and time bounds.</li>
+                        <li>An authorized redeemer redeems the delegation, and the MetaMask smart account becomes the onchain executor of the treasury spend.</li>
+                        <li>The treasury then checks the AAP budget and matching `ruleId`, executes the spend, and records the ERC-8004 receipt.</li>
+                        <li>That is why the receipt view and the delegation view belong together: one shows authorization, the other shows the auditable result.</li>
+                      </ol>
+                    </div>
+
+                    <div className="metric-tile">
+                      <SectionLabel>Packaged delegation caveats</SectionLabel>
+                      <div className={`mt-3 grid gap-2 ${helperClassName()}`}>
+                        <p><strong className="text-[#010400]">Delegation hash:</strong> {shortHex(asString(packagedDelegation.delegationHash))}</p>
+                        <p><strong className="text-[#010400]">Artifact network:</strong> {asString(packagedDelegationNetwork.chainName) ?? "—"}</p>
+                        <p><strong className="text-[#010400]">Redeemer:</strong> {packagedRedeemers[0] ?? asString(packagedDelegationAccounts.redeemer) ?? "—"}</p>
+                        <p><strong className="text-[#010400]">Limited calls:</strong> {packagedLimitedCalls ?? "—"}</p>
+                        <p><strong className="text-[#010400]">Max value:</strong> {packagedMaxValueWei ?? "0"} wei</p>
+                        <p><strong className="text-[#010400]">Valid after:</strong> {formatUnixTimestamp(packagedValidAfter)}</p>
+                        <p><strong className="text-[#010400]">Valid before:</strong> {formatUnixTimestamp(packagedValidBefore)}</p>
+                        <p><strong className="text-[#010400]">Exact calldata:</strong> {shortHex(packagedExactCalldata)}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="metric-tile">
-                  <p className="text-base font-semibold text-[#010400]">No receipts yet</p>
-                  <p className={`mt-2 ${helperClassName()}`}>
-                    Once this agent performs an authorized AAP spend, the receipt registry will show the ERC-8004 receipt entries here.
-                  </p>
-                </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="metric-tile">
+                      <SectionLabel>Budget ID</SectionLabel>
+                      <p className="mt-2 break-all text-sm font-semibold text-[#010400]">{selectedAllowance.budgetId}</p>
+                      <p className={`mt-2 ${helperClassName()}`}>This is the budget bucket the delegated spend is allowed to draw from.</p>
+                    </div>
+                    <div className="metric-tile">
+                      <SectionLabel>Receipt executor</SectionLabel>
+                      <p className="mt-2 break-all text-sm font-semibold text-[#010400]">
+                        {dashboardSnapshot?.treasury.receiptRegistryExecutor ?? dashboardSnapshot?.treasury.smartAccountAddress ?? "Unavailable"}
+                      </p>
+                      <p className={`mt-2 ${helperClassName()}`}>In the live proof, the smart account address is what the receipt registry records as executor.</p>
+                    </div>
+                    <div className="metric-tile">
+                      <SectionLabel>Qualification status</SectionLabel>
+                      <p className="mt-2 text-sm font-semibold text-[#010400]">{dashboardSnapshot?.proof.qualificationStatus ?? "Unavailable"}</p>
+                      <p className={`mt-2 ${helperClassName()}`}>This summarizes the packaged MetaMask proof posture used by the dashboard.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="metric-tile">
+                      <SectionLabel>Live proof transactions</SectionLabel>
+                      <p className={`mt-2 ${helperClassName()}`}>
+                        These are the concrete Base proof links you can click during the demo to show the real delegation redemption and resulting treasury execution.
+                      </p>
+                    </div>
+                    {liveProofTxs.length ? (
+                      liveProofTxs.map((tx) => (
+                        <div key={tx.hash} className="metric-tile">
+                          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                            <div>
+                              <SectionLabel>{tx.label}</SectionLabel>
+                              <p className="mt-2 text-sm font-semibold text-[#010400]">{tx.description}</p>
+                              <p className={`mt-2 break-all ${helperClassName()}`}>{tx.hash}</p>
+                            </div>
+                            <a
+                              href={`https://basescan.org/tx/${tx.hash}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex h-9 items-center justify-center rounded-full border border-primary/20 bg-white/80 px-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-primary/10"
+                            >
+                              View tx
+                            </a>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="metric-tile">
+                        <p className="text-base font-semibold text-[#010400]">Live proof snapshot unavailable</p>
+                        <p className={`mt-2 ${helperClassName()}`}>The delegation tab could not load the packaged live-proof transaction list.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {snapshotError ? <p className="text-sm text-[#cd5334]">{snapshotError}</p> : null}
+                </>
               )}
             </CardContent>
           </Card>
