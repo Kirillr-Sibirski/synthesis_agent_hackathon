@@ -338,10 +338,25 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
             txHash: log.transactionHash,
           };
         });
+      const spentWstETH = formatUnits(
+        nextReceipts.reduce((total, receipt) => total + parseUnits(receipt.amountWstETH, 18), 0n),
+        18,
+      );
 
       setAgentReceipts((current) => ({
         ...current,
         [allowance.id]: nextReceipts,
+      }));
+      setTreasuries((current) => current.map((entry) => {
+        if (entry.id !== treasury.id) return entry;
+        return {
+          ...entry,
+          allowances: entry.allowances.map((candidate) => (
+            candidate.id === allowance.id
+              ? { ...candidate, spentWstETH }
+              : candidate
+          )),
+        };
       }));
     } catch (error) {
       setReceiptsError(toErrorMessage(error));
