@@ -91,7 +91,6 @@ const chains: Record<ChainKey, Chain> = {
 
 const paths = {
   config: path.join(appRoot, 'public/config.json'),
-  preflight: path.join(repoRoot, 'agent-artifacts/evidence/metamask/preflight-8453.json'),
   readiness: path.join(repoRoot, 'agent-artifacts/evidence/final/same-network-readiness.json'),
   signedDelegation: path.join(repoRoot, 'agent-artifacts/evidence/metamask/signed-delegation-84532.json'),
   liveProof: path.join(repoRoot, 'agent-artifacts/deployments/base-mainnet-metamask-live.md'),
@@ -404,6 +403,12 @@ async function readTextFile(absolutePath: string, fallback: string): Promise<str
   }
 }
 
+function resolvePreflightPath(readiness: JsonRecord): string {
+  const inputs = asRecord(readiness.inputs);
+  const readinessPath = asOptionalString(inputs.preflightPath);
+  return readinessPath ?? path.join(repoRoot, 'agent-artifacts/evidence/metamask/preflight-84532.json');
+}
+
 async function readFrontendConfig(): Promise<NormalizedFrontendConfig> {
   const loaded = await readJsonFile<FrontendConfig>(paths.config, builtInConfig);
 
@@ -659,14 +664,14 @@ function makeReceiptLookup(snapshot: DashboardSnapshot, query: string): ReceiptL
 }
 
 export async function loadDashboardSnapshot(): Promise<DashboardSnapshot> {
-  const [config, preflight, readiness, signedDelegation, liveProofNote, evidencePack] = await Promise.all([
+  const [config, readiness, signedDelegation, liveProofNote, evidencePack] = await Promise.all([
     readFrontendConfig(),
-    readJsonFile(paths.preflight, defaultPreflight),
     readJsonFile(paths.readiness, defaultReadiness),
     readJsonFile(paths.signedDelegation, defaultSignedDelegation),
     readTextFile(paths.liveProof, 'Base mainnet live proof note unavailable.'),
     readTextFile(paths.evidencePack, 'Public evidence pack unavailable.'),
   ]);
+  const preflight = await readJsonFile(resolvePreflightPath(asRecord(readiness)), defaultPreflight);
 
   const preflightRecord = asRecord(preflight);
   const readinessRecord = asRecord(readiness);

@@ -39,11 +39,11 @@ Still missing for full sponsor-native compliance:
 Current protocol strengths:
 - structured receipts are load-bearing
 - receipts store `ruleId`, `evidenceHash`, `resultHash`, and `metadataURI`
-- `agent.json` and `agent_log.json` drafts exist in `submission/`
+- public-safe ERC-8004 manifest/log artifacts now exist under `agent-artifacts/erc8004/`, including root and `.well-known` mirror payloads
 
-Still missing for full sponsor-native compliance:
-- final public linkage from the completed ERC-8004 registration to the manifest/log package
-- real manifest compatibility confirmation with the relevant registry / format
+Remaining polish for sponsor-native compliance:
+- final submission-side UUID/media linkage in the public manifest/log package
+- any last compatibility confirmation the hackathon UI expects when the final project entry is published
 
 ## What still blocks highest-confidence sponsor fit
 
@@ -54,7 +54,7 @@ The contract design is now backed by a deployment using **real Base mainnet `wst
 The project now has a compelling delegation-shaped core and a live Base mainnet MetaMask proof. The remaining work is presentation polish plus any optional deeper adapter work around sub-delegation / ERC-7715 semantics.
 
 ### Agents With Receipts — ERC-8004
-The receipt model is strong, but we still need actual identity / registry integration.
+The receipt model is strong and the ERC-8004 registration transaction is already recorded; the remaining work is submission-surface polish, not core qualification.
 
 ## Best next steps
 

@@ -106,7 +106,7 @@ So the agent gets permission to perform a specific class of treasury actions, no
 
 ## How MetaMask delegation is used
 
-The repo includes a real MetaMask Delegation Framework integration workspace in `tools/metamask/`.
+The repo includes a real MetaMask Delegation Framework integration workspace in `agent-artifacts/inventory/metamask/`.
 
 The sponsor-native flow is:
 1. derive or deploy a MetaMask smart account / DeleGator
@@ -146,7 +146,7 @@ That is why the project fits the ERC-8004 / Agents With Receipts direction so na
 
 The strongest current public proof in the repo is the live Base mainnet treasury + MetaMask flow recorded here:
 
-- `Memory/Deployments/base-mainnet-metamask-live.md`
+- `agent-artifacts/deployments/base-mainnet-metamask-live.md`
 
 That note includes:
 - Base mainnet treasury addresses
@@ -160,13 +160,13 @@ That note includes:
 - post-spend state snapshot
 
 The fastest public judge index is:
-- `Memory/Submission/public-evidence-pack.md`
+- `agent-artifacts/submission/public-evidence-pack.md`
 
 ## Next.js judge dashboard
 
 The judge dashboard lives in:
-- `apps/web/`
-- `apps/web/README.md`
+- `frontend/`
+- `frontend/README.md`
 
 It is a Next.js App Router app that surfaces:
 - treasury status
@@ -193,7 +193,7 @@ This repo is intentionally built around the strongest honest sponsor-native path
 - **ERC-8004 / Agents With Receipts**
   - every treasury spend creates a structured receipt
   - the receipt records execution evidence and the exact authorization `ruleId`
-  - public-safe agent manifest / log packaging is included under `submission/`
+  - public-safe agent manifest / log packaging is included under `agent-artifacts/erc8004/`
 
 **Strongest target tracks:**
 - Agents With Receipts — ERC-8004
@@ -214,10 +214,10 @@ Why it fits:
 
 Main evidence:
 - `contracts/src/ReceiptRegistry.sol`
-- `submission/agent.json`
-- `submission/agent_log.json`
-- `Memory/Submission/public-evidence-pack.md`
-- `Memory/Deployments/base-mainnet-metamask-live.md`
+- `agent-artifacts/erc8004/submission-agent.json`
+- `agent-artifacts/erc8004/submission-agent-log.json`
+- `agent-artifacts/submission/public-evidence-pack.md`
+- `agent-artifacts/deployments/base-mainnet-metamask-live.md`
 
 #### 2. Best Use of Delegations
 Why it fits:
@@ -228,10 +228,10 @@ Why it fits:
 
 Main evidence:
 - `contracts/src/DelegationAuthorizer.sol`
-- `tools/metamask/README.md`
-- `tools/metamask/STATUS.md`
-- `Memory/ProjectDocs/metamask-integration-plan.md`
-- `Memory/Deployments/base-mainnet-metamask-live.md`
+- `agent-artifacts/inventory/metamask/README.md`
+- `agent-artifacts/inventory/metamask/STATUS.md`
+- `agent-artifacts/project-docs/metamask-integration-plan.md`
+- `agent-artifacts/deployments/base-mainnet-metamask-live.md`
 
 #### 3. stETH Agent Treasury
 Why it fits:
@@ -243,8 +243,8 @@ Why it fits:
 Main evidence:
 - `contracts/src/WstETHYieldTreasury.sol`
 - `contracts/test/WstETHYieldTreasury.t.sol`
-- `Memory/ProjectDocs/sponsor-compliance.md`
-- `Memory/Deployments/base-mainnet-metamask-live.md`
+- `agent-artifacts/project-docs/sponsor-compliance.md`
+- `agent-artifacts/deployments/base-mainnet-metamask-live.md`
 
 #### 4. Synthesis Open Track
 Why it fits:
@@ -281,9 +281,9 @@ That is the credible story:
 - **human-guided in judgment, unblock decisions, and final shipping**
 
 See:
-- `Memory/Submission/conversation-log.md`
-- `submission/agent.json`
-- `submission/agent_log.json`
+- `agent-artifacts/submission/conversation-log.md`
+- `agent-artifacts/erc8004/submission-agent.json`
+- `agent-artifacts/erc8004/submission-agent-log.json`
 
 ## Example: using AAP with a treasury operator agent
 
@@ -314,13 +314,9 @@ Important mental model:
 ## Repo structure
 
 - `contracts/` — Solidity contracts, tests, and Foundry config
-- `apps/web/` — Next.js judge dashboard
-- `tools/` — MetaMask, frontend, final readiness, and submission tooling
-- `Memory/ProjectDocs/` — architecture, track mapping, sponsor alignment, and demo docs
-- `Memory/Deployments/` — live deployment notes and proof artifacts
-- `Memory/Submission/` — judge-facing submission drafts and evidence index
-- `submission/` — public-safe manifest and structured agent log sources
-- `artifacts/` — generated validation and readiness outputs
+- `frontend/` — Next.js judge dashboard
+- `skill/` — OpenClaw treasury-operator skill used for role-separated agent flows
+- `agent-artifacts/` — canonical judge-facing implementation record, deployment notes, ERC-8004 artifacts, and preserved evidence
 
 ## Quick commands
 
@@ -333,7 +329,7 @@ bun run submission:refresh-public-agent-artifacts
 bun run submission:render-public-evidence-pack
 ```
 
-`bun run final:refresh-readiness-bundle` now regenerates the local dashboard config at `apps/web/public/config.json` before frontend validation, so the one-command readiness pass works from the current env instead of assuming that file was already hand-written.
+The preserved readiness/evidence bundle lives under `agent-artifacts/evidence/`, while the live judge dashboard reads its local demo wiring from `frontend/public/config.json`.
 
 ## One-sentence summary
 
