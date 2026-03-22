@@ -14,7 +14,7 @@ Minimal AAP contract set kept for the submission.
 - `src/interfaces/` — interfaces imported by the kept contracts
 - `src/mocks/` — mock assets kept only because `test/WstETHYieldTreasury.t.sol` still uses them
 - `test/WstETHYieldTreasury.t.sol` — passing coverage for the live treasury path
-- `out/` — compiled artifacts consumed by the frontend manifest API
+- `out/` — only the compiled artifacts consumed by the frontend manifest API
 
 ## Current judge story
 
