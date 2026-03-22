@@ -120,7 +120,7 @@ export function Dashboard(): React.JSX.Element {
   const [managedTreasuries, setManagedTreasuries] = React.useState<ManagedTreasury[]>([]);
   const [storageHydrated, setStorageHydrated] = React.useState(false);
   const [factoryAddress, setFactoryAddress] = React.useState<Address | null>(null);
-  const [walletAssetBalance, setWalletAssetBalance] = React.useState("0");
+  const [walletAssetBalanceWei, setWalletAssetBalanceWei] = React.useState<bigint>(0n);
   const [creationStatus, setCreationStatus] = React.useState("Create a treasury and make the first principal deposit in one guided flow.");
   const [creationBusy, setCreationBusy] = React.useState(false);
   const [creationStep, setCreationStep] = React.useState<string | null>(null);
@@ -201,16 +201,24 @@ export function Dashboard(): React.JSX.Element {
           functionName: "balanceOf",
           args: [walletAddress],
         });
-        setWalletAssetBalance(formatUnits(balance, 18));
+        setWalletAssetBalanceWei(balance);
       } catch {
-        setWalletAssetBalance("0");
+        setWalletAssetBalanceWei(0n);
       }
     })();
   }, [manifest, walletAddress]);
 
   const dailyYieldAsset = Number(principalAmount || "0") * (market.aprPercent / 100) / 365;
   const dailyYieldUsd = dailyYieldAsset * market.ethUsd;
-  const hasEnoughAssetBalance = Number(principalAmount || "0") <= Number(walletAssetBalance || "0");
+  const walletAssetBalance = formatUnits(walletAssetBalanceWei, 18);
+  const principalWei = React.useMemo(() => {
+    try {
+      return parseUnits(principalAmount || "0", 18);
+    } catch {
+      return null;
+    }
+  }, [principalAmount]);
+  const hasEnoughAssetBalance = principalWei !== null && principalWei <= walletAssetBalanceWei;
 
   const connectWallet = React.useCallback(async () => {
     const provider = getProvider();
@@ -235,7 +243,7 @@ export function Dashboard(): React.JSX.Element {
 
   const clearWallet = React.useCallback(() => {
     setWalletAddress(null);
-    setWalletAssetBalance("0");
+    setWalletAssetBalanceWei(0n);
     setWalletStatus("Wallet cleared for this app. Reconnect or switch accounts in MetaMask.");
   }, []);
 
@@ -261,7 +269,9 @@ export function Dashboard(): React.JSX.Element {
         transport: custom(provider),
       });
 
-      const principalWei = parseUnits(principalAmount, 18);
+      if (principalWei === null) {
+        throw new Error("Enter a valid wstETH principal amount.");
+      }
       let activeFactory = factoryAddress;
 
       if (activeFactory) {
@@ -398,7 +408,7 @@ export function Dashboard(): React.JSX.Element {
       setCreationBusy(false);
       setCreationStep(null);
     }
-  }, [factoryAddress, hasEnoughAssetBalance, manifest, principalAmount, treasuryName, walletAddress]);
+  }, [factoryAddress, hasEnoughAssetBalance, manifest, principalAmount, principalWei, treasuryName, walletAddress]);
 
   return (
     <main className="app-shell mx-auto min-h-screen max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -489,7 +499,7 @@ export function Dashboard(): React.JSX.Element {
                 {walletAddress ? (
                   <button
                     type="button"
-                    onClick={() => setPrincipalAmount(Number(walletAssetBalance).toFixed(6))}
+                    onClick={() => setPrincipalAmount(walletAssetBalance)}
                     className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
                   >
                     Use max

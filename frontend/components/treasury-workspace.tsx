@@ -151,7 +151,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   const [factoryAddress, setFactoryAddress] = React.useState<Address | null>(null);
   const [treasuries, setTreasuries] = React.useState<ManagedTreasury[]>([]);
   const [storageHydrated, setStorageHydrated] = React.useState(false);
-  const [walletAssetBalance, setWalletAssetBalance] = React.useState("0");
+  const [walletAssetBalanceWei, setWalletAssetBalanceWei] = React.useState<bigint>(0n);
   const [topUpAmount, setTopUpAmount] = React.useState("0.001");
   const [topUpBusy, setTopUpBusy] = React.useState(false);
   const [topUpStatus, setTopUpStatus] = React.useState("Add a directly funded amount to create immediate spendable headroom.");
@@ -243,15 +243,23 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
           functionName: "balanceOf",
           args: [walletAddress],
         });
-        setWalletAssetBalance(formatUnits(balance, 18));
+        setWalletAssetBalanceWei(balance);
       } catch {
-        setWalletAssetBalance("0");
+        setWalletAssetBalanceWei(0n);
       }
     })();
   }, [manifest, walletAddress, topUpBusy]);
 
   const treasury = treasuries.find((item) => item.id === treasuryId) ?? null;
-  const hasEnoughTopUpBalance = Number(topUpAmount || "0") <= Number(walletAssetBalance || "0");
+  const walletAssetBalance = formatUnits(walletAssetBalanceWei, 18);
+  const topUpWei = React.useMemo(() => {
+    try {
+      return parseUnits(topUpAmount || "0", 18);
+    } catch {
+      return null;
+    }
+  }, [topUpAmount]);
+  const hasEnoughTopUpBalance = topUpWei !== null && topUpWei <= walletAssetBalanceWei;
   const canWithdrawPrincipal = Number(withdrawAmount || "0") <= Number(treasury?.principalAmountWstETH ?? "0");
   const selectedAllowance = treasury?.allowances.find((allowance) => allowance.id === selectedAllowanceId) ?? null;
   const selectedAllowanceReceipts = selectedAllowance ? agentReceipts[selectedAllowance.id] ?? [] : [];
@@ -353,7 +361,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
 
   const clearWallet = React.useCallback(() => {
     setWalletAddress(null);
-    setWalletAssetBalance("0");
+    setWalletAssetBalanceWei(0n);
     setWalletStatus("Wallet cleared for this app. Reconnect or switch accounts in MetaMask.");
   }, []);
 
@@ -379,7 +387,9 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
         transport: custom(provider),
       });
 
-      const topUpWei = parseUnits(topUpAmount, 18);
+      if (topUpWei === null) {
+        throw new Error("Enter a valid wstETH top-up amount.");
+      }
       const topUpTx = await walletClient.writeContract({
         address: manifest.baseAssetAddress,
         abi: erc20Abi,
@@ -408,7 +418,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
     } finally {
       setTopUpBusy(false);
     }
-  }, [hasEnoughTopUpBalance, manifest, topUpAmount, treasury, walletAddress]);
+  }, [hasEnoughTopUpBalance, manifest, topUpAmount, topUpWei, treasury, walletAddress]);
 
   const withdrawPrincipal = React.useCallback(async () => {
     const provider = getProvider();
@@ -1004,7 +1014,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
                 <p className={helperClassName()}>Wallet balance: {Number(walletAssetBalance).toFixed(6)} wstETH</p>
                 <button
                   type="button"
-                  onClick={() => setTopUpAmount(Number(walletAssetBalance).toFixed(6))}
+                  onClick={() => setTopUpAmount(walletAssetBalance)}
                   className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
                 >
                   Use max
