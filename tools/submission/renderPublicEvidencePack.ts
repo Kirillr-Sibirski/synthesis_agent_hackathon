@@ -200,7 +200,7 @@ Latest generated readiness artifacts:
 - generated cutover checklist: \`${rel(CUTOVER_CHECKLIST_PATH)}\`
 
 Current validation summary:
-- last recorded forge test snapshot: \`31/31 passing\`
+- last recorded forge test snapshot: \`32/32 passing\`
 - web app verification: \`bun run web:build passing\`
 - overall ready for same-network demo/submission: \`${yesNo(overallReady)}\`
 - current honest tracks: ${honestTracks.length ? honestTracks.map((track: string) => `\`${trackLabel(track)}\``).join(', ') : '\`none\`'}

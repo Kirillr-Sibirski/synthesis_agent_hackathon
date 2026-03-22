@@ -7,7 +7,7 @@
 - [x] README updated for the final public story
 - [x] Foundry project is set up
 - [x] Contracts implemented
-- [x] Tests implemented and last recorded passing snapshot captured (`31/31`)
+- [x] Tests implemented and last recorded passing snapshot captured (`32/32`)
 - [x] Base Sepolia deployment completed
 - [x] Base mainnet deployment completed
 - [x] Live onchain spend completed

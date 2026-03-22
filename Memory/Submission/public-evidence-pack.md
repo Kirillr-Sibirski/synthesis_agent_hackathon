@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-22T03:23:33.851Z
+Generated at: 2026-03-22T07:23:13.176Z
 
 ## 1. Public repo
 
@@ -91,11 +91,11 @@ Public frontend docs:
 Latest frontend validation artifact:
 - path: `artifacts/frontend/validation.json`
 - frontend same-network demo config ready: `no`
-- Base treasury present: `no`
-- Base receipt registry present: `no`
-- Base authorizer present: `no`
-- receipt hash present: `no`
-- distinct frontend actor addresses: `1`
+- Base treasury present: `yes`
+- Base receipt registry present: `yes`
+- Base authorizer present: `yes`
+- receipt hash present: `yes`
+- distinct frontend actor addresses: `3`
 
 Honest blocker:
 - the dashboard is real and judge-usable, but the final Base mainnet cutover config is still incomplete and still overlaps roles in the current local validation state
@@ -108,7 +108,7 @@ Latest generated readiness artifacts:
 - generated cutover checklist: `artifacts/final/cutover-checklist.md`
 
 Current validation summary:
-- last recorded forge test snapshot: `31/31 passing`
+- last recorded forge test snapshot: `32/32 passing`
 - web app verification: `bun run web:build passing`
 - overall ready for same-network demo/submission: `no`
 - current honest tracks: `Agents With Receipts — ERC-8004`, `Best Use of Delegations`, `stETH Agent Treasury`, `Synthesis Open Track`
@@ -118,14 +118,8 @@ Current same-network validator blockers:
 - Configured WSTETH_ADDRESS does not match the Base mainnet canonical wstETH address (0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452).
 - Bundler is not reachable/usable yet.
 - TREASURY_EXECUTOR_ADDRESS is not set; for the MetaMask path the treasury authorizer must allow the smart-account address as executor.
-- Frontend missing: base.treasuryPresent
-- Frontend missing: base.receiptRegistryPresent
-- Frontend missing: base.authorizerPresent
-- Frontend missing: actors.spendRecipientPresent
-- Frontend missing: actors.receiptHashPresent
-- Role overlap still present in frontend config: [{"address":"0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948","roles":["budgetManager","demoExecutor","demoRecipient"]}]
 - Loaded MetaMask preflight artifact is not yet ready for the final same-network run.
-- Frontend demoExecutor does not match the loaded MetaMask preflight treasury executor / smart-account caller.
+- Frontend base treasury does not match the loaded MetaMask preflight treasury.
 - Cutover env missing: metaMaskChainIsBase
 - Cutover env missing: frontendChainIsBase
 - Cutover env missing: rpcConfigured

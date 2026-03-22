@@ -118,7 +118,7 @@
     ],
     "sameNetworkFinalTarget": "Base Mainnet",
     "latestValidation": {
-      "forgeTests": "31/31 passing",
+      "forgeTests": "32/32 passing",
       "webBuild": "bun run web:build passing",
       "metaMaskPreflight": {
         "selectedChain": "Base",
