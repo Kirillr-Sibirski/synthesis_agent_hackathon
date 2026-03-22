@@ -1,0 +1,144 @@
+{
+  "name": "Agent Allowance Protocol",
+  "shortName": "AAP",
+  "workingName": "Delegated Yield Treasury",
+  "displayNameNote": "Final public-facing project name selected; historical working title retained only for context.",
+  "description": "A principal-protected wstETH treasury for AI agents where only yield or surplus headroom is spendable, allowances can be split into budgets and sub-budgets, constrained authority is enforced by protocol rules and the MetaMask smart-account delegation path, and every spend produces a verifiable receipt tied to the exact rule that authorized it.",
+  "operatorWallet": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+  "developmentModel": {
+    "mode": "agent-led-with-human-guidance",
+    "agentBrainstormedTrackStrategy": true,
+    "agentImplementedLargePortions": true,
+    "heartbeatAutomationLoopUsed": true,
+    "humanInterventionRequiredForFinalSteps": true,
+    "canHonestlyBePresentedAsNoHumanRequired": false,
+    "note": "The repo was substantially agent-assisted and agent-led in research and implementation, but human intervention was required to unblock final steps, polish the repo, and ship the final version."
+  },
+  "erc8004": {
+    "status": "registered_via_synthesis",
+    "agentId": null,
+    "ownerAddress": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+    "registry": "Base Mainnet via Synthesis registration flow",
+    "registrationTx": "0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b",
+    "note": "Registration completed through Synthesis; private API credentials and local registration state remain excluded from git."
+  },
+  "repoURL": "https://github.com/Kirillr-Sibirski/synthesis_agent_hackathon",
+  "publicDiscovery": {
+    "rootManifest": "agent.json",
+    "rootExecutionLog": "agent_log.json",
+    "wellKnownManifest": ".well-known/agent.json",
+    "wellKnownExecutionLog": ".well-known/agent_log.json"
+  },
+  "submissionTracks": {
+    "strongNow": [
+      "Agents With Receipts — ERC-8004",
+      "Best Use of Delegations",
+      "stETH Agent Treasury",
+      "Synthesis Open Track"
+    ],
+    "secondaryCareful": [
+      "Let the Agent Cook"
+    ],
+    "note": "Let the Agent Cook is intentionally kept secondary because the repo is honestly documented as agent-led collaboration with human intervention in final shipping, not as a strict no-human-required build."
+  },
+  "deployedChains": [
+    {
+      "name": "Base Mainnet",
+      "chainId": 8453,
+      "deploymentNote": "agent-artifacts/deployments/base-mainnet-metamask-live.md"
+    },
+    {
+      "name": "Base Sepolia",
+      "chainId": 84532,
+      "deploymentNote": "agent-artifacts/deployments/base-sepolia-metamask-live.md"
+    }
+  ],
+  "publicEvidence": {
+    "judgeIndex": "agent-artifacts/submission/public-evidence-pack.md",
+    "latestDeployment": "agent-artifacts/deployments/base-mainnet-metamask-live.md",
+    "dashboard": "frontend/README.md",
+    "sameNetworkReadiness": "agent-artifacts/evidence/final/same-network-readiness.json",
+    "cutoverChecklist": "agent-artifacts/evidence/final/cutover-checklist.md"
+  },
+  "supportedTools": [
+    "Foundry",
+    "Bun",
+    "OpenClaw",
+    "MetaMask Delegation Framework tooling",
+    "GitHub"
+  ],
+  "techStack": [
+    "Solidity 0.8.26",
+    "Foundry",
+    "Next.js",
+    "Base Mainnet",
+    "wstETH treasury modeling",
+    "MetaMask smart accounts / delegation tooling",
+    "OpenClaw"
+  ],
+  "taskCategories": [
+    "principal-protected-agent-treasury",
+    "yield-only-spending",
+    "delegated-budget-management",
+    "receipt-first-agent-payments",
+    "onchain-authorization-provenance"
+  ],
+  "capabilities": [
+    "protect principal baseline",
+    "compute yield-only or surplus-only spendable balance",
+    "configure root budgets",
+    "configure child budgets under managers",
+    "enforce constrained delegation-style authorization rules",
+    "record receipts with evidence and result hashes",
+    "record matched authorization rule IDs"
+  ],
+  "safety": {
+    "principalProtection": true,
+    "delegatedSpendingOnly": true,
+    "budgetCaps": true,
+    "timeWindowSupport": true,
+    "ruleRevocation": true,
+    "receiptAuditTrail": true
+  },
+  "computeConstraints": {
+    "primaryEnvironment": "VPS-hosted OpenClaw session",
+    "contractBuildTool": "Foundry",
+    "notes": "The repo includes both the protocol and a judge-facing dashboard. The strongest current public proof is the live Base mainnet treasury plus MetaMask redemption path."
+  },
+  "currentQualificationStatus": {
+    "validatedAt": "2026-03-21T21:00:00Z",
+    "strongNow": [
+      "Agents With Receipts — ERC-8004",
+      "Best Use of Delegations",
+      "stETH Agent Treasury",
+      "Synthesis Open Track"
+    ],
+    "secondaryCareful": [
+      "Let the Agent Cook"
+    ],
+    "sameNetworkFinalTarget": "Base Mainnet",
+    "latestValidation": {
+      "forgeTests": "32/32 passing",
+      "webBuild": "bun run web:build passing",
+      "metaMaskPreflight": {
+        "selectedChain": "Base",
+        "selectedChainId": 8453,
+        "smartAccountDeployed": true,
+        "bundlerConfigured": true,
+        "bundlerReachable": true,
+        "readyForFinalSameNetworkRun": true
+      },
+      "sameNetworkValidator": {
+        "overallReadyForSameNetworkDemoSubmission": true,
+        "frontendFinalDemoConfigReady": true,
+        "cutoverEnvReady": true
+      }
+    },
+    "largestBlockers": [
+      "Final video URL",
+      "Cover image / screenshots / logo",
+      "Moltbook URL if required",
+      "Final submission metadata polish in the UI"
+    ]
+  }
+}

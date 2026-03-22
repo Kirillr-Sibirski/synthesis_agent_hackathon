@@ -1,0 +1,9 @@
+{
+  "name": "aap-skill-runtime",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "tsx": "^4.21.0",
+    "viem": "^2.47.5"
+  }
+}

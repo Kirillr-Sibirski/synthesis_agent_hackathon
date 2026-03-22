@@ -1,0 +1,83 @@
+{
+  "generatedAt": "2026-03-22T07:22:39.710Z",
+  "expectedFinalChain": {
+    "chainName": "Base",
+    "chainId": 8453,
+    "expectedWstETH": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452"
+  },
+  "checks": {
+    "metaMaskChainIsBase": false,
+    "frontendChainIsBase": false,
+    "rpcConfigured": false,
+    "bundlerConfigured": false,
+    "privateKeyConfigured": true,
+    "executorKeyConfigured": false,
+    "wstETHConfigured": true,
+    "wstETHIsBaseMainnet": false,
+    "treasuryConfigured": true,
+    "authorizerConfigured": true,
+    "receiptRegistryConfigured": false,
+    "managerConfigured": false,
+    "executorConfigured": false,
+    "recipientConfigured": false,
+    "frontendTreasuryConfigured": false,
+    "frontendAuthorizerConfigured": false,
+    "frontendReceiptRegistryConfigured": false,
+    "frontendAssetConfigured": false,
+    "frontendAssetIsBaseMainnet": false,
+    "frontendBudgetManagerConfigured": false,
+    "frontendSpendRecipientConfigured": false,
+    "frontendDemoExecutorConfigured": false,
+    "frontendDemoRecipientConfigured": false,
+    "frontendReceiptHashConfigured": false
+  },
+  "roleSeparation": {
+    "backendDistinctAddresses": 1,
+    "backendFullySeparated": false,
+    "frontendDistinctAddresses": 0,
+    "frontendFullySeparated": false,
+    "frontendDuplicates": [],
+    "frontendAllowedDuplicates": [],
+    "frontendBlockingDuplicates": []
+  },
+  "derivedAddresses": {
+    "fromPrivateKey": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948",
+    "fromExecutorPrivateKey": null
+  },
+  "addressConsistency": {
+    "ownerMatchesPrivateKey": true,
+    "executorMatchesExecutorKey": null,
+    "demoExecutorMatchesExecutorAddress": null,
+    "demoRecipientMatchesRecipientAddress": null,
+    "frontendBudgetManagerMatchesManagerAddress": null,
+    "frontendSpendRecipientMatchesRecipientAddress": null,
+    "frontendDemoExecutorMatchesExecutorAddress": null,
+    "frontendDemoRecipientMatchesRecipientAddress": null
+  },
+  "readiness": {
+    "readyForBaseMainnetCutoverEnv": false,
+    "missing": [
+      "metaMaskChainIsBase",
+      "frontendChainIsBase",
+      "rpcConfigured",
+      "bundlerConfigured",
+      "executorKeyConfigured",
+      "wstETHIsBaseMainnet",
+      "receiptRegistryConfigured",
+      "managerConfigured",
+      "executorConfigured",
+      "recipientConfigured",
+      "frontendTreasuryConfigured",
+      "frontendAuthorizerConfigured",
+      "frontendReceiptRegistryConfigured",
+      "frontendAssetConfigured",
+      "frontendAssetIsBaseMainnet",
+      "frontendBudgetManagerConfigured",
+      "frontendSpendRecipientConfigured",
+      "frontendDemoExecutorConfigured",
+      "frontendDemoRecipientConfigured",
+      "frontendReceiptHashConfigured"
+    ],
+    "warnings": []
+  }
+}

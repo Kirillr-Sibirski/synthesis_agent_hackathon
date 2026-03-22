@@ -1,0 +1,158 @@
+{
+  "generatedAt": "2026-03-22T07:22:44.006Z",
+  "inputs": {
+    "preflightPath": "/root/.openclaw/workspace/synthesis_agent_hackathon/agent-artifacts/evidence/metamask/preflight-84532.json",
+    "preflightLoaded": true,
+    "frontendValidationPath": "/root/.openclaw/workspace/synthesis_agent_hackathon/agent-artifacts/evidence/frontend/validation.json",
+    "frontendValidationLoaded": true,
+    "cutoverEnvValidationPath": "/root/.openclaw/workspace/synthesis_agent_hackathon/agent-artifacts/evidence/final/cutover-env-validation.json",
+    "cutoverEnvValidationLoaded": true,
+    "agentManifestPath": "/root/.openclaw/workspace/synthesis_agent_hackathon/agent.json",
+    "agentManifestLoaded": true,
+    "agentLogPath": "/root/.openclaw/workspace/synthesis_agent_hackathon/agent_log.json",
+    "agentLogLoaded": true,
+    "wellKnownAgentManifestPath": "/root/.openclaw/workspace/synthesis_agent_hackathon/.well-known/agent.json",
+    "wellKnownAgentManifestLoaded": true,
+    "wellKnownAgentLogPath": "/root/.openclaw/workspace/synthesis_agent_hackathon/.well-known/agent_log.json",
+    "wellKnownAgentLogLoaded": true
+  },
+  "summary": {
+    "metaMaskFinalSameNetworkReady": false,
+    "frontendFinalDemoConfigReady": false,
+    "cutoverEnvReady": false,
+    "erc8004PackagingReady": true,
+    "overallReadyForSameNetworkDemoSubmission": false,
+    "currentlyHonestTracks": [
+      "agentsWithReceiptsErc8004",
+      "bestUseOfDelegations",
+      "stEthAgentTreasury",
+      "synthesisOpenTrack"
+    ]
+  },
+  "currentState": {
+    "selectedChain": "Base Sepolia",
+    "selectedChainId": 84532,
+    "expectedFinalChain": "Base",
+    "expectedFinalChainId": 8453,
+    "smartAccountDeployed": true,
+    "bundlerReachable": false,
+    "baseTreasuryConfiguredInFrontend": true,
+    "baseReceiptRegistryConfiguredInFrontend": true,
+    "baseAuthorizerConfiguredInFrontend": true,
+    "roleSeparatedInFrontendConfig": true,
+    "cutoverEnvReady": false,
+    "backendRoleSeparatedInEnv": false,
+    "frontendRoleSeparatedInEnv": false,
+    "erc8004RegistrationTx": "0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b",
+    "recordedBaseMainnetLiveProof": {
+      "liveNotePresent": true,
+      "hasBaseMainnetHeader": true,
+      "hasBaseChainId": true,
+      "hasMainnetWstEth": true,
+      "hasDelegationRedemption": true,
+      "hasReceiptEvidence": true,
+      "hasRuleEvidence": true
+    }
+  },
+  "trackQualification": {
+    "agentsWithReceiptsErc8004": {
+      "currentlyHonest": true,
+      "evidence": {
+        "erc8004Registered": true,
+        "registrationTxRecorded": true,
+        "rootManifestPresent": true,
+        "rootLogPresent": true,
+        "wellKnownManifestPresent": true,
+        "wellKnownLogPresent": true
+      },
+      "blockerIfAny": null
+    },
+    "bestUseOfDelegations": {
+      "currentlyHonest": true,
+      "evidence": {
+        "preflightLoaded": true,
+        "selectedChainId": 84532,
+        "smartAccountDeployed": true,
+        "bundlerReachable": false,
+        "recordedBaseMainnetLiveProof": {
+          "liveNotePresent": true,
+          "hasBaseMainnetHeader": true,
+          "hasBaseChainId": true,
+          "hasMainnetWstEth": true,
+          "hasDelegationRedemption": true,
+          "hasReceiptEvidence": true,
+          "hasRuleEvidence": true
+        }
+      },
+      "blockerIfAny": null
+    },
+    "stEthAgentTreasury": {
+      "currentlyHonest": true,
+      "evidence": {
+        "expectedFinalChainId": 8453,
+        "wstETHConfiguredForBaseMainnet": false,
+        "treasuryConfigured": true,
+        "roleSeparated": false,
+        "recordedBaseMainnetLiveProof": {
+          "liveNotePresent": true,
+          "hasBaseMainnetHeader": true,
+          "hasBaseChainId": true,
+          "hasMainnetWstEth": true,
+          "hasDelegationRedemption": true,
+          "hasReceiptEvidence": true,
+          "hasRuleEvidence": true
+        }
+      },
+      "blockerIfAny": null
+    },
+    "letTheAgentCook": {
+      "currentlyHonest": false,
+      "evidence": {
+        "frontendReady": false,
+        "roleSeparatedInFrontendConfig": true,
+        "publicManifestAndLogReady": true
+      },
+      "blockerIfAny": "Historical live proof is recorded, but the current local frontend cutover config is still incomplete for a fresh same-network rerun."
+    },
+    "synthesisOpenTrack": {
+      "currentlyHonest": true,
+      "evidence": {
+        "repoPublicEvidencePackPresent": true
+      },
+      "blockerIfAny": null
+    }
+  },
+  "blockers": [
+    "Selected chain is not Base mainnet yet; final same-network thesis is still unmet.",
+    "Configured WSTETH_ADDRESS does not match the Base mainnet canonical wstETH address (0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452).",
+    "Bundler is not reachable/usable yet.",
+    "TREASURY_EXECUTOR_ADDRESS is not set; for the MetaMask path the treasury authorizer must allow the smart-account address as executor.",
+    "Loaded MetaMask preflight artifact is not yet ready for the final same-network run.",
+    "Frontend base treasury does not match the loaded MetaMask preflight treasury.",
+    "Cutover env missing: metaMaskChainIsBase",
+    "Cutover env missing: frontendChainIsBase",
+    "Cutover env missing: rpcConfigured",
+    "Cutover env missing: bundlerConfigured",
+    "Cutover env missing: executorKeyConfigured",
+    "Cutover env missing: wstETHIsBaseMainnet",
+    "Cutover env missing: receiptRegistryConfigured",
+    "Cutover env missing: managerConfigured",
+    "Cutover env missing: executorConfigured",
+    "Cutover env missing: recipientConfigured",
+    "Cutover env missing: frontendTreasuryConfigured",
+    "Cutover env missing: frontendAuthorizerConfigured",
+    "Cutover env missing: frontendReceiptRegistryConfigured",
+    "Cutover env missing: frontendAssetConfigured",
+    "Cutover env missing: frontendAssetIsBaseMainnet",
+    "Cutover env missing: frontendBudgetManagerConfigured",
+    "Cutover env missing: frontendSpendRecipientConfigured",
+    "Cutover env missing: frontendDemoExecutorConfigured",
+    "Cutover env missing: frontendDemoRecipientConfigured",
+    "Cutover env missing: frontendReceiptHashConfigured"
+  ],
+  "nextActions": [
+    "Finish the Base mainnet cutover env: chain selection, bundler, mainnet addresses, and distinct role wiring.",
+    "Finish the MetaMask Base mainnet path: mainnet chain selection, bundler, smart-account deployment, delegation redemption, and spend proof.",
+    "Finish the frontend Base mainnet demo config: treasury/authorizer/receipt registry/receipt hash plus distinct demo actors."
+  ]
+}

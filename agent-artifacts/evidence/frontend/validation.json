@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-03-22T07:22:43.621Z",
+  "configPath": "/root/.openclaw/workspace/synthesis_agent_hackathon/frontend/public/config.json",
+  "expectedFinalChain": {
+    "chainId": 8453,
+    "chainName": "Base",
+    "expectedWstETH": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452"
+  },
+  "baseChecks": {
+    "rpcUrlPresent": true,
+    "treasuryPresent": true,
+    "assetPresent": true,
+    "receiptRegistryPresent": true,
+    "authorizerPresent": true,
+    "correctMainnetWstETH": true
+  },
+  "actorChecks": {
+    "budgetManagerPresent": true,
+    "spendRecipientPresent": true,
+    "demoExecutorPresent": true,
+    "demoRecipientPresent": true,
+    "receiptHashPresent": true
+  },
+  "roleSeparation": {
+    "distinctAddresses": 3,
+    "duplicates": [
+      {
+        "address": "0xC318e7fE96a302250CBaB69c6de2E8f476AB3671",
+        "roles": [
+          "spendRecipient",
+          "demoRecipient"
+        ]
+      }
+    ],
+    "allowedDuplicates": [
+      {
+        "address": "0xC318e7fE96a302250CBaB69c6de2E8f476AB3671",
+        "roles": [
+          "spendRecipient",
+          "demoRecipient"
+        ]
+      }
+    ],
+    "blockingDuplicates": [],
+    "readySeparation": true
+  },
+  "preflightChecks": {
+    "loaded": true,
+    "chainId": 84532,
+    "chainName": "Base Sepolia",
+    "readyForFinalSameNetworkRun": false,
+    "expectedExecutor": "0x08478FfC43E134ae9390720D41409B06f38fEB7d",
+    "treasuryMatches": false,
+    "executorMatches": true
+  },
+  "readiness": {
+    "readyForFrontendSameNetworkDemoConfig": false,
+    "missing": [],
+    "warnings": [
+      "Loaded MetaMask preflight artifact is not yet ready for the final same-network run.",
+      "Frontend base treasury does not match the loaded MetaMask preflight treasury."
+    ]
+  }
+}
