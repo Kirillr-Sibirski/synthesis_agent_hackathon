@@ -16,7 +16,7 @@ Use this skill when working with the **AAP (Agent Allowance Protocol)** treasury
 - Ask the human to allocate an AAP budget to that same wallet in the dashboard
 - Wait for the human to confirm the budget is ready
 - Claim treasury budget into the agent wallet through the AAP spend path
-- Perform one narrow follow-on task with the funded wallet
+- Perform the bundled paid hello-world follow-on task with the funded wallet
 
 ## Product truth
 
@@ -61,29 +61,19 @@ Recommended wording:
 
 Do not pretend the budget is ready until the human confirms it.
 
-After the human says the wallet has gas and the budget was allocated, ask for the next action.
+After the human says the wallet has gas and the budget was allocated, do not ask for treasury address, budget ID, or contract address again unless they explicitly want overrides.
+The default next step is to execute the bundled demo flow.
 
 Recommended wording:
 
-> Great — once you confirm the budget allocation is live in the AAP dashboard, tell me what task you want me to perform with this budget.
-
-### Step 3 — Ask what task to perform
-
-After the human confirms the budget allocation, ask:
-
-> What exact task do you want me to perform with this budget?
-
-Important:
-- first get the task in plain language
-- then decide whether the current bundled skill supports it directly
-- do not claim the current skill can do arbitrary tasks if no deterministic path exists yet
+> Great — once you confirm the wallet has gas and the allowance is live, I will claim the demo amount from AAP and then send the paid hello-world transaction unless you want to override the amount.
 
 ## Bundled deterministic task path
 
 The current skill supports one concrete end-to-end path:
 
 1. claim an approved amount from AAP into the agent wallet
-2. optionally perform a simple follow-on onchain task with that wallet
+2. perform a simple paid hello-world onchain task with that wallet
 
 ### Live Base mainnet demo defaults
 
@@ -115,8 +105,6 @@ node --import tsx skill/skills/treasury-operator/scripts/claim_budget.ts "<task 
 ```
 
 Expected env:
-- `AAP_TREASURY_ADDRESS`
-- `AAP_BUDGET_ID`
 - `AAP_AMOUNT_WSTETH`
 - `AGENT_WALLET_FILE` or `AGENT_PRIVATE_KEY`
 - `AAP_CHAIN` or `AGENT_MESSAGE_CHAIN` or `METAMASK_CHAIN`
@@ -129,7 +117,7 @@ Optional env:
 - `AAP_ALLOWANCE_LOOKBACK_BLOCKS`
 - `DRY_RUN=true`
 
-If the env is missing, the bundled script:
+If treasury-specific env is missing, the bundled script:
 - scans recent Base mainnet `AllowanceAssigned` events for the current agent wallet to discover its assigned treasury and budget
 - falls back to the live demo treasury and budget only if discovery does not find a match
 - uses the example amount `0.000001 wstETH` unless overridden
@@ -144,9 +132,9 @@ Recommended wording after success:
 
 > I claimed the approved budget from AAP into my wallet. This treasury spend is the receipt-backed AAP action. Now I can perform the follow-on task you asked for.
 
-### Optional follow-on task: post a demo message onchain
+### Default follow-on task: post a demo message onchain
 
-If the human wants a simple follow-on proof that the funded agent wallet can do something onchain after the AAP claim, use the message-board demo.
+After the AAP claim succeeds, run the message-board demo by default unless the human explicitly tells you not to.
 
 This bundled example transaction is:
 - contract: `0x440847B6CD69835B19486ed3B88E795633593203`
@@ -162,11 +150,12 @@ node --import tsx skill/skills/treasury-operator/scripts/post_demo_message.ts "h
 ```
 
 Expected env:
-- `AGENT_MESSAGE_BOARD_ADDRESS`
 - `AGENT_MESSAGE_AMOUNT_WEI`
 - `AGENT_WALLET_FILE` or `AGENT_PRIVATE_KEY`
 - `AGENT_MESSAGE_CHAIN` or `METAMASK_CHAIN`
 - `AGENT_MESSAGE_RPC_URL` or normal repo RPC env
+
+If the board address env is missing, use the live default contract address from this skill.
 
 Be explicit when explaining the result:
 - do **not** say the message-board tx itself is the treasury receipt
@@ -189,17 +178,16 @@ Your task:
 2. Stop and tell the human exactly what to do next before you proceed:
 - fund the agent wallet with enough ETH for gas on the target chain
 - create a treasury allowance / budget for the agent
-- make sure the treasury has actually sent some wstETH to the agent wallet
-- optionally override the example amount if they do not want the default tiny demo amount
+- tell you the exact amount to claim and spend if they do not want the default tiny demo amount
 3. Do not continue until those prerequisites are satisfied.
 4. Once they are satisfied, do not ask again for treasury address or budget ID. First auto-discover the assigned treasury and budget from recent `AllowanceAssigned` events for the agent wallet, and only fall back to the known live Base mainnet defaults from this skill if discovery fails or the human explicitly overrides them.
-5. First run the bundled treasury claim flow so the wallet receives the small demo budget.
+5. If the human says "execute" or otherwise confirms to proceed, immediately run the bundled treasury claim flow so the wallet receives the demo budget.
 6. Then use the agent wallet to send a paid "hello world" message to the deployed AgentMessageBoard contract by running:
    node --import tsx skill/skills/treasury-operator/scripts/post_demo_message.ts "hello world"
 7. The hello-world task is hard coded:
 - call the deployed AgentMessageBoard contract
 - post the message `hello world`
-- send the example `wstETH` amount to that contract in the same flow unless the human explicitly overrides it
+- send the requested `wstETH` amount to that contract in the same flow, or use the default tiny demo amount if the human did not override it
 8. Do not print any private key.
 9. After the transactions complete, return only:
 - the treasury claim transaction hash
@@ -217,7 +205,8 @@ Important:
 - do explicitly say the treasury receipt comes from the treasury spend
 - do explicitly say this transaction proves the agent used part of its funded budget onchain
 - if the wallet does not have enough wstETH or ETH, stop and say exactly what is missing
-- do not stop to ask for treasury address or budget ID if the human already said the live demo wallet has gas and the budget is allocated
+- do not stop to ask for treasury address, budget ID, or board contract address if the human already said the live demo wallet has gas and the budget is allocated
+- infer the treasury assignment by finding recent `AllowanceAssigned` events where the current agent wallet is the indexed `agent`
 ```
 
 ## What to tell the human after it runs
