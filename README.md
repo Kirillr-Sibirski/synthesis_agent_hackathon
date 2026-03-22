@@ -175,6 +175,31 @@ It is a Next.js App Router app that surfaces:
 - MetaMask proof artifacts
 - readiness status
 
+## Sponsor usage at a glance
+
+This repo is intentionally built around the strongest honest sponsor-native path:
+
+- **Lido / stETH Agent Treasury**
+  - the treasury is built around real Base mainnet `wstETH`
+  - principal stays protected
+  - only yield / surplus headroom is allocatable and spendable
+
+- **MetaMask / Best Use of Delegations**
+  - agents do not get raw treasury ownership
+  - constrained spend authority is enforced through the MetaMask smart-account / delegation path
+  - live Base mainnet delegation redemption proof exists in-repo
+
+- **ERC-8004 / Agents With Receipts**
+  - every treasury spend creates a structured receipt
+  - the receipt records execution evidence and the exact authorization `ruleId`
+  - public-safe agent manifest / log packaging is included under `submission/`
+
+**Strongest target tracks:**
+- Agents With Receipts — ERC-8004
+- Best Use of Delegations
+- stETH Agent Treasury
+- Synthesis Open Track
+
 ## Honest Synthesis track fit
 
 ### Strongest tracks
@@ -258,6 +283,32 @@ See:
 - `Memory/Submission/conversation-log.md`
 - `submission/agent.json`
 - `submission/agent_log.json`
+
+## Example: using AAP with a treasury operator agent
+
+This repo now includes a dedicated skill for agents that should operate inside a bounded treasury allowance:
+
+- `skills/treasury-operator/SKILL.md`
+
+The intended pattern is:
+1. a human bootstraps the treasury with protected `wstETH` principal
+2. the human assigns an agent allowance / budget cap
+3. a separate OpenClaw agent loads the `treasury-operator` skill
+4. that agent gets its own wallet, reports only the public address, and spends only through the treasury rules
+5. each spend is recorded with receipt-linked proof
+
+A simple example deployment is an **autonomous operator agent** that has a small capped budget for narrow tasks such as:
+- paying for task-specific onchain actions
+- handling bounded operational spend
+- acting as a role-specific budget operator without ever controlling treasury principal
+
+A good real-world framing is:
+> spin up a separate OpenClaw agent with the `treasury-operator` skill, give it a small allowance, and let it execute one narrow class of treasury-approved actions without ever exposing the treasury private keys.
+
+Important mental model:
+- the agent wallet is **not** the treasury
+- the budget lives in the treasury
+- the agent only gets constrained authority to spend up to its assigned cap
 
 ## Repo structure
 
