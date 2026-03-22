@@ -4,7 +4,7 @@ This file is generated from the latest public-safe repo artifacts so the judge-f
 
 No secrets, API keys, or local-only registration files are required to verify anything referenced here.
 
-Generated at: 2026-03-22T07:23:13.176Z
+Generated at: 2026-03-22T09:23:54.292Z
 
 ## 1. Public repo
 
@@ -112,6 +112,9 @@ Current validation summary:
 - web app verification: `bun run web:build passing`
 - overall ready for same-network demo/submission: `no`
 - current honest tracks: `Agents With Receipts — ERC-8004`, `Best Use of Delegations`, `stETH Agent Treasury`, `Synthesis Open Track`
+
+Important interpretation:
+- the repo already honestly qualifies for at least 3 tracks from recorded public-safe evidence; a current `no` here means the **fresh local rerun / cutover env** is not fully rehydrated yet, not that the recorded mainnet proof is absent
 
 Current same-network validator blockers:
 - Selected chain is not Base mainnet yet; final same-network thesis is still unmet.

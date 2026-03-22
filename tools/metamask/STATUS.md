@@ -58,6 +58,21 @@ The remaining work is no longer sponsor-track implementation risk. It is mostly 
 - keep the dashboard synced with the latest generated artifacts
 - preserve the clean separation between redeemer EOA and treasury executor smart account
 
+## Important repo-state caveat
+
+Some generated readiness artifacts may still reflect an older or incomplete **local rerun environment** (for example, a Base Sepolia-selected preflight or missing cutover env vars).
+
+That does **not** erase the recorded sponsor-facing proof already in the repo.
+
+Honest interpretation:
+- **track qualification** can already be satisfied from the recorded Base mainnet proof set
+- **fresh rerun readiness** is a separate question about whether the current local env is fully rehydrated to reproduce that proof again right now
+
+When these disagree, judges should be pointed first to:
+- `Memory/Deployments/base-mainnet-metamask-live.md`
+- `Memory/Submission/public-evidence-pack.md`
+- `artifacts/final/same-network-readiness.json`
+
 ## Local verification note
 
 The Solidity side now includes the Base/L2 `wstETH` fallback logic and its focused treasury tests pass in the current environment when run with an explicit local `solc` binary / offline mode.

@@ -205,6 +205,11 @@ Current validation summary:
 - overall ready for same-network demo/submission: \`${yesNo(overallReady)}\`
 - current honest tracks: ${honestTracks.length ? honestTracks.map((track: string) => `\`${trackLabel(track)}\``).join(', ') : '\`none\`'}
 
+Important interpretation:
+${alreadyHonestForThreePlusTracks
+    ? '- the repo already honestly qualifies for at least 3 tracks from recorded public-safe evidence; a current `no` here means the **fresh local rerun / cutover env** is not fully rehydrated yet, not that the recorded mainnet proof is absent'
+    : '- the validator output should be read together with the recorded public proof, not as a claim that the entire project lacks qualifying evidence'}
+
 Current same-network validator blockers:
 ${bullets(blockerList)}
 ## 8. Best honest track posture right now
