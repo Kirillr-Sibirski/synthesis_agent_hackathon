@@ -289,7 +289,7 @@ See:
 
 This repo now includes a dedicated skill for agents that should operate inside a bounded treasury allowance:
 
-- `skills/treasury-operator/SKILL.md`
+- `skill/skills/treasury-operator/SKILL.md`
 
 The intended pattern is:
 1. a human bootstraps the treasury with protected `wstETH` principal
