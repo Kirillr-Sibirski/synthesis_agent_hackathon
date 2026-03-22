@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "tsx": "^4.21.0",
     "viem": "^2.47.5"
   }

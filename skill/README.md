@@ -8,9 +8,16 @@ This folder preserves the OpenClaw test skill without changing its internal layo
 
 ## Note
 
-Run the skill from inside this folder if you want its original relative command paths to work unchanged:
+Install the skill runtime once:
 
 ```bash
 cd skill
-node --import tsx skill/skills/treasury-operator/scripts/create_agent_wallet.ts
+npm install
+```
+
+Then run the skill from inside this folder:
+
+```bash
+cd skill
+node --import tsx skills/treasury-operator/scripts/create_agent_wallet.ts
 ```

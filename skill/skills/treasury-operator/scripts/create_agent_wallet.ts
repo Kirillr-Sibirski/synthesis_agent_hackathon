@@ -8,7 +8,9 @@ async function main() {
   const account = privateKeyToAccount(privateKey);
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const outputDir = path.resolve(process.cwd(), "env", "agent-wallets");
+  const outputDir = process.env.AAP_AGENT_WALLET_DIR?.trim()
+    ? path.resolve(process.cwd(), process.env.AAP_AGENT_WALLET_DIR)
+    : path.join(process.env.HOME ?? process.cwd(), ".aap-agent-wallets");
   const outputPath = path.join(outputDir, `${timestamp}-${account.address}.json`);
 
   await mkdir(outputDir, { recursive: true });
