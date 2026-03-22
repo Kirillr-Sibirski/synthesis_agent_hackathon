@@ -241,15 +241,15 @@ So this is a possible secondary track only if described carefully, not as fake t
 This should be presented honestly.
 
 What happened:
-- the agent analyzed the competition and identified strong reward-to-competition opportunities across tracks
-- that helped steer the project toward the Lido + Delegations + receipts combination
-- the agent then helped implement the project end-to-end with human guidance
-- an OpenClaw heartbeat / ongoing automation loop kept the repo integrating, validating, and updating
-- that loop sometimes got stuck or circled on hard blockers
-- human intervention was required to unblock the final steps, polish the repo, and ship the final submission version
+- the agent continuously analyzed the project end-to-end against the hackathon and sponsor requirements
+- its main role was checking that the implementation really met the target track requirements instead of only sounding aligned on paper
+- that analysis helped steer the project toward a credible Lido + Delegations + receipts combination with same-network proof
+- the agent also reviewed repo state, evidence, docs, and demo readiness so the public story stayed consistent with the real implementation
+- an OpenClaw heartbeat / ongoing automation loop kept validating progress, surfacing gaps, and pushing the work back toward sponsor-complete delivery
+- human intervention was still required to make judgment calls, unblock hard issues, and finalize shipping/submission tasks
 
 That is the credible story:
-- **agent-led in research and large parts of implementation**
+- **agent-led in end-to-end analysis, requirement checking, and implementation validation**
 - **human-guided in judgment, unblock decisions, and final shipping**
 
 See:
