@@ -1,0 +1,123 @@
+{
+  "project": "Agent Allowance Protocol",
+  "shortName": "AAP",
+  "historicalWorkingTitle": "Delegated Yield Treasury",
+  "projectNote": "Final public-facing project name selected; historical working title retained only for context.",
+  "entries": [
+    {
+      "step": 1,
+      "phase": "research",
+      "action": "Compared Synthesis tracks and visible public competition",
+      "result": "Identified the strongest strategic lane as Lido plus delegations plus receipts / ERC-8004 accountability",
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "phase": "design",
+      "action": "Evaluated multiple concepts and selected the treasury-and-allowance direction",
+      "result": "Chose the principal-protected yield treasury architecture that became Agent Allowance Protocol",
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "phase": "implementation",
+      "action": "Set up the Solidity / Foundry repo and authored contracts, tests, scripts, and docs",
+      "result": "Working protocol with treasury, authorizer, receipt registry, and budget / sub-budget logic",
+      "status": "success"
+    },
+    {
+      "step": 4,
+      "phase": "tooling",
+      "action": "Installed and used Foundry, Bun, and OpenClaw validation tooling on the VPS",
+      "result": "32/32 tests passing at the recorded repo snapshot and repeatable readiness tooling in place",
+      "status": "success"
+    },
+    {
+      "step": 5,
+      "phase": "deployment",
+      "action": "Deployed the contract set to Base Sepolia and executed early live spend proofs",
+      "result": "Initial public artifacts recorded in the Sepolia deployment notes",
+      "status": "success"
+    },
+    {
+      "step": 6,
+      "phase": "iteration",
+      "action": "Upgraded the protocol to include stronger budget semantics and explicit rule-linked receipt provenance",
+      "result": "Receipts now capture the exact matched authorization rule ID and the treasury design reflects the stronger allowance-tree model",
+      "status": "success"
+    },
+    {
+      "step": 7,
+      "phase": "identity",
+      "action": "Completed Synthesis registration and triggered the ERC-8004 identity path",
+      "result": {
+        "registrationTx": "0x2f1effd6a8b1f3375df0d9f8e0e44341c4a5fc7e7e785d09dcdb66ef2849f96b",
+        "ownerAddress": "0xF6D413920c3dfE8c4195bDC7fDa9cE3bb316e948"
+      },
+      "status": "success"
+    },
+    {
+      "step": 8,
+      "phase": "metamask-integration",
+      "action": "Implemented real MetaMask smart-account derivation, constrained delegation artifact generation, bundler-aware deployment flow, and live redemption tooling",
+      "result": {
+        "derivedSmartAccount": "0x08478FfC43E134ae9390720D41409B06f38fEB7d",
+        "delegationManager": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
+        "liveBaseMainnetProof": "agent-artifacts/deployments/base-mainnet-metamask-live.md"
+      },
+      "status": "success"
+    },
+    {
+      "step": 9,
+      "phase": "base-mainnet-proof",
+      "action": "Executed the live Base mainnet treasury + MetaMask redemption flow using real Base mainnet wstETH",
+      "result": {
+        "treasury": "0xe07402f1B072FB1Cc5651E763D2139c1218016C9",
+        "receiptRegistry": "0xf5741a5d361706CA7cf9348db0fb899e8e7A86Cd",
+        "authorizer": "0x6367B12cee6105fCe90B4532c513605Fc061bF4D",
+        "asset": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+        "spendTx": "0xb920f46d259fd8608d08c22fc5e8adfc2c1d10b0ee2168a1c27ee294b9d56504",
+        "receiptHash": "0xe724aca208b8d52c3f5e564bd25361b8884887b6537c625a2f53d6d7e20b06ea",
+        "ruleId": "0x33ebc0a1635c1f36b0831b1005d41f561c6329eeeb47a4e72aea97e80307ed29"
+      },
+      "status": "success"
+    },
+    {
+      "step": 10,
+      "phase": "automation",
+      "action": "Used an OpenClaw heartbeat / ongoing automation loop to keep integrating docs, readiness checks, and submission packaging",
+      "result": "The repo stayed continuously updated, but the loop occasionally got stuck or circled on hard blockers and required human intervention",
+      "status": "success"
+    },
+    {
+      "step": 11,
+      "phase": "submission-packaging",
+      "action": "Updated the public-safe manifest/log defaults and aligned the final repo story with the live Base mainnet proof",
+      "result": {
+        "manifestName": "Agent Allowance Protocol",
+        "shortName": "AAP",
+        "retainedHistoricalName": "Delegated Yield Treasury",
+        "discoveryMirrors": [
+          "agent.json",
+          "agent_log.json",
+          ".well-known/agent.json",
+          ".well-known/agent_log.json"
+        ],
+        "judgeIndex": "agent-artifacts/submission/public-evidence-pack.md"
+      },
+      "status": "success"
+    },
+    {
+      "step": 12,
+      "phase": "honest-collaboration-framing",
+      "action": "Documented the real human-agent workflow in the submission story",
+      "result": "The repo now explicitly states that the agent helped choose the direction, implemented large parts of the project, operated in a heartbeat loop, got stuck on some issues, and needed human intervention for final unblocking and shipping",
+      "status": "success"
+    }
+  ],
+  "publicArtifactMirror": {
+    "source": "agent-artifacts/erc8004/submission-agent-log.json",
+    "refreshedAt": "2026-03-22T07:23:12.585Z",
+    "note": "This root-facing artifact mirrors the canonical public-safe submission file for judge discovery."
+  }
+}
