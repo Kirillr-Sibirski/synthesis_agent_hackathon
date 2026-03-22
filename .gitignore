@@ -2,6 +2,13 @@
 contracts/cache/
 contracts/out/
 contracts/broadcast/
+cache/
+out/
+broadcast/
+lib/
+
+# Legacy/local frontend config artifacts
+frontend/
 
 # Env
 .env
