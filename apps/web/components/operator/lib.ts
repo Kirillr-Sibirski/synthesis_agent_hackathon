@@ -71,7 +71,7 @@ export type ManagedTreasury = {
 };
 
 export const STORAGE_KEY = "aap-managed-treasuries-v2";
-export const FACTORY_STORAGE_KEY = "aap-operator-factory-address-v1";
+export const FACTORY_STORAGE_KEY = "aap-operator-factory-address-v2";
 
 export const publicClient = createPublicClient({
   chain: base,

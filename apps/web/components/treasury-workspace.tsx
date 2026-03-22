@@ -23,7 +23,6 @@ import {
   ensureBaseNetwork,
   erc20Abi,
   FACTORY_STORAGE_KEY,
-  formatUsd,
   getProvider,
   helperClassName,
   inputClassName,
@@ -47,12 +46,16 @@ function ButtonSpinner(): React.JSX.Element {
 
 function InfoHint({ text }: { text: string }): React.JSX.Element {
   return (
-    <span
-      title={text}
-      aria-label={text}
-      className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-primary/20 bg-white text-xs font-semibold text-[#cd5334]"
-    >
-      i
+    <span className="group relative inline-flex">
+      <span
+        aria-label={text}
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-primary/20 bg-white text-xs font-semibold text-[#cd5334]"
+      >
+        i
+      </span>
+      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-56 -translate-x-1/2 rounded-2xl border border-primary/20 bg-white px-3 py-2 text-xs font-normal text-[#010400] shadow-[0_16px_40px_rgba(205,83,52,0.12)] group-hover:block">
+        {text}
+      </span>
     </span>
   );
 }
@@ -61,16 +64,21 @@ function StatCard({
   label,
   value,
   detail,
+  children,
 }: {
   label: string;
   value: string;
   detail: string;
+  children?: React.ReactNode;
 }): React.JSX.Element {
   return (
     <div className="metric-tile">
-      <SectionLabel>{label}</SectionLabel>
+      <div className="flex items-center gap-2">
+        <SectionLabel>{label}</SectionLabel>
+        <InfoHint text={detail} />
+      </div>
       <p className="mt-2 text-lg font-semibold text-[#010400]">{value}</p>
-      <p className={`mt-2 ${helperClassName()}`}>{detail}</p>
+      {children ? <div className="mt-3">{children}</div> : null}
     </div>
   );
 }
@@ -88,6 +96,9 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   const [topUpAmount, setTopUpAmount] = React.useState("0.001");
   const [topUpBusy, setTopUpBusy] = React.useState(false);
   const [topUpStatus, setTopUpStatus] = React.useState("Add a directly funded amount to create immediate spendable headroom.");
+  const [withdrawAmount, setWithdrawAmount] = React.useState("0.001");
+  const [withdrawBusy, setWithdrawBusy] = React.useState(false);
+  const [withdrawStatus, setWithdrawStatus] = React.useState("Withdraw protected principal back to the connected operator wallet.");
   const [allowanceBusy, setAllowanceBusy] = React.useState(false);
   const [allowanceStep, setAllowanceStep] = React.useState<string | null>(null);
   const [allowanceStatus, setAllowanceStatus] = React.useState("Create an allowance for a single agent wallet.");
@@ -177,10 +188,8 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   }, [manifest, walletAddress, topUpBusy]);
 
   const treasury = treasuries.find((item) => item.id === treasuryId) ?? null;
-  const principal = Number(treasury?.principalAmountWstETH ?? "0");
-  const dailyYieldAsset = principal * (market.aprPercent / 100) / 365;
-  const dailyYieldUsd = dailyYieldAsset * market.ethUsd;
   const hasEnoughTopUpBalance = Number(topUpAmount || "0") <= Number(walletAssetBalance || "0");
+  const canWithdrawPrincipal = Number(withdrawAmount || "0") <= Number(treasury?.principalAmountWstETH ?? "0");
 
   const connectWallet = React.useCallback(async () => {
     const provider = getProvider();
@@ -261,6 +270,75 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
       setTopUpBusy(false);
     }
   }, [hasEnoughTopUpBalance, manifest, topUpAmount, treasury, walletAddress]);
+
+  const withdrawPrincipal = React.useCallback(async () => {
+    const provider = getProvider();
+    if (!provider || !walletAddress || !manifest || !treasury) {
+      setWithdrawStatus("Connect your wallet first.");
+      return;
+    }
+
+    if (!canWithdrawPrincipal) {
+      setWithdrawStatus("Requested principal withdrawal exceeds the protected principal currently recorded in this treasury.");
+      return;
+    }
+
+    setWithdrawBusy(true);
+
+    try {
+      await ensureBaseNetwork(provider);
+      const walletClient = createWalletClient({
+        account: walletAddress,
+        chain: base,
+        transport: custom(provider),
+      });
+
+      if (!factoryAddress) {
+        throw new Error("Operator factory not found. Create a treasury first from the main page.");
+      }
+
+      try {
+        await publicClient.readContract({
+          address: factoryAddress,
+          abi: manifest.factory.abi,
+          functionName: "treasuryOperator",
+          args: ["0x0000000000000000000000000000000000000000"],
+        });
+      } catch {
+        window.localStorage.removeItem(FACTORY_STORAGE_KEY);
+        setFactoryAddress(null);
+        throw new Error("Stored operator factory is invalid. Go back to the main page and create the treasury again.");
+      }
+
+      const withdrawWei = parseUnits(withdrawAmount, 18);
+      const withdrawTx = await walletClient.writeContract({
+        address: factoryAddress,
+        abi: manifest.factory.abi,
+        functionName: "withdrawPrincipal",
+        args: [treasury.treasuryAddress, withdrawWei],
+      });
+      await publicClient.waitForTransactionReceipt({ hash: withdrawTx });
+
+      setTreasuries((current) => {
+        const next = current.map((item) =>
+          item.id === treasury.id
+            ? {
+                ...item,
+                principalAmountWstETH: String(Math.max(0, Number(item.principalAmountWstETH ?? "0") - Number(withdrawAmount || "0")).toFixed(6)),
+              }
+            : item,
+        );
+        writeStoredTreasuries(next);
+        return next;
+      });
+
+      setWithdrawStatus(`Withdrew ${withdrawAmount} wstETH of protected principal back to the connected operator wallet.`);
+    } catch (error) {
+      setWithdrawStatus(toErrorMessage(error));
+    } finally {
+      setWithdrawBusy(false);
+    }
+  }, [canWithdrawPrincipal, factoryAddress, manifest, treasury, walletAddress, withdrawAmount]);
 
   const assignAgentBudget = React.useCallback(async () => {
     const provider = getProvider();
@@ -436,38 +514,42 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
         </div>
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-3">
+      <section className="mt-6">
         <Card className="panel-surface">
           <CardHeader>
             <SectionLabel>Treasury Workspace</SectionLabel>
             <CardTitle>Core treasury stats</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-3 md:grid-cols-2">
+          <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <StatCard
               label="Principal"
               value={treasury.principalAmountWstETH ? `${treasury.principalAmountWstETH} wstETH` : "Not funded"}
               detail="Principal capital held in the treasury."
             />
             <StatCard
-              label="Current APR"
+              label="Spendable amount"
+              value={treasury.spendableTopUpWstETH ? `${treasury.spendableTopUpWstETH} wstETH` : "0 wstETH"}
+              detail="Directly funded spendable headroom available for agents to work with immediately."
+            />
+            <StatCard
+              label="wstETH APR"
               value={`${market.aprPercent.toFixed(1)}%`}
-              detail="Yield reference for the principal asset."
-            />
-            <StatCard
-              label="Agent budget / day"
-              value={`${dailyYieldAsset.toFixed(6)} wstETH`}
-              detail="Estimated daily allowance capacity."
-            />
-            <StatCard
-              label="Agent budget / day"
-              value={formatUsd(dailyYieldUsd)}
-              detail="Estimated daily value in USD."
-            />
-            <StatCard
-              label="Immediate spendable top-up"
-              value={treasury.spendableTopUpWstETH ? `${treasury.spendableTopUpWstETH} wstETH` : "None yet"}
-              detail="Directly funded amount that is immediately spendable above protected principal."
-            />
+              detail="Yield reference for wstETH. Use the official Lido pool and wrap flow as the source context."
+            >
+              <a
+                href="https://help.lido.fi/en/articles/5231836-what-is-lido-s-wsteth"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white px-3 py-2 text-sm font-medium text-[#010400]"
+              >
+                <img
+                  src="https://s2.coinmarketcap.com/static/img/coins/64x64/12409.png"
+                  alt="wstETH"
+                  className="h-5 w-5 rounded-full"
+                />
+                View wstETH on Lido
+              </a>
+            </StatCard>
             <StatCard
               label="Active agents"
               value={String(treasury.allowances.length)}
@@ -480,11 +562,122 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
             />
           </CardContent>
         </Card>
+      </section>
+
+      <section className="mt-6">
+        <Card className="panel-surface">
+          <CardHeader>
+            <SectionLabel>Assigned Agent Budgets</SectionLabel>
+            <CardTitle>Current agents and spendings</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {treasury.allowances.length ? (
+              treasury.allowances.map((allowance) => (
+                <div key={allowance.id} className="metric-tile">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-base font-semibold text-[#010400]">{allowance.label}</p>
+                      <p className={`mt-1 ${helperClassName()}`}>{shortAddress(allowance.executor)}</p>
+                    </div>
+                    <Badge variant="secondary">{allowance.amountWstETH} wstETH</Badge>
+                  </div>
+                  <div className={`mt-3 grid gap-2 ${helperClassName()}`}>
+                    <p>Total allowed to spend: {allowance.amountWstETH} wstETH</p>
+                    <p>Current spend: {allowance.spentWstETH ?? "0"} wstETH</p>
+                    <p>
+                      Percent spent:{" "}
+                      {(
+                        Math.min(
+                          100,
+                          Math.max(
+                            0,
+                            ((Number(allowance.spentWstETH ?? "0") || 0) / Math.max(Number(allowance.amountWstETH) || 1, 1e-12)) * 100,
+                          ),
+                        )
+                      ).toFixed(1)}
+                      %
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="metric-tile">
+                <p className="text-base font-semibold text-[#010400]">No agents yet</p>
+                <p className={`mt-2 ${helperClassName()}`}>Assign the first allowance to populate this workspace.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="mt-6 grid gap-6 lg:grid-cols-3">
+        <Card className="panel-surface">
+          <CardHeader>
+            <SectionLabel>Agent Budgeting</SectionLabel>
+            <CardTitle>Deploy a new agent allowance</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-[#010400]">Agent name</label>
+                <input
+                  className={inputClassName()}
+                  value={agentLabel}
+                  onChange={(event) => setAgentLabel(event.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-[#010400]">
+                  <span>Agent spending cap</span>
+                  <InfoHint text="This is the total maximum wstETH this treasury lets this agent spend under the current budget. It does not reset daily yet, and it is not a percentage split." />
+                </label>
+                <input
+                  className={inputClassName()}
+                  value={agentAmount}
+                  onChange={(event) => setAgentAmount(event.target.value)}
+                  placeholder="0.01 wstETH"
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-[#010400]">
+                  <span>Agent wallet address</span>
+                  <InfoHint text="This wallet is used as both the agent executor and the approved recipient in the current demo flow." />
+                </label>
+                <input
+                  className={inputClassName()}
+                  value={agentWallet}
+                  onChange={(event) => setAgentWallet(event.target.value)}
+                  placeholder="0x..."
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Button onClick={() => void assignAgentBudget()} disabled={allowanceBusy || !walletAddress || !manifest}>
+                {allowanceBusy ? (
+                  <>
+                    <ButtonSpinner />
+                    {allowanceStep ?? "Working..."}
+                  </>
+                ) : (
+                  "Assign allowance"
+                )}
+              </Button>
+            </div>
+
+            <p className={helperClassName()}>{allowanceStatus}</p>
+          </CardContent>
+        </Card>
 
         <Card className="panel-surface">
           <CardHeader>
             <SectionLabel>Immediate Spendable Amount</SectionLabel>
-            <CardTitle>Add direct spendable headroom</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <span>Add direct spendable headroom</span>
+              <InfoHint text="This sends extra wstETH directly into the treasury so the treasury can support spending immediately without waiting for yield accrual." />
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -521,104 +714,56 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
               )}
             </Button>
 
-            <p className={helperClassName()}>
-              This sends extra `wstETH` directly into the treasury, so it can be used immediately without waiting for yield accrual.
-            </p>
             <p className={helperClassName()}>{topUpStatus}</p>
           </CardContent>
         </Card>
 
         <Card className="panel-surface">
           <CardHeader>
-            <SectionLabel>Create New Allowance</SectionLabel>
-            <CardTitle>Assign an agent budget</CardTitle>
+            <SectionLabel>Withdraw Principal</SectionLabel>
+            <CardTitle className="flex items-center gap-2">
+              <span>Return protected funds</span>
+              <InfoHint text="This withdraws protected principal back to the connected operator wallet. It reduces the treasury's protected base capital." />
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[#010400]">Agent name</label>
-                <input
-                  className={inputClassName()}
-                  value={agentLabel}
-                  onChange={(event) => setAgentLabel(event.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-[#010400]">
-                  <span>Agent spending cap</span>
-                  <InfoHint text="This is the total maximum wstETH this treasury lets this agent spend under the current budget. It does not reset daily yet, and it is not a percentage split." />
-                </label>
-                <input
-                  className={inputClassName()}
-                  value={agentAmount}
-                  onChange={(event) => setAgentAmount(event.target.value)}
-                  placeholder="0.01 wstETH"
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium text-[#010400]">Agent wallet address</label>
-                <input
-                  className={inputClassName()}
-                  value={agentWallet}
-                  onChange={(event) => setAgentWallet(event.target.value)}
-                  placeholder="0x..."
-                />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#010400]">Withdraw amount</label>
+              <input
+                className={inputClassName()}
+                value={withdrawAmount}
+                onChange={(event) => setWithdrawAmount(event.target.value)}
+                placeholder="0.001 wstETH"
+              />
+              <div className="flex items-center justify-between gap-3">
                 <p className={helperClassName()}>
-                  This single address is used as the agent executor and the approved recipient for the demo flow.
+                  Protected principal: {Number(treasury.principalAmountWstETH ?? "0").toFixed(6)} wstETH
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setWithdrawAmount(Number(treasury.principalAmountWstETH ?? "0").toFixed(6))}
+                  className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
+                >
+                  Use max
+                </button>
               </div>
+              {!canWithdrawPrincipal ? (
+                <p className="text-sm text-[#cd5334]">Requested withdrawal is above the treasury's protected principal.</p>
+              ) : null}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <Button onClick={() => void assignAgentBudget()} disabled={allowanceBusy || !walletAddress || !manifest}>
-                {allowanceBusy ? (
-                  <>
-                    <ButtonSpinner />
-                    {allowanceStep ?? "Working..."}
-                  </>
-                ) : (
-                  "Assign allowance"
-                )}
-              </Button>
-            </div>
+            <Button onClick={() => void withdrawPrincipal()} disabled={withdrawBusy || !walletAddress || !manifest || !canWithdrawPrincipal}>
+              {withdrawBusy ? (
+                <>
+                  <ButtonSpinner />
+                  Withdrawing...
+                </>
+              ) : (
+                "Withdraw principal"
+              )}
+            </Button>
 
-            <p className={helperClassName()}>{allowanceStatus}</p>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="mt-6">
-        <Card className="panel-surface">
-          <CardHeader>
-            <SectionLabel>Assigned Agent Budgets</SectionLabel>
-            <CardTitle>Current agents and spendings</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {treasury.allowances.length ? (
-              treasury.allowances.map((allowance) => (
-                <div key={allowance.id} className="metric-tile">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-base font-semibold text-[#010400]">{allowance.label}</p>
-                      <p className={`mt-1 ${helperClassName()}`}>{shortAddress(allowance.executor)}</p>
-                    </div>
-                    <Badge variant="secondary">{allowance.amountWstETH} wstETH</Badge>
-                  </div>
-                  <div className={`mt-3 grid gap-2 ${helperClassName()}`}>
-                    <p>Budget manager: {shortAddress(allowance.manager)}</p>
-                    <p>Agent wallet: {shortAddress(allowance.executor)}</p>
-                    <p>Current spend: {allowance.spentWstETH ?? "0"} wstETH</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="metric-tile">
-                <p className="text-base font-semibold text-[#010400]">No agents yet</p>
-                <p className={`mt-2 ${helperClassName()}`}>Assign the first allowance to populate this workspace.</p>
-              </div>
-            )}
+            <p className={helperClassName()}>{withdrawStatus}</p>
           </CardContent>
         </Card>
       </section>

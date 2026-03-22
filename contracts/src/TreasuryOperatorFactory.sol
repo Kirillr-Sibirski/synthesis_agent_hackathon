@@ -34,6 +34,11 @@ contract TreasuryOperatorFactory {
         uint128 amountWstETH,
         string label
     );
+    event PrincipalWithdrawn(
+        address indexed treasury,
+        address indexed operator,
+        uint256 amountWstETH
+    );
 
     error UnauthorizedOperator();
     error InvalidAgent();
@@ -91,6 +96,13 @@ contract TreasuryOperatorFactory {
         WstETHYieldTreasury treasury = WstETHYieldTreasury(treasuryAddress);
         DelegationAuthorizer authorizer = DelegationAuthorizer(address(treasury.authorizer()));
         return _assignAllowance(treasury, authorizer, msg.sender, label, agent, amountWstETH);
+    }
+
+    function withdrawPrincipal(address treasuryAddress, uint256 amountWstETH) external {
+        if (treasuryOperator[treasuryAddress] != msg.sender) revert UnauthorizedOperator();
+        WstETHYieldTreasury treasury = WstETHYieldTreasury(treasuryAddress);
+        treasury.withdrawPrincipal(amountWstETH, msg.sender);
+        emit PrincipalWithdrawn(treasuryAddress, msg.sender, amountWstETH);
     }
 
     function _assignAllowance(

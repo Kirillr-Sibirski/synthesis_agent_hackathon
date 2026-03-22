@@ -58,6 +58,7 @@ contract WstETHYieldTreasury {
     event AuthorizerUpdated(address indexed authorizer);
     event PrincipalBaselineSynced(uint256 previousBaselineStETH, uint256 newBaselineStETH);
     event PrincipalBaselineWstETHSynced(uint256 previousBaselineWstETH, uint256 newBaselineWstETH);
+    event PrincipalWithdrawn(address indexed recipient, uint256 wstETHAmount, uint256 newPrincipalFloorWstETH);
 
     error OnlyOwner();
     error ZeroAmount();
@@ -74,6 +75,7 @@ contract WstETHYieldTreasury {
     error InvalidBudgetHierarchy();
     error BudgetManagerUnauthorized();
     error ChildBudgetReservationExceeded();
+    error PrincipalWithdrawalExceeded();
 
     constructor(address asset_, address owner_) {
         asset = IWstETH(asset_);
@@ -104,6 +106,27 @@ contract WstETHYieldTreasury {
             principalBaselineWstETH += amountWstETH;
             emit Deposited(msg.sender, amountWstETH, principalBaselineWstETH, 0);
         }
+    }
+
+    function withdrawPrincipal(uint256 amountWstETH, address recipient) external {
+        if (msg.sender != owner) revert OnlyOwner();
+        if (amountWstETH == 0) revert ZeroAmount();
+        if (amountWstETH > currentPrincipalFloorWstETH()) revert PrincipalWithdrawalExceeded();
+
+        if (rateConversionsAvailable) {
+            uint256 amountStETH = _getStETHByWstETH(amountWstETH);
+            if (amountStETH > principalBaselineStETH) revert PrincipalWithdrawalExceeded();
+            principalBaselineStETH -= amountStETH;
+        } else {
+            if (amountWstETH > principalBaselineWstETH) revert PrincipalWithdrawalExceeded();
+            principalBaselineWstETH -= amountWstETH;
+        }
+
+        bool ok = asset.transfer(recipient, amountWstETH);
+        if (!ok) revert TransferFailed();
+        if (totalBudgetAllocated > availableYieldInWstETH()) revert PrincipalWouldBeTouched();
+
+        emit PrincipalWithdrawn(recipient, amountWstETH, currentPrincipalFloorWstETH());
     }
 
     function configureBudget(
