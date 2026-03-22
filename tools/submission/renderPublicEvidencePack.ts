@@ -61,7 +61,10 @@ function main() {
   const cutoverReady = cutover?.readiness?.readyForBaseMainnetCutoverEnv === true;
   const frontendReady = frontend?.readiness?.readyForFrontendSameNetworkDemoConfig === true;
   const overallReady = readiness?.summary?.overallReadyForSameNetworkDemoSubmission === true;
+  const bestUseOfDelegationsHonest = readiness?.trackQualification?.bestUseOfDelegations?.currentlyHonest === true;
+  const stEthAgentTreasuryHonest = readiness?.trackQualification?.stEthAgentTreasury?.currentlyHonest === true;
   const letTheAgentCookHonest = readiness?.trackQualification?.letTheAgentCook?.currentlyHonest === true;
+  const alreadyHonestForThreePlusTracks = honestTracks.length >= 3;
   const strongNow = honestTracks.map((track: string) => `**${trackLabel(track)}**`);
   const incompleteTracks = Object.entries(readiness?.trackQualification ?? {})
     .filter(([, value]) => !(value as any)?.currentlyHonest)
@@ -130,10 +133,15 @@ Latest generated preflight artifact:
 - bundler ready for selected-network user operations: \`${yesNo(preflight?.bundler?.readyForSelectedNetworkUserOps)}\`
 - ready for final same-network run: \`${yesNo(preflight?.readiness?.readyForFinalSameNetworkRun)}\`
 
-Honest blocker:
+Track-qualification status:
+${bestUseOfDelegationsHonest
+    ? '- honest now; live Base mainnet MetaMask smart-account proof is already recorded in `Memory/Deployments/base-mainnet-metamask-live.md`'
+    : '- not fully honest yet; final MetaMask delegation proof still needs to be completed on the truthful target path'}
+
+Fresh local rerun blocker:
 ${metaMaskReady
-    ? '- none; live Base mainnet MetaMask smart-account proof is already recorded in `Memory/Deployments/base-mainnet-metamask-live.md`'
-    : '- live Base Sepolia delegation-backed execution is now proven; the remaining MetaMask upgrade is reproducing that proof on the final same-network Base mainnet target'}
+    ? '- none; the current local env is already ready for the final same-network MetaMask rerun'
+    : '- the recorded proof is already strong, but the current local env is still pointed at an older / incomplete rerun state and needs final Base-mainnet-ready configuration before re-running it from scratch'}
 
 ## 5. Lido / \`wstETH\` same-network evidence
 
@@ -152,10 +160,15 @@ Latest cutover-env validation artifact:
 - backend roles fully separated: \`${yesNo(cutover?.roleSeparation?.backendFullySeparated)}\`
 - frontend roles fully separated in env: \`${yesNo(cutover?.roleSeparation?.frontendFullySeparated)}\`
 
-Honest blocker:
+Track-qualification status:
+${stEthAgentTreasuryHonest
+    ? '- honest now; the repo already records a real Base mainnet `wstETH` treasury path and live proof'
+    : '- not fully honest yet; a real Base mainnet `wstETH` deployment/env path still needs to be completed'}
+
+Fresh local rerun blocker:
 ${cutoverReady
-    ? '- none; the live Base mainnet `wstETH` treasury env is configured and validated'
-    : '- a real Base mainnet `wstETH` treasury deployment/env cutover still needs final live addresses, final role wiring, and proof collection'}
+    ? '- none; the current local cutover env validates for a fresh Base mainnet rerun'
+    : '- the recorded proof is already sufficient for honest track qualification, but the current local env still needs the final live addresses, role wiring, and cutover inputs before repeating the flow from scratch'}
 
 ## 6. Frontend / Let-the-Agent-Cook evidence
 
@@ -200,9 +213,13 @@ ${bullets(blockerList)}
 ${bullets(strongNow, '- none yet')}
 ### Credible but still incomplete
 ${bullets(incompleteTracks, '- none')}
-## 9. Fastest remaining path to honest 3+ track qualification
+## 9. Fastest remaining path
 
-${bullets(nextActions, '- no next actions emitted by the validator')}
+${alreadyHonestForThreePlusTracks
+    ? `The repo already honestly qualifies for at least 3 tracks from recorded public-safe evidence. The remaining work is about keeping a **fresh local rerun** and the **submission surface** aligned with that proof:
+
+${bullets(nextActions, '- no next actions emitted by the validator')}`
+    : bullets(nextActions, '- no next actions emitted by the validator')}
 ## 10. Final same-network handoff
 
 Current handoff status:
