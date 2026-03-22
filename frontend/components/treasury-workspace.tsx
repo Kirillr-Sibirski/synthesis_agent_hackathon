@@ -138,6 +138,9 @@ const receiptRegistryAbi = [
   },
 ] as const;
 
+const LOG_QUERY_WINDOW = 10_000n;
+const DEFAULT_RECEIPT_LOOKBACK_BLOCKS = 250_000n;
+
 function formatReceiptTimestamp(timestamp: bigint): string {
   return new Date(Number(timestamp) * 1000).toLocaleString();
 }
@@ -282,12 +285,27 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
     setReceiptsError(null);
 
     try {
-      const logs = await publicClient.getLogs({
-        address: treasury.receiptRegistryAddress,
-        event: receiptRegistryAbi[0],
-        fromBlock: 0n,
-        toBlock: "latest",
-      });
+      const latestBlock = await publicClient.getBlockNumber();
+      const earliestBlock = latestBlock > DEFAULT_RECEIPT_LOOKBACK_BLOCKS
+        ? latestBlock - DEFAULT_RECEIPT_LOOKBACK_BLOCKS
+        : 0n;
+      const logs = [];
+
+      for (let toBlock = latestBlock; toBlock >= earliestBlock;) {
+        const fromBlock = toBlock > LOG_QUERY_WINDOW ? toBlock - LOG_QUERY_WINDOW + 1n : 0n;
+        const boundedFromBlock = fromBlock < earliestBlock ? earliestBlock : fromBlock;
+
+        const batch = await publicClient.getLogs({
+          address: treasury.receiptRegistryAddress,
+          event: receiptRegistryAbi[0],
+          fromBlock: boundedFromBlock,
+          toBlock,
+        });
+        logs.push(...batch);
+
+        if (boundedFromBlock === 0n || boundedFromBlock === earliestBlock) break;
+        toBlock = boundedFromBlock - 1n;
+      }
 
       const nextReceipts: AgentReceipt[] = logs
         .filter((log) => {
