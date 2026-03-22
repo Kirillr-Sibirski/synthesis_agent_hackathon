@@ -97,7 +97,8 @@ Unless the human explicitly overrides them, use these known live demo defaults:
 - example paid hello-world amount: `1000000000000` wei of `wstETH` (`0.000001 wstETH`)
 
 That means:
-- if the human says the wallet has gas and the budget is allocated, do **not** ask again for treasury address or budget ID unless they explicitly want a different one
+- if the human says the wallet has gas and the budget is allocated, first try to auto-discover the assigned treasury and budget from recent `AllowanceAssigned` events for the agent wallet
+- do **not** ask again for treasury address or budget ID unless auto-discovery fails or the human explicitly wants a different one
 - use the live Base mainnet defaults above
 - execute the bundled example flow and return the transaction hashes
 
@@ -125,12 +126,13 @@ Optional env:
 - `AAP_RECIPIENT_ADDRESS` (defaults to the agent wallet address)
 - `AAP_METADATA_URI`
 - `AAP_TASK_TEXT`
+- `AAP_ALLOWANCE_LOOKBACK_BLOCKS`
 - `DRY_RUN=true`
 
-If the env is missing, the bundled script falls back to:
-- live Base mainnet treasury address
-- live `OPS_BUDGET` ID
-- example amount `0.000001 wstETH`
+If the env is missing, the bundled script:
+- scans recent Base mainnet `AllowanceAssigned` events for the current agent wallet to discover its assigned treasury and budget
+- falls back to the live demo treasury and budget only if discovery does not find a match
+- uses the example amount `0.000001 wstETH` unless overridden
 
 What this does:
 - calls `spendFromBudget(...)` on the AAP treasury
@@ -190,7 +192,7 @@ Your task:
 - make sure the treasury has actually sent some wstETH to the agent wallet
 - optionally override the example amount if they do not want the default tiny demo amount
 3. Do not continue until those prerequisites are satisfied.
-4. Once they are satisfied, do not ask again for treasury address or budget ID. Use the known live Base mainnet defaults from this skill unless the human explicitly overrides them.
+4. Once they are satisfied, do not ask again for treasury address or budget ID. First auto-discover the assigned treasury and budget from recent `AllowanceAssigned` events for the agent wallet, and only fall back to the known live Base mainnet defaults from this skill if discovery fails or the human explicitly overrides them.
 5. First run the bundled treasury claim flow so the wallet receives the small demo budget.
 6. Then use the agent wallet to send a paid "hello world" message to the deployed AgentMessageBoard contract by running:
    node --import tsx skill/skills/treasury-operator/scripts/post_demo_message.ts "hello world"

@@ -20,15 +20,41 @@ import { base, baseSepolia } from 'viem/chains';
 const TREASURY_ABI = parseAbi([
   'function spendFromBudget(bytes32 budgetId, address recipient, uint128 amountWstETH, bytes32 taskId, bytes32 receiptHash, bytes32 evidenceHash, bytes32 resultHash, string metadataURI) external',
 ]);
+const FACTORY_EVENT_ABI = parseAbi([
+  'event AllowanceAssigned(address indexed treasury, address indexed operator, address indexed agent, bytes32 budgetId, bytes32 ruleId, uint128 amountWstETH, string label)',
+]);
 
 const DEFAULT_AAP_TREASURY_ADDRESS = '0xe07402f1B072FB1Cc5651E763D2139c1218016C9' as const;
 const DEFAULT_AAP_BUDGET_ID = '0xb3e0fae8b586325ab4a14d8c2d0ed544d80af3db3bc870137bebb448314c0224' as const;
 const DEFAULT_AAP_AMOUNT_WSTETH = '0.000001' as const;
+const LOG_WINDOW = 10_000n;
+const DEFAULT_ALLOWANCE_LOOKBACK_BLOCKS = 250_000n;
 
 const chains = {
   base,
   'base-sepolia': baseSepolia,
 } as const;
+
+type AllowanceDiscoveryClient = {
+  getBlockNumber: () => Promise<bigint>;
+  getLogs: (args: {
+    event: (typeof FACTORY_EVENT_ABI)[0];
+    args: { agent: `0x${string}` };
+    fromBlock: bigint;
+    toBlock: bigint;
+  }) => Promise<Array<{
+    args: {
+      treasury?: `0x${string}`;
+      budgetId?: `0x${string}`;
+      amountWstETH?: bigint;
+      ruleId?: `0x${string}`;
+      label?: string;
+    };
+    blockNumber?: bigint;
+    logIndex?: number;
+    transactionHash?: `0x${string}`;
+  }>>;
+};
 
 type SupportedChain = keyof typeof chains;
 
@@ -75,6 +101,65 @@ function requireBytes32(name: string, value: string | undefined) {
   return value as `0x${string}`;
 }
 
+function parseLookbackBlocks() {
+  const raw = process.env.AAP_ALLOWANCE_LOOKBACK_BLOCKS?.trim();
+  if (!raw) return DEFAULT_ALLOWANCE_LOOKBACK_BLOCKS;
+
+  try {
+    return BigInt(raw);
+  } catch {
+    throw new Error('Invalid AAP_ALLOWANCE_LOOKBACK_BLOCKS. Expected an integer block count.');
+  }
+}
+
+async function discoverAssignedAllowance(
+  publicClient: AllowanceDiscoveryClient,
+  agent: `0x${string}`,
+) {
+  const latestBlock = await publicClient.getBlockNumber();
+  const lookback = parseLookbackBlocks();
+  const earliestBlock = latestBlock > lookback ? latestBlock - lookback : 0n;
+
+  for (let toBlock = latestBlock; toBlock >= earliestBlock;) {
+    const fromBlock = toBlock > LOG_WINDOW ? toBlock - LOG_WINDOW + 1n : 0n;
+    const boundedFromBlock = fromBlock < earliestBlock ? earliestBlock : fromBlock;
+
+    const logs = await publicClient.getLogs({
+      event: FACTORY_EVENT_ABI[0],
+      args: { agent },
+      fromBlock: boundedFromBlock,
+      toBlock,
+    });
+
+    if (logs.length) {
+      const latest = [...logs].sort((left, right) => {
+        if (left.blockNumber === right.blockNumber) {
+          return Number((right.logIndex ?? 0) - (left.logIndex ?? 0));
+        }
+        return Number((right.blockNumber ?? 0n) - (left.blockNumber ?? 0n));
+      })[0];
+
+      const { treasury, budgetId, amountWstETH, ruleId, label } = latest.args;
+      if (treasury && budgetId && amountWstETH !== undefined) {
+        return {
+          treasuryAddress: getAddress(treasury),
+          budgetId,
+          amountWstETH,
+          ruleId,
+          label: label ?? '',
+          blockNumber: latest.blockNumber?.toString() ?? null,
+          transactionHash: latest.transactionHash,
+        };
+      }
+    }
+
+    if (boundedFromBlock === 0n || boundedFromBlock === earliestBlock) break;
+    toBlock = boundedFromBlock - 1n;
+  }
+
+  return null;
+}
+
 async function main() {
   const chainKey = resolveChainKey();
   const chain = chains[chainKey];
@@ -90,22 +175,35 @@ async function main() {
   }
 
   const amountRaw = process.env.AAP_AMOUNT_WSTETH?.trim() || DEFAULT_AAP_AMOUNT_WSTETH;
-
-  const budgetId = requireBytes32('AAP_BUDGET_ID', process.env.AAP_BUDGET_ID?.trim() || DEFAULT_AAP_BUDGET_ID);
-  const recipient = getAddress(process.env.AAP_RECIPIENT_ADDRESS?.trim() || account.address);
-  const treasuryAddress = getAddress(treasuryAddressRaw);
   const amountWstETH = parseUnits(amountRaw, 18);
 
+  const transport = http(rpcUrl);
+  const publicClient = createPublicClient({ chain, transport });
+  const walletClient = createWalletClient({ account, chain, transport });
+
+  const discoveredAllowance =
+    process.env.AAP_TREASURY_ADDRESS?.trim() && process.env.AAP_BUDGET_ID?.trim()
+      ? null
+      : await discoverAssignedAllowance(publicClient, account.address);
+
+  const treasuryAddress = getAddress(
+    process.env.AAP_TREASURY_ADDRESS?.trim()
+      || discoveredAllowance?.treasuryAddress
+      || treasuryAddressRaw,
+  );
+  const budgetId = requireBytes32(
+    'AAP_BUDGET_ID',
+    process.env.AAP_BUDGET_ID?.trim()
+      || discoveredAllowance?.budgetId
+      || DEFAULT_AAP_BUDGET_ID,
+  );
+  const recipient = getAddress(process.env.AAP_RECIPIENT_ADDRESS?.trim() || account.address);
   const nowIso = new Date().toISOString();
   const taskId = keccak256(stringToHex(`task:${taskText}`));
   const evidenceHash = keccak256(stringToHex(`evidence:${taskText}`));
   const resultHash = keccak256(stringToHex(`result:pending:${taskText}:${nowIso}`));
   const receiptHash = keccak256(stringToHex(`receipt:${budgetId}:${recipient}:${amountRaw}:${taskText}:${nowIso}`));
   const metadataURI = process.env.AAP_METADATA_URI?.trim() || `aap://task/${taskId}`;
-
-  const transport = http(rpcUrl);
-  const publicClient = createPublicClient({ chain, transport });
-  const walletClient = createWalletClient({ account, chain, transport });
 
   const request = {
     abi: TREASURY_ABI,
@@ -123,6 +221,7 @@ async function main() {
       recipient,
       budgetId,
       amountWstETH: amountRaw,
+      discoveredAllowance,
       taskText,
       taskId,
       receiptHash,
@@ -144,6 +243,7 @@ async function main() {
     recipient,
     budgetId,
     amountWstETH: formatUnits(amountWstETH, 18),
+    discoveredAllowance,
     taskText,
     taskId,
     receiptHash,
