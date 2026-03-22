@@ -65,6 +65,8 @@ export type ManagedTreasury = {
   };
   principalAmountWstETH?: string;
   principalDepositTxHash?: Hex;
+  spendableTopUpWstETH?: string;
+  spendableTopUpTxHash?: Hex;
   allowances: ManagedAllowance[];
 };
 
@@ -83,6 +85,16 @@ export const erc20Abi = [
     stateMutability: "view",
     inputs: [{ name: "account", type: "address" }],
     outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "transfer",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ type: "bool" }],
   },
   {
     type: "function",
@@ -120,6 +132,8 @@ export function readStoredTreasuries(): ManagedTreasury[] {
       },
       principalAmountWstETH: treasury.principalAmountWstETH,
       principalDepositTxHash: treasury.principalDepositTxHash,
+      spendableTopUpWstETH: treasury.spendableTopUpWstETH,
+      spendableTopUpTxHash: treasury.spendableTopUpTxHash,
       allowances: treasury.allowances ?? [],
     }));
   } catch {

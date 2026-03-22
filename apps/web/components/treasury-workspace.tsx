@@ -7,6 +7,7 @@ import {
   createWalletClient,
   custom,
   decodeEventLog,
+  formatUnits,
   getAddress,
   parseUnits,
   type Address,
@@ -20,6 +21,7 @@ import { shortAddress } from "@/lib/format";
 
 import {
   ensureBaseNetwork,
+  erc20Abi,
   FACTORY_STORAGE_KEY,
   formatUsd,
   getProvider,
@@ -41,6 +43,18 @@ function SectionLabel({ children }: { children: React.ReactNode }): React.JSX.El
 
 function ButtonSpinner(): React.JSX.Element {
   return <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />;
+}
+
+function InfoHint({ text }: { text: string }): React.JSX.Element {
+  return (
+    <span
+      title={text}
+      aria-label={text}
+      className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-primary/20 bg-white text-xs font-semibold text-[#cd5334]"
+    >
+      i
+    </span>
+  );
 }
 
 function StatCard({
@@ -69,6 +83,11 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   const [manifest, setManifest] = React.useState<OperatorManifest | null>(null);
   const [factoryAddress, setFactoryAddress] = React.useState<Address | null>(null);
   const [treasuries, setTreasuries] = React.useState<ManagedTreasury[]>([]);
+  const [storageHydrated, setStorageHydrated] = React.useState(false);
+  const [walletAssetBalance, setWalletAssetBalance] = React.useState("0");
+  const [topUpAmount, setTopUpAmount] = React.useState("0.001");
+  const [topUpBusy, setTopUpBusy] = React.useState(false);
+  const [topUpStatus, setTopUpStatus] = React.useState("Add a directly funded amount to create immediate spendable headroom.");
   const [allowanceBusy, setAllowanceBusy] = React.useState(false);
   const [allowanceStep, setAllowanceStep] = React.useState<string | null>(null);
   const [allowanceStatus, setAllowanceStatus] = React.useState("Create an allowance for a single agent wallet.");
@@ -87,6 +106,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
         window.localStorage.removeItem(FACTORY_STORAGE_KEY);
       }
     }
+    setStorageHydrated(true);
   }, []);
 
   React.useEffect(() => {
@@ -113,8 +133,9 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
   }, []);
 
   React.useEffect(() => {
+    if (!storageHydrated) return;
     writeStoredTreasuries(treasuries);
-  }, [treasuries]);
+  }, [storageHydrated, treasuries]);
 
   React.useEffect(() => {
     void (async () => {
@@ -137,10 +158,29 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
     })();
   }, []);
 
+  React.useEffect(() => {
+    if (!walletAddress || !manifest) return;
+
+    void (async () => {
+      try {
+        const balance = await publicClient.readContract({
+          address: manifest.baseAssetAddress,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [walletAddress],
+        });
+        setWalletAssetBalance(formatUnits(balance, 18));
+      } catch {
+        setWalletAssetBalance("0");
+      }
+    })();
+  }, [manifest, walletAddress, topUpBusy]);
+
   const treasury = treasuries.find((item) => item.id === treasuryId) ?? null;
   const principal = Number(treasury?.principalAmountWstETH ?? "0");
   const dailyYieldAsset = principal * (market.aprPercent / 100) / 365;
   const dailyYieldUsd = dailyYieldAsset * market.ethUsd;
+  const hasEnoughTopUpBalance = Number(topUpAmount || "0") <= Number(walletAssetBalance || "0");
 
   const connectWallet = React.useCallback(async () => {
     const provider = getProvider();
@@ -165,8 +205,62 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
 
   const clearWallet = React.useCallback(() => {
     setWalletAddress(null);
+    setWalletAssetBalance("0");
     setWalletStatus("Wallet cleared for this app. Reconnect or switch accounts in MetaMask.");
   }, []);
+
+  const addSpendableTopUp = React.useCallback(async () => {
+    const provider = getProvider();
+    if (!provider || !walletAddress || !manifest || !treasury) {
+      setTopUpStatus("Connect your wallet first.");
+      return;
+    }
+
+    if (!hasEnoughTopUpBalance) {
+      setTopUpStatus("Not enough wstETH in the connected wallet for this top-up.");
+      return;
+    }
+
+    setTopUpBusy(true);
+
+    try {
+      await ensureBaseNetwork(provider);
+      const walletClient = createWalletClient({
+        account: walletAddress,
+        chain: base,
+        transport: custom(provider),
+      });
+
+      const topUpWei = parseUnits(topUpAmount, 18);
+      const topUpTx = await walletClient.writeContract({
+        address: manifest.baseAssetAddress,
+        abi: erc20Abi,
+        functionName: "transfer",
+        args: [treasury.treasuryAddress, topUpWei],
+      });
+      await publicClient.waitForTransactionReceipt({ hash: topUpTx });
+
+      setTreasuries((current) => {
+        const next = current.map((item) =>
+          item.id === treasury.id
+            ? {
+                ...item,
+                spendableTopUpWstETH: String((Number(item.spendableTopUpWstETH ?? "0") + Number(topUpAmount || "0")).toFixed(6)),
+                spendableTopUpTxHash: topUpTx,
+              }
+            : item,
+        );
+        writeStoredTreasuries(next);
+        return next;
+      });
+
+      setTopUpStatus(`Added ${topUpAmount} wstETH as immediate spendable headroom.`);
+    } catch (error) {
+      setTopUpStatus(toErrorMessage(error));
+    } finally {
+      setTopUpBusy(false);
+    }
+  }, [hasEnoughTopUpBalance, manifest, topUpAmount, treasury, walletAddress]);
 
   const assignAgentBudget = React.useCallback(async () => {
     const provider = getProvider();
@@ -342,7 +436,7 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
         </div>
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
+      <section className="mt-6 grid gap-6 lg:grid-cols-3">
         <Card className="panel-surface">
           <CardHeader>
             <SectionLabel>Treasury Workspace</SectionLabel>
@@ -370,6 +464,11 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
               detail="Estimated daily value in USD."
             />
             <StatCard
+              label="Immediate spendable top-up"
+              value={treasury.spendableTopUpWstETH ? `${treasury.spendableTopUpWstETH} wstETH` : "None yet"}
+              detail="Directly funded amount that is immediately spendable above protected principal."
+            />
+            <StatCard
               label="Active agents"
               value={String(treasury.allowances.length)}
               detail="Agents currently assigned to this treasury."
@@ -379,6 +478,53 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
               value={shortAddress(treasury.ownerAddress)}
               detail="Wallet that created and manages this treasury."
             />
+          </CardContent>
+        </Card>
+
+        <Card className="panel-surface">
+          <CardHeader>
+            <SectionLabel>Immediate Spendable Amount</SectionLabel>
+            <CardTitle>Add direct spendable headroom</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#010400]">Top-up amount</label>
+              <input
+                className={inputClassName()}
+                value={topUpAmount}
+                onChange={(event) => setTopUpAmount(event.target.value)}
+                placeholder="0.001 wstETH"
+              />
+              <div className="flex items-center justify-between gap-3">
+                <p className={helperClassName()}>Wallet balance: {Number(walletAssetBalance).toFixed(6)} wstETH</p>
+                <button
+                  type="button"
+                  onClick={() => setTopUpAmount(Number(walletAssetBalance).toFixed(6))}
+                  className={`rounded-full border border-primary/20 px-3 py-1 text-xs ${helperClassName()}`}
+                >
+                  Use max
+                </button>
+              </div>
+              {!hasEnoughTopUpBalance ? (
+                <p className="text-sm text-[#cd5334]">Connected wallet does not have enough wstETH for this top-up.</p>
+              ) : null}
+            </div>
+
+            <Button onClick={() => void addSpendableTopUp()} disabled={topUpBusy || !walletAddress || !manifest || !hasEnoughTopUpBalance}>
+              {topUpBusy ? (
+                <>
+                  <ButtonSpinner />
+                  Funding...
+                </>
+              ) : (
+                "Add spendable amount"
+              )}
+            </Button>
+
+            <p className={helperClassName()}>
+              This sends extra `wstETH` directly into the treasury, so it can be used immediately without waiting for yield accrual.
+            </p>
+            <p className={helperClassName()}>{topUpStatus}</p>
           </CardContent>
         </Card>
 
@@ -399,7 +545,10 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#010400]">Allowance amount</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-[#010400]">
+                  <span>Agent spending cap</span>
+                  <InfoHint text="This is the total maximum wstETH this treasury lets this agent spend under the current budget. It does not reset daily yet, and it is not a percentage split." />
+                </label>
                 <input
                   className={inputClassName()}
                   value={agentAmount}
@@ -433,9 +582,6 @@ export function TreasuryWorkspace({ treasuryId }: { treasuryId: string }): React
                   "Assign allowance"
                 )}
               </Button>
-              <p className={helperClassName()}>
-                This is now a single transaction: the operator factory creates the budget and the matching rule together.
-              </p>
             </div>
 
             <p className={helperClassName()}>{allowanceStatus}</p>

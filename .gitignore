@@ -30,3 +30,6 @@ artifacts/
 
 # Local frontend deployment config
 apps/web/public/config.json
+
+# Local agent wallets
+env/agent-wallets/

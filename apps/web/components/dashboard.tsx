@@ -118,6 +118,7 @@ export function Dashboard(): React.JSX.Element {
   const [manifest, setManifest] = React.useState<OperatorManifest | null>(null);
   const [market, setMarket] = React.useState<OperatorMarket>({ aprPercent: 2.4, ethUsd: 0, sourceNote: "" });
   const [managedTreasuries, setManagedTreasuries] = React.useState<ManagedTreasury[]>([]);
+  const [storageHydrated, setStorageHydrated] = React.useState(false);
   const [factoryAddress, setFactoryAddress] = React.useState<Address | null>(null);
   const [walletAssetBalance, setWalletAssetBalance] = React.useState("0");
   const [creationStatus, setCreationStatus] = React.useState("Create a treasury and make the first principal deposit in one guided flow.");
@@ -137,6 +138,7 @@ export function Dashboard(): React.JSX.Element {
         window.localStorage.removeItem(FACTORY_STORAGE_KEY);
       }
     }
+    setStorageHydrated(true);
   }, []);
 
   React.useEffect(() => {
@@ -163,8 +165,9 @@ export function Dashboard(): React.JSX.Element {
   }, []);
 
   React.useEffect(() => {
+    if (!storageHydrated) return;
     writeStoredTreasuries(managedTreasuries);
-  }, [managedTreasuries]);
+  }, [managedTreasuries, storageHydrated]);
 
   React.useEffect(() => {
     void (async () => {
