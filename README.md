@@ -6,26 +6,14 @@
 
 **Agent Allowance Protocol (AAP)** is a principal-protected `wstETH` treasury for AI agents.
 
-Historical working title: **Delegated Yield Treasury**.
-
 The core idea is simple:
 - a **human** funds the treasury
 - the **principal stays protected**
-- only **yield / spendable surplus** becomes usable
+- only **yield / spendable surplus** becomes usable by agents
 - that spend power can be split into **budgets and sub-budgets**
 - agents do **not** receive raw treasury ownership
 - agents act through **constrained authority** enforced by protocol rules and the MetaMask smart-account delegation path
-- every spend creates a **verifiable onchain receipt** tied to the exact rule that authorized it
-
-A useful mental model is:
-- human = parent
-- treasury = vault
-- agent = child / operator
-- sub-budget = allowance
-- delegation rules = spending guardrails
-- receipt = audit trail
-
-That framing is intuitive, but the implementation is serious: this repo is a Solidity + Foundry treasury system for letting agents operate with real bounded spending power instead of uncontrolled wallet access.
+- every spend creates a **verifiable onchain ERC-8004 receipt** tied to the exact rule that authorized it
 
 ## What Agent Allowance Protocol is
 
@@ -35,7 +23,7 @@ The protocol separates capital into two layers:
 1. **protected principal**
 2. **spendable yield / surplus headroom**
 
-The treasury owner funds the vault with a yield-bearing asset. In the sponsor-native path, that asset is real Base mainnet `wstETH`. The protocol tracks a protected principal floor separately from the value above that floor. Budgets are carved out of the spendable layer, not out of the protected base.
+The treasury owner funds the vault with a yield-bearing asset. The asset is real Base mainnet `wstETH`. The protocol tracks a protected principal floor separately from the value above that floor. Budgets are carved out of the spendable layer, not out of the protected base.
 
 That means an agent can have meaningful operational autonomy while the capital boundary remains enforceable.
 
@@ -162,9 +150,9 @@ That note includes:
 The fastest public judge index is:
 - `agent-artifacts/submission/public-evidence-pack.md`
 
-## Next.js judge dashboard
+## Next.js operator dashboard
 
-The judge dashboard lives in:
+The operator dashboard lives in:
 - `frontend/`
 - `frontend/README.md`
 
@@ -205,7 +193,7 @@ This repo is intentionally built around the strongest honest sponsor-native path
 
 ### Strongest tracks
 
-#### 1. Agents With Receipts — ERC-8004
+#### 1. Agents With Receipts — ERC-8004 (Protocol Labs)
 Why it fits:
 - receipts are central to the protocol
 - receipts contain execution evidence and authorization provenance
@@ -219,7 +207,7 @@ Main evidence:
 - `agent-artifacts/submission/public-evidence-pack.md`
 - `agent-artifacts/deployments/base-mainnet-metamask-live.md`
 
-#### 2. Best Use of Delegations
+#### 2. Best Use of Delegations (MetaMask)
 Why it fits:
 - constrained authority is core to the protocol
 - hierarchical budgets behave like allowance / sub-delegation structures
@@ -233,7 +221,7 @@ Main evidence:
 - `agent-artifacts/project-docs/metamask-integration-plan.md`
 - `agent-artifacts/deployments/base-mainnet-metamask-live.md`
 
-#### 3. stETH Agent Treasury
+#### 3. stETH Agent Treasury (lido)
 Why it fits:
 - the project is literally an agent treasury built around principal protection
 - only yield / surplus headroom is spendable
@@ -257,19 +245,17 @@ This repo is **agent-led and heavily agent-assisted**, but it is **not honestly 
 
 The stronger truthful framing is:
 - the agent substantially contributed to research, implementation, and integration
-- the repo includes public agent packaging and a judge dashboard
+- the repo includes public agent packaging and a operator dashboard
 - but human guidance and final intervention were required to unblock issues and ship the final version
 
 So this is a possible secondary track only if described carefully, not as fake total autonomy.
 
 ## How the agent was actually used
 
-This should be presented honestly.
-
 What happened:
 - the agent setup used for this project was **OpenClaw** running with **Codex-authenticated model access**, plus an always-on **heartbeat loop** for recurring review and progress checks
 - the agent also used an **Obsidian-style Markdown memory system** for persistent notes, working context, decision tracking, and submission-state recall across sessions
-- the agent continuously analyzed the project end-to-end against the hackathon and sponsor requirements
+- the agent continuously analyzed the project end-to-end against the hackathon and sponsor requirements (derived from the Synthesis skill)
 - its main role was checking that the implementation really met the target track requirements instead of only sounding aligned on paper
 - that analysis helped steer the project toward a credible Lido + Delegations + receipts combination with same-network proof
 - the agent also reviewed repo state, evidence, docs, and demo readiness so the public story stayed consistent with the real implementation
@@ -293,7 +279,7 @@ This repo now includes a dedicated skill for agents that should operate inside a
 
 The intended pattern is:
 1. a human bootstraps the treasury with protected `wstETH` principal
-2. the human assigns an agent allowance / budget cap
+2. the human assigns an agent allowance / budget cap + funds the wallet with some gas
 3. a separate OpenClaw agent loads the `treasury-operator` skill
 4. that agent gets its own wallet, reports only the public address, and spends only through the treasury rules
 5. each spend is recorded with receipt-linked proof
@@ -303,13 +289,15 @@ A simple example deployment is an **autonomous operator agent** that has a small
 - handling bounded operational spend
 - acting as a role-specific budget operator without ever controlling treasury principal
 
+The current skill deployment includes the use of a 'dummy' contract that allows us to test the agent again a real deployed contract. The contract has a function to receive the ERC-20 tokens and a message that the agent can sign.
+
 A good real-world framing is:
 > spin up a separate OpenClaw agent with the `treasury-operator` skill, give it a small allowance, and let it execute one narrow class of treasury-approved actions without ever exposing the treasury private keys.
 
 Important mental model:
 - the agent wallet is **not** the treasury
 - the budget lives in the treasury
-- the agent only gets constrained authority to spend up to its assigned cap
+- the agent only gets constrained authority to spend up to its assigned cap (thats derived from the yield and/or separate top up)
 
 ## Repo structure
 
