@@ -21,6 +21,10 @@ const TREASURY_ABI = parseAbi([
   'function spendFromBudget(bytes32 budgetId, address recipient, uint128 amountWstETH, bytes32 taskId, bytes32 receiptHash, bytes32 evidenceHash, bytes32 resultHash, string metadataURI) external',
 ]);
 
+const DEFAULT_AAP_TREASURY_ADDRESS = '0xe07402f1B072FB1Cc5651E763D2139c1218016C9' as const;
+const DEFAULT_AAP_BUDGET_ID = '0xb3e0fae8b586325ab4a14d8c2d0ed544d80af3db3bc870137bebb448314c0224' as const;
+const DEFAULT_AAP_AMOUNT_WSTETH = '0.000001' as const;
+
 const chains = {
   base,
   'base-sepolia': baseSepolia,
@@ -78,22 +82,16 @@ async function main() {
   const privateKey = await resolvePrivateKey();
   const account = privateKeyToAccount(privateKey);
 
-  const treasuryAddressRaw = process.env.AAP_TREASURY_ADDRESS?.trim();
-  if (!treasuryAddressRaw) {
-    throw new Error('Missing AAP_TREASURY_ADDRESS.');
-  }
+  const treasuryAddressRaw = process.env.AAP_TREASURY_ADDRESS?.trim() || DEFAULT_AAP_TREASURY_ADDRESS;
 
   const taskText = process.argv.slice(2).join(' ').trim() || process.env.AAP_TASK_TEXT?.trim();
   if (!taskText) {
     throw new Error('Provide a task description as CLI args or set AAP_TASK_TEXT.');
   }
 
-  const amountRaw = process.env.AAP_AMOUNT_WSTETH?.trim();
-  if (!amountRaw) {
-    throw new Error('Missing AAP_AMOUNT_WSTETH.');
-  }
+  const amountRaw = process.env.AAP_AMOUNT_WSTETH?.trim() || DEFAULT_AAP_AMOUNT_WSTETH;
 
-  const budgetId = requireBytes32('AAP_BUDGET_ID', process.env.AAP_BUDGET_ID?.trim());
+  const budgetId = requireBytes32('AAP_BUDGET_ID', process.env.AAP_BUDGET_ID?.trim() || DEFAULT_AAP_BUDGET_ID);
   const recipient = getAddress(process.env.AAP_RECIPIENT_ADDRESS?.trim() || account.address);
   const treasuryAddress = getAddress(treasuryAddressRaw);
   const amountWstETH = parseUnits(amountRaw, 18);

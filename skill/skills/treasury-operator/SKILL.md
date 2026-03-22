@@ -85,9 +85,27 @@ The current skill supports one concrete end-to-end path:
 1. claim an approved amount from AAP into the agent wallet
 2. optionally perform a simple follow-on onchain task with that wallet
 
+### Live Base mainnet demo defaults
+
+Unless the human explicitly overrides them, use these known live demo defaults:
+
+- AAP treasury: `0xe07402f1B072FB1Cc5651E763D2139c1218016C9`
+- AAP budget ID: `0xb3e0fae8b586325ab4a14d8c2d0ed544d80af3db3bc870137bebb448314c0224`
+- Base mainnet `wstETH`: `0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452`
+- paid hello-world contract: `0x440847B6CD69835B19486ed3B88E795633593203`
+- example claim amount: `0.000001 wstETH`
+- example paid hello-world amount: `1000000000000` wei of `wstETH` (`0.000001 wstETH`)
+
+That means:
+- if the human says the wallet has gas and the budget is allocated, do **not** ask again for treasury address or budget ID unless they explicitly want a different one
+- use the live Base mainnet defaults above
+- execute the bundled example flow and return the transaction hashes
+
 ### Claim the AAP budget into the agent wallet
 
-Use this when the human has already allocated a budget to the agent wallet and confirmed the amount / budget ID / treasury address.
+Use this when the human has already allocated a budget to the agent wallet.
+
+If the human does not specify overrides, use the live Base mainnet defaults above.
 
 Run:
 
@@ -109,6 +127,11 @@ Optional env:
 - `AAP_TASK_TEXT`
 - `DRY_RUN=true`
 
+If the env is missing, the bundled script falls back to:
+- live Base mainnet treasury address
+- live `OPS_BUDGET` ID
+- example amount `0.000001 wstETH`
+
 What this does:
 - calls `spendFromBudget(...)` on the AAP treasury
 - moves the approved `wstETH` amount to the agent wallet (or chosen recipient)
@@ -122,6 +145,13 @@ Recommended wording after success:
 ### Optional follow-on task: post a demo message onchain
 
 If the human wants a simple follow-on proof that the funded agent wallet can do something onchain after the AAP claim, use the message-board demo.
+
+This bundled example transaction is:
+- contract: `0x440847B6CD69835B19486ed3B88E795633593203`
+- function: `postMessage(address token, uint256 amount, string message)`
+- token: Base mainnet `wstETH` at `0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452`
+- default message: `hello world`
+- default amount: `1000000000000` wei of `wstETH`
 
 Run:
 
@@ -158,17 +188,19 @@ Your task:
 - fund the agent wallet with enough ETH for gas on the target chain
 - create a treasury allowance / budget for the agent
 - make sure the treasury has actually sent some wstETH to the agent wallet
-- specify the exact wstETH amount the agent should spend on the hello-world demo
+- optionally override the example amount if they do not want the default tiny demo amount
 3. Do not continue until those prerequisites are satisfied.
-4. Once they are satisfied, briefly explain that the treasury spend and this hello-world contract call are two separate onchain actions.
-5. Use the agent wallet to send a paid "hello world" message to the deployed AgentMessageBoard contract by running:
+4. Once they are satisfied, do not ask again for treasury address or budget ID. Use the known live Base mainnet defaults from this skill unless the human explicitly overrides them.
+5. First run the bundled treasury claim flow so the wallet receives the small demo budget.
+6. Then use the agent wallet to send a paid "hello world" message to the deployed AgentMessageBoard contract by running:
    node --import tsx skill/skills/treasury-operator/scripts/post_demo_message.ts "hello world"
-6. The hello-world task is hard coded:
+7. The hello-world task is hard coded:
 - call the deployed AgentMessageBoard contract
 - post the message `hello world`
-- send the human-specified amount of `wstETH` to that contract in the same flow
-7. Do not print any private key.
-8. After the transaction completes, return only:
+- send the example `wstETH` amount to that contract in the same flow unless the human explicitly overrides it
+8. Do not print any private key.
+9. After the transactions complete, return only:
+- the treasury claim transaction hash
 - the agent wallet address used
 - the message-board contract address
 - the amount of wstETH sent
@@ -183,7 +215,7 @@ Important:
 - do explicitly say the treasury receipt comes from the treasury spend
 - do explicitly say this transaction proves the agent used part of its funded budget onchain
 - if the wallet does not have enough wstETH or ETH, stop and say exactly what is missing
-- if the human has not specified the amount of wstETH to spend, stop and ask for it explicitly
+- do not stop to ask for treasury address or budget ID if the human already said the live demo wallet has gas and the budget is allocated
 ```
 
 ## What to tell the human after it runs

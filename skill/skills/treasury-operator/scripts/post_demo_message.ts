@@ -16,6 +16,10 @@ const ERC20_ABI = parseAbi([
   'function approve(address spender, uint256 value) external returns (bool)',
 ]);
 
+const DEFAULT_MESSAGE_BOARD_ADDRESS = '0x440847B6CD69835B19486ed3B88E795633593203' as const;
+const DEFAULT_WSTETH_ADDRESS = '0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452' as const;
+const DEFAULT_MESSAGE_AMOUNT_WEI = '1000000000000' as const;
+
 const chains = {
   base,
   'base-sepolia': baseSepolia,
@@ -67,10 +71,7 @@ async function main() {
   const privateKey = await resolvePrivateKey();
   const account = privateKeyToAccount(privateKey);
 
-  const addressRaw = process.env.AGENT_MESSAGE_BOARD_ADDRESS?.trim();
-  if (!addressRaw) {
-    throw new Error('Missing AGENT_MESSAGE_BOARD_ADDRESS.');
-  }
+  const addressRaw = process.env.AGENT_MESSAGE_BOARD_ADDRESS?.trim() || DEFAULT_MESSAGE_BOARD_ADDRESS;
 
   const message = process.argv.slice(2).join(' ').trim() || process.env.AGENT_DEMO_MESSAGE?.trim();
   if (!message) {
@@ -78,14 +79,8 @@ async function main() {
   }
 
   const boardAddress = getAddress(addressRaw);
-  const tokenRaw = process.env.WSTETH_ADDRESS?.trim();
-  if (!tokenRaw) {
-    throw new Error('Missing WSTETH_ADDRESS.');
-  }
-  const amountRaw = process.env.AGENT_MESSAGE_AMOUNT_WEI?.trim();
-  if (!amountRaw) {
-    throw new Error('Missing AGENT_MESSAGE_AMOUNT_WEI.');
-  }
+  const tokenRaw = process.env.WSTETH_ADDRESS?.trim() || DEFAULT_WSTETH_ADDRESS;
+  const amountRaw = process.env.AGENT_MESSAGE_AMOUNT_WEI?.trim() || DEFAULT_MESSAGE_AMOUNT_WEI;
   const amount = BigInt(amountRaw);
   if (amount <= 0n) {
     throw new Error('AGENT_MESSAGE_AMOUNT_WEI must be greater than 0.');
