@@ -8,8 +8,12 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { base, baseSepolia } from 'viem/chains';
 
 const MESSAGE_BOARD_ABI = parseAbi([
-  'function postMessage(string message) external',
-  'function lastMessage() external view returns (address sender, string message, bytes32 messageHash, uint64 timestamp)',
+  'function postMessage(address token, uint256 amount, string message) external',
+  'function lastMessage() external view returns (address sender, address token, uint256 amount, string message, bytes32 messageHash, uint64 timestamp)',
+]);
+
+const ERC20_ABI = parseAbi([
+  'function approve(address spender, uint256 value) external returns (bool)',
 ]);
 
 const chains = {
@@ -74,6 +78,20 @@ async function main() {
   }
 
   const boardAddress = getAddress(addressRaw);
+  const tokenRaw = process.env.WSTETH_ADDRESS?.trim();
+  if (!tokenRaw) {
+    throw new Error('Missing WSTETH_ADDRESS.');
+  }
+  const amountRaw = process.env.AGENT_MESSAGE_AMOUNT_WEI?.trim();
+  if (!amountRaw) {
+    throw new Error('Missing AGENT_MESSAGE_AMOUNT_WEI.');
+  }
+  const amount = BigInt(amountRaw);
+  if (amount <= 0n) {
+    throw new Error('AGENT_MESSAGE_AMOUNT_WEI must be greater than 0.');
+  }
+
+  const tokenAddress = getAddress(tokenRaw);
   const transport = http(rpcUrl);
 
   const publicClient = createPublicClient({ chain, transport });
@@ -87,7 +105,7 @@ async function main() {
     abi: MESSAGE_BOARD_ABI,
     address: boardAddress,
     functionName: 'postMessage',
-    args: [message],
+    args: [tokenAddress, amount, message],
     chain,
   } as const;
 
@@ -96,17 +114,33 @@ async function main() {
       chainId: chain.id,
       boardAddress,
       sender: account.address,
+      tokenAddress,
+      amountWei: amount.toString(),
       message,
+      approveCalldata: encodeFunctionData({
+        abi: ERC20_ABI,
+        functionName: 'approve',
+        args: [boardAddress, amount],
+      }),
       calldata: encodeFunctionData(request),
       dryRun: true,
     }, null, 2));
     return;
   }
 
+  const approvalHash = await (walletClient.writeContract as any)({
+    abi: ERC20_ABI,
+    address: tokenAddress,
+    functionName: 'approve',
+    args: [boardAddress, amount],
+    chain,
+  });
+  await publicClient.waitForTransactionReceipt({ hash: approvalHash });
+
   const hash = await (walletClient.writeContract as any)(request);
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
-  const [sender, storedMessage, messageHash, timestamp] = await (publicClient.readContract as any)({
+  const [sender, storedToken, storedAmount, storedMessage, messageHash, timestamp] = await (publicClient.readContract as any)({
     abi: MESSAGE_BOARD_ABI,
     address: boardAddress,
     functionName: 'lastMessage',
@@ -117,9 +151,12 @@ async function main() {
     chainId: chain.id,
     boardAddress,
     sender,
+    tokenAddress: storedToken,
+    amountWei: storedAmount.toString(),
     message: storedMessage,
     messageHash,
     timestamp: Number(timestamp),
+    approvalTransactionHash: approvalHash,
     transactionHash: receipt.transactionHash,
     blockNumber: receipt.blockNumber.toString(),
   }, null, 2));

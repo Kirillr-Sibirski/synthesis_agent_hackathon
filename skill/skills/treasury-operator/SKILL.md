@@ -131,6 +131,7 @@ node --import tsx skill/skills/treasury-operator/scripts/post_demo_message.ts "h
 
 Expected env:
 - `AGENT_MESSAGE_BOARD_ADDRESS`
+- `AGENT_MESSAGE_AMOUNT_WEI`
 - `AGENT_WALLET_FILE` or `AGENT_PRIVATE_KEY`
 - `AGENT_MESSAGE_CHAIN` or `METAMASK_CHAIN`
 - `AGENT_MESSAGE_RPC_URL` or normal repo RPC env
@@ -139,6 +140,60 @@ Be explicit when explaining the result:
 - do **not** say the message-board tx itself is the treasury receipt
 - do say the **AAP spend tx** is the treasury receipt-producing action
 - do say the **message-board tx** is a separate follow-on agent action using the gas-funded wallet
+- do say the contract pulls the configured `wstETH` amount from the agent wallet so the token transfer is visible onchain
+
+## Copy-paste agent task
+
+If the user wants a prompt they can paste into another OpenClaw agent, use this exact task:
+
+```text
+Use this skill and follow it exactly:
+https://github.com/Kirillr-Sibirski/synthesis_agent_hackathon/blob/main/skill/skills/treasury-operator/SKILL.md
+
+You are running the paid hello-world demo flow for Agent Allowance Protocol.
+
+Your task:
+1. If the agent wallet does not already exist, create one using the treasury-operator workflow and report only the public address.
+2. Stop and tell the human exactly what to do next before you proceed:
+- fund the agent wallet with enough ETH for gas on the target chain
+- create a treasury allowance / budget for the agent
+- make sure the treasury has actually sent some wstETH to the agent wallet
+- specify the exact wstETH amount the agent should spend on the hello-world demo
+3. Do not continue until those prerequisites are satisfied.
+4. Once they are satisfied, briefly explain that the treasury spend and this hello-world contract call are two separate onchain actions.
+5. Use the agent wallet to send a paid "hello world" message to the deployed AgentMessageBoard contract by running:
+   node --import tsx skill/skills/treasury-operator/scripts/post_demo_message.ts "hello world"
+6. The hello-world task is hard coded:
+- call the deployed AgentMessageBoard contract
+- post the message `hello world`
+- send the human-specified amount of `wstETH` to that contract in the same flow
+7. Do not print any private key.
+8. After the transaction completes, return only:
+- the agent wallet address used
+- the message-board contract address
+- the amount of wstETH sent
+- the approval transaction hash
+- the message transaction hash
+- the stored message
+- a one-sentence explanation that the visible wstETH transfer came from the agent wallet after receiving treasury-funded budget
+- one short instruction telling the human to open the message transaction hash on BaseScan and then show the treasury receipt separately
+
+Important:
+- do not claim this transaction is the treasury receipt
+- do explicitly say the treasury receipt comes from the treasury spend
+- do explicitly say this transaction proves the agent used part of its funded budget onchain
+- if the wallet does not have enough wstETH or ETH, stop and say exactly what is missing
+- if the human has not specified the amount of wstETH to spend, stop and ask for it explicitly
+```
+
+## What to tell the human after it runs
+
+After the paid hello-world flow succeeds, tell the human to:
+
+1. open the `approvalTransactionHash` in BaseScan only briefly if they want to prove token approval
+2. open the `messageTransactionHash` in BaseScan to show the actual hello-world call
+3. point out that the same flow also shows the visible `wstETH` transfer into the demo contract
+4. say clearly that the treasury receipt belongs to the earlier treasury spend, while this tx proves the agent used funded budget onchain
 
 ## How to describe the flow
 
