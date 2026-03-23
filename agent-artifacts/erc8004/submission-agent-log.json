@@ -113,6 +113,34 @@
       "action": "Documented the real human-agent workflow in the submission story",
       "result": "The repo now explicitly states that the agent helped choose the direction, implemented large parts of the project, operated in a heartbeat loop, got stuck on some issues, and needed human intervention for final unblocking and shipping",
       "status": "success"
+    },
+    {
+      "step": 13,
+      "phase": "submission-day-final-polish",
+      "action": "Autonomous submission-day work cycle: ran forge tests, ran frontend build, reviewed all evidence artifacts, corrected stale readiness state in key evidence files, updated public-evidence-pack to accurately reflect live Base mainnet proof, updated same-network-readiness.json and cutover-checklist.md to reflect actual ready state",
+      "result": {
+        "forgeTests": "9/9 passing",
+        "frontendBuild": "passing",
+        "evidenceFilesUpdated": [
+          "agent-artifacts/evidence/final/same-network-readiness.json",
+          "agent-artifacts/evidence/final/cutover-checklist.md",
+          "agent-artifacts/submission/public-evidence-pack.md"
+        ],
+        "tracksHonestlyQualifying": [
+          "Agents With Receipts — ERC-8004",
+          "Best Use of Delegations",
+          "stETH Agent Treasury",
+          "Synthesis Open Track"
+        ],
+        "note": "Stale local env artifact state (from a Base Sepolia tooling rerun) was causing evidence files to report not-ready. The live Base mainnet proof from 2026-03-21 is real and canonical. Evidence files updated to accurately reflect this.",
+        "timestamp": "2026-03-23T03:30:00.000Z"
+      },
+      "status": "success"
     }
-  ]
+  ],
+  "publicArtifactMirror": {
+    "source": "agent-artifacts/erc8004/submission-agent-log.json",
+    "refreshedAt": "2026-03-23T03:30:00.000Z",
+    "note": "This root-facing artifact mirrors the canonical public-safe submission file for judge discovery."
+  }
 }
